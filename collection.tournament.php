@@ -2,19 +2,19 @@
 class ForgeTournamentCollection extends DataCollection {
   public $permission = "manage.collection.sites";
 
-  private $item_id = null;
-  private $user_list = [];
-  private $event_list = [];
+  private $itemId = null;
+  private $userList = [];
+  private $eventList = [];
 
   protected function setup() {
-    $this->preferences['name'] = 'forge-tournaments';
+    $this->preferences['name'] = 'forge-tournaments'; //TODO: make this a class constant
     $this->preferences['title'] = i('Tournaments', 'forge-tournaments');
     $this->preferences['all-title'] = i('Manage tournaments', 'forge-tournaments');
     $this->preferences['add-label'] = i('Add tournament', 'forge-tournaments');
     $this->preferences['single-item'] = i('Tournament', 'forge-tournaments');
 
     foreach (User::getAll() as $user) {
-        array_push($this->user_list, ["value" => $user["id"], 
+        array_push($this->userList, ["value" => $user["id"], 
                                         "active" => false,
                                         "text" => $user["username"]]);
     }
@@ -25,7 +25,7 @@ class ForgeTournamentCollection extends DataCollection {
 
     $collection = App::instance()->cm->getCollection("forge-events");
     foreach ($collection->items() as $value) {
-        $this->event_list[$value->id] = $value->getName();
+        $this->eventList[$value->id] = $value->getName();
     }
 
     $this->custom_fields();
@@ -35,7 +35,7 @@ class ForgeTournamentCollection extends DataCollection {
   }
 
   public function customEditContent($id) {
-    $this->item_id = $id;
+    $this->itemId = $id;
 
     $return = '';
 
@@ -47,7 +47,7 @@ class ForgeTournamentCollection extends DataCollection {
         [
             'key' => 'event',
             'label' => i('Event', 'forge-tournaments'),
-            'values' => $this->event_list,
+            'values' => $this->eventList,
             'multilang' => false,
             'type' => 'select',
             'order' => 10,
@@ -57,7 +57,7 @@ class ForgeTournamentCollection extends DataCollection {
         [
             'key' => 'responsibles',
             'label' => i('Responsible persons', 'forge-tournaments'),
-            'values' => $this->user_list,
+            'values' => $this->userList,
             'multilang' => false,
             'type' => 'multiselect',
             'order' => 20,

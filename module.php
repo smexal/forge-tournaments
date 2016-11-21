@@ -21,6 +21,7 @@ class ForgeTournaments extends Module {
         Loader::instance()->loadDirectory(MOD_ROOT."forge-tournaments/views/");
 
         require_once($this->directory()."collection.tournament.php");
+        require_once($this->directory()."components/component.list.php");
 
         // backend
         Loader::instance()->addStyle("modules/forge-tournaments/assets/css/forge-tournaments.less");
