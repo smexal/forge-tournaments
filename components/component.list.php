@@ -43,7 +43,7 @@ class ForgeTournamentList extends Component {
             $eventList[$item->id] = $item->getName();
         }
 
-        return array_merge(['0' => i('Choose one', 'forge-tournaments')], $eventList);
+        return ['0' => i('Choose one', 'forge-tournaments')] + $eventList;
     }
 
     public function content() {

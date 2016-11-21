@@ -1,1 +1,37 @@
-forge-tournaments.less
+/* Components */
+.forge-tournament-list {
+    & > ul > li {
+        padding: 20px;
+
+        .thumb {
+            float: left;
+            padding-right: 20px;
+        }
+
+        .info {
+            height:64px
+        }
+    }
+}
+
+.forge-tournament-teaser {
+    .teaser {
+        min-height: 380px;
+        position: relative;
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+
+        .row {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+
+            span {
+                line-height: 36px;
+            }
+        }
+    }
+}
