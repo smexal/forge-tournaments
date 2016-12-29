@@ -1,8 +1,10 @@
-<?
+<?php
 
-use Forge\Tournaments;
+namespace Forge\Modules\ForgeTournaments;
 
-class ForgeTournaments extends Module {
+use \Forge\Core\Abstracts as Abstracts;
+
+class ForgeTournaments extends Abstracts\Module {
     private $permission = 'manage.forge-tournaments';
 
     public function setup() {

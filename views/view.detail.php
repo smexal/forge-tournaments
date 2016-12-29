@@ -1,5 +1,10 @@
 <?php
-class ForgeTournamentDetail extends AbstractView {
+
+namespace Forge\Modules\Tournaments;
+
+use Forge\Core\Abstracts as Abstracts;
+
+class ForgeTournamentDetail extends Abstracts\View {
     public $name = 'tournament-detail';
     public $allowNavigation = true;
     private $tournament = null;
