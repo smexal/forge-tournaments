@@ -74,8 +74,11 @@ class ForgeTournamentList extends Component {
             DOC_ROOT."modules/forge-tournaments/templates/",
             "list",
             ['tournaments' => $tournamentItems,
-                'enrollmentText' => i('Enroll now', 'forge-tournaments')]
-            );
+            'enrollment_label' => i('Enrollments', 'forge-tournaments'),
+            'start_label' => i('Start', 'forge-tournaments'),
+            'status_label' => i('Status', 'forge-tournaments'),
+            'enrollment_cta_label' => i('Enroll now', 'forge-tournaments')]
+        );
     }
 
     public function customBuilderContent() {

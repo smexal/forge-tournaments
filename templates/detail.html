@@ -1,0 +1,60 @@
+<section class="forge-tournament forge-tournament__detail" style="background-image: url('{$background}');">
+    <div class="wrapped">
+        <div class="info row">
+            <div class="col-sm-6 text">
+                <div class="head">
+                    <div class="thumb" style="background-image: url('{$thumbnail}');"></div>
+                    <h1>{$title}</h1>
+                </div>
+                <p class="short">
+                    {$short}
+                </p>
+                <p class="long">
+                    {$long}
+                </p>
+            </div>
+            <aside class="col-sm-6 quick">
+                <div class="start">
+                    <span class="title">{$start_label}</span>
+                    <div>{$start_date}</div>
+                </div>
+                <div class="enrollment">
+                    <span class="title">{$enrollment_label}</span>
+                    <div>{$current_participants} / {$max_participants}</div>
+                </div>
+                <div class="cta">
+                    <a class="btn btn-primary btn-lg" href="{$url_enrollment}">{$enrollment_cta_label}</a>
+                </div>
+            </aside>
+        </div>
+        <div class="row">
+            {if="$big!=''"}
+            <div class="col-sm-6">
+                <img class="" src="{$big}" />
+            </div>
+            {/if}
+            {if="count($prices)>0"}
+            <div class="col-sm-6 prices">
+                <h2>{$prices_title}</h2>
+                {loop="$prices"}
+                <div>
+                    {$value}
+                </div>
+                {/loop}
+            </div>
+            {/if}
+        </div>
+        {if="count($prices)>0"}
+        <div class="additional">
+            {loop="$additional"}
+            <div>
+                {$value}
+            </div>
+            {/loop}
+        </div>
+        {/if}
+        <div class="enrollment">
+
+        </div>
+    </div>
+</section>

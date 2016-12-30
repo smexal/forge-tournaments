@@ -1,17 +1,26 @@
-<div class="forge-tournament-list">
+<section class="forge-tournament forge-tournament__list">
     <ul>
+        <li class="header row visible-lg visible-md">
+            <div class="col-md-5"></div>
+            <div class="col-md-1">{$enrollment_label}</div>
+            <div class="col-md-2">{$start_label}</div>
+            <div class="col-md-2">{$status_label}</div>
+            <div class="col-md-2"></div>
+        </li>
         {loop="$tournaments"}
-        <li>
-            <img src="{$value.thumbnail}" class="thumb" />
-            <div class="info">
-                <a class="btn btn-primary pull-right" href="{$value.url_enrollment}">{$enrollmentText}</a>
-                <h3><a class="block" href="{$value.url}">{$value.title}</a></h3>
-                <span>{$value.max_participants} Teams / {$value.team_size} VS {$value.team_size}</span>
+        <li class="item row">
+            <div class="col-md-5 head">
+                <div class="thumb visible-lg-inline-block visible-md-inline-block" style="background-image: url({$value.thumbnail})"></div>
+                <h3 class="title"><a href="{$value.url}">{$value.title}</a></h3>
+                <span class="mode">{$value.team_size} <span class="vs">VS</span> {$value.team_size}</span>
             </div>
-            <div>
-                <span class="date">Beginn: {$value.date}</span>
+            <div class="col-md-1 participants">{$value.current_participants} / {$value.max_participants}</div>
+            <div class="col-md-2 startdate">{$value.date}</div>
+            <div class="col-md-2 status">Anmeldung</div>
+            <div class="col-md-2 enrollment">
+                <a class="btn btn-discreet btn-sm" href="{$value.url_enrollment}">{$enrollment_label}</a>
             </div>
         </li>
         {/loop}
     </ul>
-</div>
+</section>

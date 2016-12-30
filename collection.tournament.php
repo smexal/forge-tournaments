@@ -2,7 +2,6 @@
 class ForgeTournamentCollection extends DataCollection {
   public $permission = "manage.collection.sites";
 
-  private $itemId = null;
   private $userList = [];
   private $eventList = [];
 
@@ -14,7 +13,7 @@ class ForgeTournamentCollection extends DataCollection {
     $this->preferences['single-item'] = i('Tournament', 'forge-tournaments');
 
     foreach (User::getAll() as $user) {
-        array_push($this->userList, ["value" => $user["id"], 
+        array_push($this->userList, ["value" => $user["id"],
                                         "active" => false,
                                         "text" => $user["username"]]);
     }
@@ -29,17 +28,6 @@ class ForgeTournamentCollection extends DataCollection {
     }
 
     $this->custom_fields();
-  }
-
-  public function render($item) {
-  }
-
-  public function customEditContent($id) {
-    $this->itemId = $id;
-
-    $return = '';
-
-    return $return;
   }
 
   private function custom_fields() {
@@ -69,7 +57,7 @@ class ForgeTournamentCollection extends DataCollection {
             'label' => i('Max. participants', 'forge-tournaments'),
             'value' => 16,
             'multilang' => false,
-            'type' => 'text',
+            'type' => 'number',
             'order' => 30,
             'position' => 'right',
             'hint' => i('How many competitors can participate?', 'forge-tournaments')
@@ -89,7 +77,7 @@ class ForgeTournamentCollection extends DataCollection {
             'label' => i('Team size', 'forge-tournaments'),
             'value' => 8,
             'multilang' => false,
-            'type' => 'text',
+            'type' => 'number',
             'order' => 50,
             'position' => 'right',
         ],
@@ -98,7 +86,7 @@ class ForgeTournamentCollection extends DataCollection {
             'label' => i('Team substitutes', 'forge-tournaments'),
             'value' => 2,
             'multilang' => false,
-            'type' => 'text',
+            'type' => 'number',
             'order' => 50,
             'position' => 'right',
             'hint' => i('Amount of substitutes', 'forge-tournaments')
@@ -108,7 +96,7 @@ class ForgeTournamentCollection extends DataCollection {
             'label' => i('Game rules', 'forge-tournaments'),
             'value' => "",
             'multilang' => true,
-            'type' => 'text',
+            'type' => 'url',
             'order' => 60,
             'position' => 'right',
             'hint' => i('Link to the game rules', 'forge-tournaments')
@@ -152,13 +140,12 @@ class ForgeTournamentCollection extends DataCollection {
             'order' => 60,
             'position' => 'right',
         ],
-        // Datum & Uhrzeit des Beginns
         [
             'key' => 'start_time',
             'label' => i('Start time', 'forge-tournaments'),
             'value' => "",
             'multilang' => false,
-            'type' => 'text',
+            'type' => 'datetime',
             'order' => 60,
             'position' => 'right',
         ],
