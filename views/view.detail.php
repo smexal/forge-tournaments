@@ -2,9 +2,14 @@
 
 namespace Forge\Modules\Tournaments;
 
-use Forge\Core\Abstracts as Abstracts;
+use \Forge\Core\Abstracts\View;
+use \Forge\Core\App\App;
+use \Forge\Core\Classes\Fields;
+use \Forge\Core\Classes\Media;
 
-class ForgeTournamentDetail extends Abstracts\View {
+use function \Forge\Core\Classes\i;
+
+class ForgeTournamentDetail extends View {
     public $name = 'tournament-detail';
     public $allowNavigation = true;
     private $tournament = null;

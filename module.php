@@ -2,9 +2,15 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
-use \Forge\Core\Abstracts as Abstracts;
+use \Forge\Loader;
+use \Forge\Core\Abstracts\Module;
+use \Forge\Core\App\API;
+use \Forge\Core\App\Auth;
+use \Forge\Core\App\App;
 
-class ForgeTournaments extends Abstracts\Module {
+use function \Forge\Core\Classes\i;
+
+class ForgeTournaments extends Module {
     private $permission = 'manage.forge-tournaments';
 
     public function setup() {

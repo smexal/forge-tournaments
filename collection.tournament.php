@@ -1,9 +1,16 @@
 <?php
+
+namespace Forge\Modules\ForgeTournaments;
+
+use \Forge\Core\Abstracts\DataCollection;
+use \Forge\Core\App\App;
+use \Forge\Core\App\CollectionManager;
+use \Forge\Core\Classes\User;
+
+use function \Forge\Core\Classes\i;
+
 class ForgeTournamentCollection extends DataCollection {
   public $permission = "manage.collection.sites";
-
-  private $userList = [];
-  private $eventList = [];
 
   protected function setup() {
     $this->preferences['name'] = 'forge-tournaments'; //TODO: make this a class constant
@@ -12,30 +19,32 @@ class ForgeTournamentCollection extends DataCollection {
     $this->preferences['add-label'] = i('Add tournament', 'forge-tournaments');
     $this->preferences['single-item'] = i('Tournament', 'forge-tournaments');
 
-    foreach (User::getAll() as $user) {
-        array_push($this->userList, ["value" => $user["id"],
-                                        "active" => false,
-                                        "text" => $user["username"]]);
-    }
-
     if (is_null(App::instance()->cm)) {
         App::instance()->cm = new CollectionManager();
-    }
-
-    $collection = App::instance()->cm->getCollection("forge-events");
-    foreach ($collection->items() as $value) {
-        $this->eventList[$value->id] = $value->getName();
     }
 
     $this->custom_fields();
   }
 
   private function custom_fields() {
+    $userList = [];
+    // foreach (User::getAll() as $user) {
+    //     array_push($userList, ["value" => $user["id"],
+    //                             "active" => false,
+    //                             "text" => $user["username"]]);
+    // }
+
+    $eventList = [];
+    $collection = App::instance()->cm->getCollection("forge-events");
+    foreach ($collection->items() as $value) {
+        $eventList[$value->id] = $value->getName();
+    }
+
     $this->addFields([
         [
             'key' => 'event',
             'label' => i('Event', 'forge-tournaments'),
-            'values' => $this->eventList,
+            'values' => $eventList,
             'multilang' => false,
             'type' => 'select',
             'order' => 10,
@@ -45,7 +54,7 @@ class ForgeTournamentCollection extends DataCollection {
         [
             'key' => 'responsibles',
             'label' => i('Responsible persons', 'forge-tournaments'),
-            'values' => $this->userList,
+            'values' => $userList,
             'multilang' => false,
             'type' => 'multiselect',
             'order' => 20,
