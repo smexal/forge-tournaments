@@ -27,11 +27,10 @@ class ForgeTournaments extends Module {
         // always load these files
         Loader::instance()->loadDirectory(MOD_ROOT."forge-tournaments/classes/");
         Loader::instance()->loadDirectory(MOD_ROOT."forge-tournaments/views/");
+        Loader::instance()->loadDirectory(MOD_ROOT."forge-tournaments/components/");
 
         require_once($this->directory()."collection.tournament.php");
         require_once($this->directory()."collection.organisation.php");
-        require_once($this->directory()."components/component.list.php");
-        require_once($this->directory()."components/component.teaser.php");
 
         // backend
         Loader::instance()->addStyle("modules/forge-tournaments/assets/css/forge-tournaments.less");
