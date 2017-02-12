@@ -1,0 +1,15 @@
+<div class="forge-tournament bracket">
+{loop="encounterRounds"}
+    <div class="round round-{$value.round}">
+        <h4>{$value.round}</h4>
+        {loop="$value.encounters"}
+            <div class="encounter encounter-{$key}">
+                <div class="team_1 {$value.team_1.classes}">{$value.team_1.name}</div>
+                <div class="result">{$value.result}</div>
+                <div class="team_2 {$value.team_2.classes}">{$value.team_2.name}</div>
+            </div>
+        {/loop}
+    </div>
+{/loop}
+
+</div>
