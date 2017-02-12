@@ -7,9 +7,9 @@ use \Forge\Core\App\App;
 use \Forge\Core\App\CollectionManager;
 use \Forge\Core\Classes\User;
 
-use function \Forge\Core\Classes\i;
 
-class ForgeTournamentCollection extends DataCollection {
+
+class TournamentCollection extends DataCollection {
   public $permission = "manage.collection.sites";
 
   protected function setup() {

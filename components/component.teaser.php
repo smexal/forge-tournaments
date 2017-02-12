@@ -6,9 +6,9 @@ use \Forge\Core\Abstracts\Component;
 use \Forge\Core\App\App;
 use \Forge\Core\Classes\Media;
 
-use function \Forge\Core\Classes\i;
 
-class ForgeTournamentTeaser extends Component {
+
+class TeaserComponent extends Component {
     public $settings = [];
     private $prefix = 'forge_tournament_teaser_';
 
