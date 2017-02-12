@@ -7,7 +7,7 @@ use \Forge\Core\App\App;
 use \Forge\Core\Classes\Media;
 use \Forge\Core\Classes\Utils;
 
-class ForgeTournamentList extends Component {
+class ListComponent extends Component {
     public $settings = [];
     private $prefix = 'forge_tournament_list_';
 

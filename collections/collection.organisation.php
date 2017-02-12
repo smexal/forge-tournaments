@@ -5,7 +5,7 @@ namespace Forge\Modules\ForgeTournaments;
 use \Forge\Core\Abstracts\DataCollection;
 use \Forge\Core\Classes\User;
 
-class ForgeTournamentOrganisationCollection extends DataCollection {
+class OrganisationCollection extends DataCollection {
     public $permission = "manage.collection.sites";
 
     protected function setup() {

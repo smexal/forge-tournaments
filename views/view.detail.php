@@ -1,15 +1,15 @@
 <?php
 
-namespace Forge\Modules\Tournaments;
+namespace Forge\Modules\ForgeTournaments;
 
 use \Forge\Core\Abstracts\View;
 use \Forge\Core\App\App;
 use \Forge\Core\Classes\Fields;
 use \Forge\Core\Classes\Media;
 
-use function \Forge\Core\Classes\i;
 
-class ForgeTournamentDetail extends View {
+
+class DetailView extends View {
     public $name = 'tournament-detail';
     public $allowNavigation = true;
     private $tournament = null;

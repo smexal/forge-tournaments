@@ -54,13 +54,13 @@ class Bracket {
                     'team_1' => [
                         'name' => 'FNC',
                         'id' => null,
-                        'score' => 0,
+                        'score' => '',
                         'classes' => ''
                     ],
                     'team_2' => [
-                        'name' => 'NV',
+                        'name' => 'ENVY',
                         'id' => null,
-                        'score' => 0,
+                        'score' => '',
                         'classes' => ''
                     ],
                     'result' => ''
@@ -74,7 +74,6 @@ class Bracket {
      * @return html output
      */
     public function render() {
-        var_dump($this->encounters);
         return App::instance()->render(
             DOC_ROOT."modules/forge-tournaments/templates/",
             "bracket",
