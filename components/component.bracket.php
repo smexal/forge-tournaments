@@ -5,9 +5,7 @@ namespace Forge\Modules\ForgeTournaments;
 use \Forge\Core\Abstracts\Component;
 use \Forge\Core\App\App;
 
-use function \Forge\Core\Classes\i;
-
-class ForgeTournamentBracket extends Component {
+class BracketComponent extends Component {
     public $settings = [];
     private $prefix = 'forge_tournament_bracket_';
 
