@@ -7,8 +7,6 @@ use \Forge\Core\App\App;
 use \Forge\Core\Classes\Media;
 use \Forge\Core\Classes\Utils;
 
-use function \Forge\Core\Classes\i;
-
 class ForgeTournamentList extends Component {
     public $settings = [];
     private $prefix = 'forge_tournament_list_';

@@ -4,9 +4,14 @@
         <h4>{$value.round}</h4>
         {loop="$value.encounters"}
             <div class="encounter encounter-{$key}">
-                <div class="team_1 {$value.team_1.classes}">{$value.team_1.name}</div>
-                <div class="result">{$value.result}</div>
-                <div class="team_2 {$value.team_2.classes}">{$value.team_2.name}</div>
+                <div class="team_1 {$value.team_1.classes}">
+                    <span class="name">{$value.team_1.name}</span>
+                    <span class="score">{$value.team_1.score}</span>
+                </div>
+                <div class="team_2 {$value.team_2.classes}">
+                    <span class="name">{$value.team_2.name}</span>
+                    <span class="score">{$value.team_2.score}</span>
+                </div>
             </div>
         {/loop}
     </div>

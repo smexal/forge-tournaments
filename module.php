@@ -8,8 +8,6 @@ use \Forge\Core\App\API;
 use \Forge\Core\App\Auth;
 use \Forge\Core\App\App;
 
-use function \Forge\Core\Classes\i;
-
 class ForgeTournaments extends Module {
     private $permission = 'manage.forge-tournaments';
 

@@ -52,13 +52,15 @@ class Bracket {
             for ($encounterAmount=0; $encounterAmount < $encountersForRound; $encounterAmount++) { 
                 $this->encounters[$round-1]['encounters'][] = [
                     'team_1' => [
-                        'name' => 'FNATIC',
+                        'name' => 'FNC',
                         'id' => null,
+                        'score' => 0,
                         'classes' => ''
                     ],
                     'team_2' => [
-                        'name' => 'mYinsanitY',
+                        'name' => 'NV',
                         'id' => null,
+                        'score' => 0,
                         'classes' => ''
                     ],
                     'result' => ''

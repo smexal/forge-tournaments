@@ -183,7 +183,6 @@
     &.bracket {
         display: flex;
         flex-direction: row;
-        justify-content: space-between;
 
         .round {
             display: flex;
@@ -193,26 +192,121 @@
                 text-align: center;
                 font-weight: bold;
                 color: grey;
+                margin-bottom: 20px;
             }
 
+            @matchHeight: 60px;
+            @matchGap: 20px;
+
+            &.round-2, &.round-3, &.round-4, &.round-5, &.round-6, &.round-7 {
+                .encounter .team_1 {
+                    &:before {
+                        content: '';
+                        display: block;
+                        position: absolute;
+                        left: -10px;
+                        bottom: 48px;
+                        width: 10px;
+                        height: @matchGap;
+                        border-bottom: 1px solid #333;
+                        border-left: 1px solid #333;
+                    }
+                    &:after {
+                        content: '';
+                        display: block;
+                        position: absolute;
+                        left: -20px;
+                        bottom: 47px + @matchGap;
+                        width: 10px;
+                        height: 1px;
+                        border-bottom: 1px solid #333;
+                    }
+                }
+            }
+            &.round-3 .encounter .team_1 {
+                &:before {
+                    height: @matchGap + (@matchHeight / 2) + 12px;
+                }
+                &:after {
+                    bottom: 47px + @matchGap + (@matchHeight / 2) + 12px;
+                }
+            }
+            &.round-4 .encounter .team_1 {
+                &:before {
+                    height: (@matchGap + (@matchHeight / 2) + 12px);
+                }
+                &:after {
+                    bottom: 47px + @matchGap + (@matchHeight / 2) + 12px;
+                }
+            }
+
+            &.round-2 .encounter {
+                margin-top: ((@matchHeight * 2) + @matchGap) / 2 - (@matchHeight / 2);
+                margin-bottom: ((@matchHeight * 2) + @matchGap) / 2 - (@matchHeight / 2) + @matchGap;
+            }
+            &.round-3 .encounter {
+                margin-top: @matchHeight + @matchGap + ((@matchHeight * 2) + @matchGap) / 2 - (@matchHeight / 2);
+                margin-bottom: @matchHeight + @matchGap + ((@matchHeight * 2) + @matchGap) / 2 - (@matchHeight / 2) + @matchGap;
+            }
+            &.round-4 .encounter {
+                margin-top: @matchHeight*3 + @matchGap*3 + ((@matchHeight * 2) + @matchGap) / 2 - (@matchHeight / 2);
+                margin-bottom: @matchHeight*3 + @matchGap*3 + ((@matchHeight * 2) + @matchGap) / 2 - (@matchHeight / 2) + @matchGap;
+            }
+            &.round-5 .encounter {
+                margin-top: @matchHeight*7 + @matchGap*7 + ((@matchHeight * 2) + @matchGap) / 2 - (@matchHeight / 2);
+                margin-bottom: @matchHeight*7 + @matchGap*7 + ((@matchHeight * 2) + @matchGap) / 2 - (@matchHeight / 2) + @matchGap;
+            }
+            &.round-6 .encounter {
+                margin-top: @matchHeight*15 + @matchGap*15 + ((@matchHeight * 2) + @matchGap) / 2 - (@matchHeight / 2);
+                margin-bottom: @matchHeight*15 + @matchGap*15 + ((@matchHeight * 2) + @matchGap) / 2 - (@matchHeight / 2) + @matchGap;
+            }
+            &.round-7 .encounter {
+                margin-top: @matchHeight*31 + @matchGap*31 + ((@matchHeight * 2) + @matchGap) / 2 - (@matchHeight / 2);
+                margin-bottom: @matchHeight*31 + @matchGap*31 + ((@matchHeight * 2) + @matchGap) / 2 - (@matchHeight / 2) + @matchGap;
+            }
             .encounter {
                 text-align: center;
-                margin-bottom: 15px;
+                margin-right: 40px;
+                margin-bottom: @matchGap;
+                position: relative;
+                .team_1 {
+                    margin-bottom: 12px;
+                }
+
+                /** connect encounters **/
+                &:before {
+                    content: "";
+                    display: block;
+                    height: (@matchHeight + @matchGap) / 2;
+                    width: 20px;
+                    border: 1px solid #333;
+                    border-left: none;
+                    position: absolute;
+                    right: -20px;
+                    top: 12px;
+                }
 
                 .team_1, .team_2 {
                     text-align: left;
                     width: 150px;
-                    height: 32px;
-                    line-height: 30px;
+                    height: 24px;
+                    line-height: 24px;
                     border-radius: 3px;
                     background-color: #222;
                     border: 1px solid #333;
                     padding: 0 10px;
-                    margin: 10px;
                     transition: 300ms;
                     font-size: 12px;
                     font-weight: 600;
                     color: #999;
+
+                    display: flex;
+                    justify-content: space-between;
+
+                    .score {
+                        border-left: 1px solid #333;
+                        padding-left: 10px;
+                    }
 
                     &.my-team {
                         border-color: #555;
