@@ -2,6 +2,7 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
+use \Forge\Core\Classes\Logger;
 use \Forge\Core\App\App;
 
 /**
@@ -52,13 +53,13 @@ class Bracket {
             for ($encounterAmount=0; $encounterAmount < $encountersForRound; $encounterAmount++) { 
                 $this->encounters[$round-1]['encounters'][] = [
                     'team_1' => [
-                        'name' => 'FNC',
+                        'name' => '',
                         'id' => null,
                         'score' => '',
                         'classes' => ''
                     ],
                     'team_2' => [
-                        'name' => 'ENVY',
+                        'name' => '',
                         'id' => null,
                         'score' => '',
                         'classes' => ''
@@ -67,6 +68,38 @@ class Bracket {
                 ];
             }
         }
+    }
+
+    /**
+     * Sets a team in a bracket for an encounter in a round.
+     * @param int $round         Round in number (0 for the first round.).
+     * @param int $encounter     Number of encounter in the round.
+     * @param int $encounterTeam Position on the encounter (1 or 2)
+     * @param array $team        Array with team information, name, id, the score, classes like "winner" or "my-team"
+     */
+    public function setTeam($round, $encounter, $encounterTeam, $team) {
+        // check the delivered team if it has the required values.
+        if(! array_key_exists('name', $team)) {
+            Logger::debug('No Team "name" defined for bracket encounter.');
+            return '';
+        }
+        if(! array_key_exists('score', $team)) {
+            Logger::debug('No Team "score" defined for bracket encounter, default 0 assumed.');
+            $team['score'] = 0;
+        }
+        if(! array_key_exists('classes', $team)) {
+            $team['classes'] = '';
+        }
+        if(! array_key_exists('id', $team)) {
+            Logger::debug('No Team "id" defined for bracket encounter, default null assumed.');
+            $team['id'] = null;
+        }
+
+        $teamNo = 'team_2';
+        if($encounterTeam == 1) {
+            $teamNo = 'team_1';
+        }
+        $this->encounters[$round]['encounters'][$encounter][$teamNo] = $team;
     }
 
     /**

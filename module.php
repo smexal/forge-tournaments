@@ -24,6 +24,7 @@ class ForgeTournaments extends Module {
 
         // backend
         Loader::instance()->addStyle("modules/forge-tournaments/assets/css/forge-tournaments.less");
+
         Loader::instance()->addScript("modules/forge-tournaments/assets/scripts/forge-tournaments.js");
 
         // frontend
@@ -31,6 +32,7 @@ class ForgeTournaments extends Module {
         App::instance()->tm->theme->addScript(CORE_WWW_ROOT."ressources/scripts/externals/tooltipster.bundle.min.js", true);
 
         App::instance()->tm->theme->addStyle(MOD_ROOT."forge-tournaments/assets/css/forge-tournaments.less");
+        App::instance()->tm->theme->addStyle(MOD_ROOT."forge-tournaments/assets/css/bracket.less");
         App::instance()->tm->theme->addStyle(CORE_WWW_ROOT."ressources/css/externals/tooltipster.bundle.min.css");
 
         API::instance()->register('forge-tournaments', array($this, 'apiAdapter'));

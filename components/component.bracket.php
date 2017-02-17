@@ -23,7 +23,50 @@ class BracketComponent extends Component {
     }
 
     public function content() {
-        $bracket = new Bracket(8);
+        $bracket = new Bracket(16);
+
+        $bracket->setTeam(0,0,1,[
+            'name' => 'FNATIC',
+            'score' => '2',
+            'classes' => 'winner my-team'
+        ]);
+
+        $bracket->setTeam(0,0,2,[
+            'name' => 'G2 Esports',
+            'score' => '1',
+            'classes' => 'loser'
+        ]);
+
+        $bracket->setTeam(0,1,1,[
+            'name' => 'Fly Quest',
+            'score' => '2',
+            'classes' => 'winner'
+        ]);
+
+        $bracket->setTeam(0,1,2,[
+            'name' => 'Origen',
+            'score' => '0',
+            'classes' => 'loser'
+        ]);
+
+        $bracket->setTeam(1,0,1,[
+            'name' => 'FNATIC',
+            'score' => '2',
+            'classes' => 'winner my-team'
+        ]);
+
+        $bracket->setTeam(1,0,2,[
+            'name' => 'Fly Quest',
+            'score' => '0',
+            'classes' => 'loser'
+        ]);
+
+        $bracket->setTeam(2,0,1,[
+            'name' => 'FNACTIC',
+            'score' => '0',
+            'classes' => 'my-team'
+        ]);
+
         return $bracket->render();
     }
 }
