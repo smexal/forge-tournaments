@@ -7,9 +7,7 @@ use \Forge\Core\App\App;
 use \Forge\Core\Classes\Fields;
 use \Forge\Core\Classes\Media;
 
-
-
-class DetailView extends View {
+class TournamentView extends View {
     public $name = 'tournament-detail';
     public $allowNavigation = true;
     private $tournament = null;
@@ -36,7 +34,8 @@ class DetailView extends View {
         $background = new Media($this->tournament->getMeta('image_background'));
         $big = new Media($this->tournament->getMeta('image_big'));
 
-        return App::instance()->render(MOD_ROOT."forge-tournaments/templates/", "detail",
+        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/',
+            'tournament',
             ['enrollment_cta_label' => i('Enroll now', 'forge-tournaments'),
             'start_label' => i('Start', 'forge-tournaments'),
             'status_label' => i('Status', 'forge-tournaments'),

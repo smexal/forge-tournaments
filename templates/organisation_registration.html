@@ -1,0 +1,10 @@
+<div class="forge-tournament-organisation-registration">
+    {if="$allowed"}
+    <p class="feddow">{$before}</p>
+    <form class="ajax" action="{$action}" callback="forgeTournament.formCallback">
+    {$form}
+    </form>
+    {else}
+    <div class="not-allowed">{$not_allowed_msg}</div>
+    {/if}
+</div>

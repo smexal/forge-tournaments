@@ -3,6 +3,7 @@
 namespace Forge\Modules\ForgeTournaments;
 
 use \Forge\Core\Abstracts\DataCollection;
+use \Forge\Core\App\App;
 use \Forge\Core\Classes\User;
 
 class OrganisationCollection extends DataCollection {
@@ -18,17 +19,60 @@ class OrganisationCollection extends DataCollection {
         $this->custom_fields();
     }
 
+    public function render($item) {
+        $members = [];
+        $_members = [];
+        $_members = array_merge($members, is_array($item->getMeta('admins')) ? $item->getMeta('admins') : [$item->getMeta('admins')]);
+        $_members = array_merge($_members, is_array($item->getMeta('members')) ? $item->getMeta('members') : [$item->getMeta('members')]);
+        foreach ($_members as $member) {
+            $user = new User($member);
+            array_push($members, [
+                'name' => $user->get('username')
+            ]);
+        }
+
+        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/',
+            'organisation',
+            [
+                'title' => $item->getName(),
+                'description' => $item->getMeta('description'),
+                'url' => $item->getMeta('url'),
+                'members' => $members
+            ]
+        );
+    }
+
     private function custom_fields() {
         $userList = [];
-        // foreach (User::getAll() as $user) {
-        //     array_push($userList, ["value" => $user["id"],
-        //                                     "active" => false,
-        //                                     "text" => $user["username"]]);
-        // }
+        foreach (User::getAll() as $user) {
+            array_push($userList, ["value" => $user["id"],
+                                            "active" => false,
+                                            "text" => $user["username"]]);
+        }
 
         $this->addFields([
             [
-                'key' => 'website',
+                'key' => 'admins',
+                'label' => i('Admins', 'forge-tournaments'),
+                'values' => $userList,
+                'multilang' => false,
+                'type' => 'multiselect',
+                'order' => 20,
+                'position' => 'right',
+                'hint' => i('Who\'s responsible?', 'forge-tournaments')
+            ],
+            [
+                'key' => 'key',
+                'label' => i('Key', 'forge-tournaments'),
+                'value' => "",
+                'multilang' => true,
+                'type' => 'text',
+                'order' => 50,
+                'position' => 'right',
+                'hint' => i('Short key', 'forge-tournaments')
+            ],
+            [
+                'key' => 'url',
                 'label' => i('Website', 'forge-tournaments'),
                 'value' => "",
                 'multilang' => true,
