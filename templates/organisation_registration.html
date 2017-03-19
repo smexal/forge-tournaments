@@ -2,7 +2,7 @@
     {if="$allowed"}
     <p class="feddow">{$before}</p>
     <form class="ajax" action="{$action}" callback="forgeTournament.formCallback">
-    {$form}
+        {$form}
     </form>
     {else}
     <div class="not-allowed">{$not_allowed_msg}</div>
