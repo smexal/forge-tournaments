@@ -29,20 +29,21 @@ class OrganisationView extends View {
     public function content($parts = []) {
         $collection = App::instance()->cm->getCollection('forge-tournaments-organisations');
         $item = $collection->getBySlug($parts[0]);
-
+        if (is_null($itme)) {
+            App::instance()->redirect('404');
+        }
         $members = [];
         $_members = [];
         $_members = array_merge($members, is_array($item->getMeta('admins')) ? $item->getMeta('admins') : [$item->getMeta('admins')]);
         $_members = array_merge($_members, is_array($item->getMeta('members')) ? $item->getMeta('members') : [$item->getMeta('members')]);
         foreach ($_members as $member) {
-            error_log(print_r($member,true));
             $user = new User($member);
             array_push($members, [
                 'name' => $user->get('username')
             ]);
         }
 
-        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/',
+        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views',
             'organisation',
             [
                 'title' => $item->getName(),

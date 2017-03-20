@@ -71,7 +71,7 @@ class OrganisationComponent extends Component {
     }
 
     public function content() {
-        return App::instance()->render(DOC_ROOT.'modules/forge-tournaments/templates/',
+        return App::instance()->render(DOC_ROOT.'modules/forge-tournaments/templates/components/',
             'organisation_registration',
             [
                 'before' => $this->getField($this->prefix.'lead_text'),

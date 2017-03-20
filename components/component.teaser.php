@@ -5,8 +5,7 @@ namespace Forge\Modules\ForgeTournaments;
 use \Forge\Core\Abstracts\Component;
 use \Forge\Core\App\App;
 use \Forge\Core\Classes\Media;
-
-
+use \Forge\Core\Classes\Utils;
 
 class TeaserComponent extends Component {
     public $settings = [];
@@ -15,19 +14,19 @@ class TeaserComponent extends Component {
     public function prefs() {
         $this->settings = [
             [
-                "label" => i('Choose a tournament', 'forge-tournaments'),
-                "hint" => i('') ,
-                "key" => $this->prefix."tournament_teaser",
-                "type" => "select",
-                "callable" => true,
-                "values" => [$this, 'getTournamentListOptionValues']
+                'label' => i('Choose a tournament', 'forge-tournaments'),
+                'hint' => i(''),
+                'key' => $this->prefix.'tournament_teaser',
+                'type' => 'select',
+                'callable' => true,
+                'values' => [$this, 'getTournamentListOptionValues']
             ],
             [
-                "label" => i('Is teamsize important?', 'forge-tournaments'),
-                "hint" => i('Show/hide the teamsize') ,
-                "key" => $this->prefix."tournament_teamsize_visible",
-                "type" => "checkbox",
-                "value" => true
+                'label' => i('Is teamsize important?', 'forge-tournaments'),
+                'hint' => i('Show/hide the teamsize'),
+                'key' => $this->prefix.'tournament_teamsize_visible',
+                'type' => 'checkbox',
+                'value' => true
             ]
         ];
         return [
@@ -57,26 +56,40 @@ class TeaserComponent extends Component {
 
     public function content() {
         $collection = App::instance()->cm->getCollection('forge-tournaments');
-        $item = $collection->getItem($this->getField($this->prefix."tournament_teaser"));
+        $item = $collection->getItem($this->getField($this->prefix.'tournament_teaser'));
         $big = new Media($item->getMeta('image_big'));
 
-        $tournament = ['team_size' => $item->getMeta('team_size'),
+        $tournament = [
+                        'team_size' => $item->getMeta('team_size'),
                         'max_participants' => $item->getMeta('max_participants'),
-                        'url_enrollment' => $item->url(),
-                        'big' => $big->getUrl()];
+                        'url_enrollment' => Utils::getUrl(['enrollment', $item->slug()]),
+                        'big' => $big->getUrl()
+        ];
+
+        $actionLabel = i('Detail', 'forge-tournaments');
+
+        // Turnier hat noch nicht begonnen
+        if (new \DateTime($item->getMeta('start_time')) > new \DateTime()) {
+            $actionLabel = i('Enroll now', 'forge-tournaments');
+        }
 
         return App::instance()->render(
-            DOC_ROOT."modules/forge-tournaments/templates/",
-            "teaser",
-            ['tournament' => $tournament,
-                'enrollmentText' => i('Enroll now', 'forge-tournaments')]
-            );
+            DOC_ROOT.'modules/forge-tournaments/templates/components',
+            'teaser',
+            [
+                'tournament' => $tournament,
+                'actionLabel' => $actionLabel
+            ]
+        );
     }
 
     public function customBuilderContent() {
 
-        return App::instance()->render(CORE_TEMPLATE_DIR."components/builder/", "text", [
-            'text' => i('Tournament List Form', 'forge-tournaments')
-        ]);
+        return App::instance()->render(CORE_TEMPLATE_DIR.'components/builder/',
+            'text',
+            [
+                'text' => i('Tournament List Form', 'forge-tournaments')
+            ]
+        );
     }
 }

@@ -11,6 +11,14 @@ class BracketComponent extends Component {
 
     public function prefs() {
         $this->settings = [
+            [
+                'label' => i('Choose a tournament', 'forge-tournaments'),
+                'hint' => i('All tournaments of this event will be displayed') ,
+                'key' => $this->prefix.'tournament_list',
+                'type' => 'select',
+                'callable' => true,
+                'values' => [$this, 'getTournamentListOptionValues']
+            ]
         ];
         return [
             'name' => i('Tournament Bracket'),
@@ -22,50 +30,54 @@ class BracketComponent extends Component {
         ];
     }
 
+    public function getTournamentListOptionValues() {
+        $collection = App::instance()->cm->getCollection('forge-tournaments');
+        $items = $collection->items([
+            'order' => 'created',
+            'order_direction' => 'desc',
+            'status' => 'published'
+        ]);
+        $list = [];
+        foreach ($items as $item) {
+            $list[$item->id] = $item->getName();
+        }
+
+        return ['0' => i('Choose one', 'forge-tournaments')] + $list;
+    }
+
     public function content() {
-        $bracket = new Bracket(16);
+        $tournamentId = $this->getField($this->prefix.'tournament_list');
+        $collection = App::instance()->cm->getCollection('forge-tournaments');
+        $tournament = $collection->getItem($tournamentId);
 
-        $bracket->setTeam(0,0,1,[
-            'name' => 'FNATIC',
-            'score' => '2',
-            'classes' => 'winner my-team'
-        ]);
+        $bracket = new Bracket($tournament->getMeta('max_participants')/2);
 
-        $bracket->setTeam(0,0,2,[
-            'name' => 'G2 Esports',
-            'score' => '1',
-            'classes' => 'loser'
-        ]);
+        $db = App::instance()->db;
+        // $db->where('tournament_id', $tournament->id);
+        // $teams = $db->get('forge_tournaments_tournament_participant');
 
-        $bracket->setTeam(0,1,1,[
-            'name' => 'Fly Quest',
-            'score' => '2',
-            'classes' => 'winner'
-        ]);
+        $roundsMax = log($tournament->getMeta('max_participants'), 2);
 
-        $bracket->setTeam(0,1,2,[
-            'name' => 'Origen',
-            'score' => '0',
-            'classes' => 'loser'
-        ]);
+        for ($round = 0; $round < $roundsMax; $round++) {
+            $db->where('tournament_id', $tournament->id);
+            $db->where('round', $round);
+            $roundEncounters = $db->get('forge_tournaments_tournament_encounter');
+            foreach ($roundEncounters as $roundEncounter) {
+                $db->where('id', $roundEncounter['participant_id']);
+                $participant = $db->getOne('forge_tournaments_tournament_participant');
+                $name = '[' . $participant['key'] . '] ' . $participant['name'];
 
-        $bracket->setTeam(1,0,1,[
-            'name' => 'FNATIC',
-            'score' => '2',
-            'classes' => 'winner my-team'
-        ]);
-
-        $bracket->setTeam(1,0,2,[
-            'name' => 'Fly Quest',
-            'score' => '0',
-            'classes' => 'loser'
-        ]);
-
-        $bracket->setTeam(2,0,1,[
-            'name' => 'FNACTIC',
-            'score' => '0',
-            'classes' => 'my-team'
-        ]);
+                $bracket->setTeam(
+                    $round,
+                    $roundEncounter['encounter'],
+                    [
+                        'name' => $name,
+                        'score' => '',
+                        'classes' => ''
+                    ]
+                );
+            }
+        }
 
         return $bracket->render();
     }

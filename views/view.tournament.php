@@ -6,6 +6,7 @@ use \Forge\Core\Abstracts\View;
 use \Forge\Core\App\App;
 use \Forge\Core\Classes\Fields;
 use \Forge\Core\Classes\Media;
+use \Forge\Core\Classes\Utils;
 
 class TournamentView extends View {
     public $name = 'tournament-detail';
@@ -34,7 +35,7 @@ class TournamentView extends View {
         $background = new Media($this->tournament->getMeta('image_background'));
         $big = new Media($this->tournament->getMeta('image_big'));
 
-        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/',
+        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
             'tournament',
             [
                 'enrollment_cta_label' => i('Enroll now', 'forge-tournaments'),
@@ -47,7 +48,7 @@ class TournamentView extends View {
                 'current_participants' => 0,
                 'max_participants' => $this->tournament->getMeta('max_participants'),
                 'big' => $big->getUrl(),
-                'url_enrollment' => $this->tournament->url(),
+                'url_enrollment' => Utils::getUrl(['enrollment', $this->tournament->slug()]),
                 'enrollment_label' => i('Enrollments', 'forge-tournaments'),
                 'short' => $this->tournament->getMeta('description'),
                 'long' => $this->tournament->getMeta('additional_description'),

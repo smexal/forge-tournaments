@@ -31,7 +31,7 @@ class OrganisationCollection extends DataCollection {
             ]);
         }
 
-        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/',
+        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views',
             'organisation',
             [
                 'title' => $item->getName(),

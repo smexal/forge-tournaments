@@ -1,7 +1,7 @@
 var forgeTournament = {
 
     formCallback : function(data) {
-        var container = $(".forge-tournament-organisation-registration");
+        var container = $(".forge-tournament-formular");
         var form = container.find("form");
 
         // tell container, there is a message

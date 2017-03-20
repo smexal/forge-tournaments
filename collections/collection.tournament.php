@@ -5,8 +5,9 @@ namespace Forge\Modules\ForgeTournaments;
 use \Forge\Core\Abstracts\DataCollection;
 use \Forge\Core\App\App;
 use \Forge\Core\App\CollectionManager;
-use \Forge\Core\Classes\User;
 use \Forge\Core\Classes\Media;
+use \Forge\Core\Classes\User;
+use \Forge\Core\Classes\Utils;
 
 class TournamentCollection extends DataCollection {
     public $permission = "manage.collection.sites";
@@ -33,22 +34,23 @@ class TournamentCollection extends DataCollection {
 
         return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/',
             'tournament',
-            ['enrollment_cta_label' => i('Enroll now', 'forge-tournaments'),
-            'start_label' => i('Start', 'forge-tournaments'),
-            'status_label' => i('Status', 'forge-tournaments'),
-            'title' => $item->getMeta('title'),
-            'thumbnail' => $thumb->getUrl(),
-            'background' => $background->getUrl(),
-            'start_date' => $item->getMeta('start_time'),
-            'current_participants' => 0,
-            'max_participants' => $item->getMeta('max_participants'),
-            'big' => $big->getUrl(),
-            'url_enrollment' => $item->url(),
-            'enrollment_label' => i('Enrollments', 'forge-tournaments'),
-            'short' => $item->getMeta('description'),
-            'long' => $item->getMeta('additional_description'),
-            'prices' => [],
-            'additional' => [],
+            [
+                'enrollment_cta_label' => i('Enroll now', 'forge-tournaments'),
+                'start_label' => i('Start', 'forge-tournaments'),
+                'status_label' => i('Status', 'forge-tournaments'),
+                'title' => $item->getMeta('title'),
+                'thumbnail' => $thumb->getUrl(),
+                'background' => $background->getUrl(),
+                'start_date' => $item->getMeta('start_time'),
+                'current_participants' => 0,
+                'max_participants' => $item->getMeta('max_participants'),
+                'big' => $big->getUrl(),
+                'url_enrollment' => Utils::getUrl(['enrollment', $item->slug()]),
+                'enrollment_label' => i('Enrollments', 'forge-tournaments'),
+                'short' => $item->getMeta('description'),
+                'long' => $item->getMeta('additional_description'),
+                'prices' => [],
+                'additional' => [],
             ]
         );
     }

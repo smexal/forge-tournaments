@@ -1,4 +1,4 @@
-<?php if(!class_exists('raintpl')){exit;}?><section class="forge-tournament forge-tournament__detail" style="background-image: url('<?php echo $background;?>');">
+<?php if(!class_exists('raintpl')){exit;}?><section class="forge-tournament forge-tournament__detail">
     <div class="wrapped">
         <div class="info row">
             <div class="col-sm-6 text">
@@ -6,8 +6,9 @@
                     <div class="thumb" style="background-image: url('<?php echo $thumbnail;?>');"></div>
                     <h1><?php echo $title;?></h1>
                 </div>
-                <div class="enrollment-form">
-                    <form>
+                <div class="forge-tournament-formular">
+                    <form class="ajax" action="<?php echo $action;?>" callback="forgeTournament.formCallback">
+                        <?php echo $form;?>
 
                     </form>
                 </div>

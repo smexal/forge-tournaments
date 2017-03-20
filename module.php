@@ -49,6 +49,7 @@ class ForgeTournaments extends Module {
     }
 
     public function apiAdapter($data) {
+        // TODO: Handling auslagern
         if ($data == 'add_organisation') {
             try {
                 if (empty($_POST[static::$name_field])) {
@@ -86,14 +87,19 @@ class ForgeTournaments extends Module {
 
                 // update collectionitem
                 $collectionItem = $dataCollection->getItem($itemId);
-                $lang = Localization::getCurrentLanguage();
-                $collectionItem->insertMeta('description', $_POST[static::$description_field], $lang);
-                $collectionItem->insertMeta('key', $_POST[static::$key_field], $lang);
-                $collectionItem->insertMeta('url', $_POST[static::$url_field], $lang);
-                if (isset($media)) {
-                    $collectionItem->insertMeta('image_logo', $media->id, $lang);
+                foreach (Localization::getActiveLanguages() as $lang) {
+                    $code = $lang['code'];
+                    $collectionItem->insertMeta('title', $_POST[static::$name_field], $code);
+                    $collectionItem->insertMeta('description', $_POST[static::$description_field], $code);
+                    $collectionItem->insertMeta('key', $_POST[static::$key_field], $code);
+                    $collectionItem->insertMeta('url', $_POST[static::$url_field], $code);
+                    if (isset($media)) {
+                        $collectionItem->insertMeta('image_logo', $media->id, $code);
+                    }
+                    $collectionItem->insertMeta('admins', json_encode([App::instance()->user->get('id')]), $code);
+
+                    $collectionItem->insertMeta('status', 'published', $code);
                 }
-                $collectionItem->insertMeta('admins', json_encode([App::instance()->user->get('id')]), $lang);
 
                 return json_encode([
                     'type' => 'success',
@@ -116,6 +122,63 @@ class ForgeTournaments extends Module {
                     'message' => $message
                 ]);
             }
+        } else if ($data == 'enroll') {
+            $db = App::instance()->db;
+
+            $collection = App::instance()->cm->getCollection('forge-tournaments');
+            $tournament = $collection->getItem($_POST['tournament_id']);
+
+            if ($_POST['team_competition']) {
+                $participant_id = $db->insert('forge_tournaments_tournament_participant',
+                    [
+                        'tournament_id' => $tournament->id,
+                        'organisation_id' => $_POST['organisation_id'],
+                        'key' => $_POST['key'],
+                        'name' => $_POST['name']
+                    ]
+                );
+            } else {
+                $participant_id = $db->insert('forge_tournaments_tournament_participant',
+                    [
+                        'tournament_id' => $tournament->id,
+                        'organisation_id' => $_POST['organisation_id'],
+                        'user_id' => $_POST['user_id'],
+                        'key' => $_POST['key'],
+                        'name' => $_POST['name']
+                    ]
+                );
+            }
+
+            $encounterNr = 0;
+
+            $db->where('tournament_id', $tournament->id);
+            $encounters = $db->get('forge_tournaments_tournament_encounter');
+            $tmpEncounterList = [];
+            foreach ($encounters as $encounter) {
+                if (! isset($tmpEncounterList[$encounter['encounter']])) {
+                    $tmpEncounterList[$encounter['encounter']] = 0;
+                }
+                $tmpEncounterList[$encounter['encounter']]++;
+            }
+            for ($i = 0; $i < $tournament->getMeta('max_participants')/2; $i++) {
+                if (! isset($tmpEncounterList[$i]) || $tmpEncounterList[$i] != 2) {
+                    $encounterNr = $i;
+                    break;
+                }
+            }
+
+            $db->insert('forge_tournaments_tournament_encounter',
+                [
+                    'tournament_id' => $tournament->id,
+                    'participant_id' => $participant_id,
+                    'round' => 0,
+                    'encounter' => $encounterNr
+                ]
+            );
+            return json_encode([
+                'type' => 'success',
+                'message' => i('Enrollment completed', 'forge-tournaments')
+            ]);
         }
     }
 

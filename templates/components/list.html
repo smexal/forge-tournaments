@@ -16,9 +16,9 @@
             </div>
             <div class="col-md-1 participants">{$value.current_participants} / {$value.max_participants}</div>
             <div class="col-md-2 startdate">{$value.date}</div>
-            <div class="col-md-2 status">Anmeldung</div>
+            <div class="col-md-2 status">{$value.status}</div>
             <div class="col-md-2 enrollment">
-                <a class="btn btn-discreet btn-sm" href="{$value.url_enrollment}">{$enrollment_label}</a>
+                <a class="btn btn-discreet btn-sm" href="{$value.action_url}">{$value.action_label}</a>
             </div>
         </li>
         {/loop}

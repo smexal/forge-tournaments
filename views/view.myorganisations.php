@@ -19,7 +19,6 @@ class MyorganisationsView extends View {
             $members = is_array($item->getMeta('admins')) ? $item->getMeta('admins') : [$item->getMeta('admins')];
             if (in_array(App::instance()->user->get('id'), $admins) ||
                 in_array(App::instance()->user->get('id'), $members)) {
-                error_log(print_r($item,true));
                 $org = ['name' => $item->getName(),
                         'url' => $item->url(),
                         'key' => $item->getMeta('key')];
@@ -37,7 +36,7 @@ class MyorganisationsView extends View {
             // TODO: things...
         }
 
-        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/',
+        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views',
             'my_organisations',
             [
                 'title' => i('Your organisations', 'forge-tournaments'),
