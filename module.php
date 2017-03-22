@@ -2,6 +2,8 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
+Require_once("config.php");
+
 use \Forge\Loader;
 use \Forge\Core\Abstracts\Module;
 use \Forge\Core\App\API;

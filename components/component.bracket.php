@@ -79,7 +79,13 @@ class BracketComponent extends Component {
             }
         }
 
-        return $bracket->render();
+        return App::instance()->render(
+            DOC_ROOT.'modules/forge-tournaments/templates/components',
+            'bracket',
+            [
+                'encounterRounds' => $bracket->getEncounters()
+            ]
+        );
     }
 }
 

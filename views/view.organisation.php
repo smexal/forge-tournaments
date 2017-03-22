@@ -14,16 +14,16 @@ class OrganisationView extends View {
 
     public function additionalNavigationForm() {
         $organisations = App::instance()->cm->getCollection('forge-tournaments-organisations')->items();
-        $values = array();
+        $values = [];
         foreach($organisations as $organisation) {
             $values[$organisation->slug()] = $organisation->getMeta('title');
         }
-        $formfields = Fields::select(array(
+        $formfields = Fields::select([
             'key' => 'add-to-url',
             'label' => i('Select the organisation, that you want to display.'),
             'values' => $values
-        ));
-        return array("form" => $formfields);
+        ]);
+        return ['form' => $formfields];
     }
 
     public function content($parts = []) {

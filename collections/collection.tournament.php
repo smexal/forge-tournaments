@@ -10,7 +10,7 @@ use \Forge\Core\Classes\User;
 use \Forge\Core\Classes\Utils;
 
 class TournamentCollection extends DataCollection {
-    public $permission = "manage.collection.sites";
+    public $permission = 'manage.collection.sites';
 
     protected function setup() {
         $this->preferences['name'] = 'forge-tournaments'; //TODO: make this a class constant
@@ -58,9 +58,9 @@ class TournamentCollection extends DataCollection {
     private function custom_fields() {
         $userList = [];
         foreach (User::getAll() as $user) {
-            array_push($userList, ["value" => $user["id"],
-                                    "active" => false,
-                                    "text" => $user["username"]]);
+            array_push($userList, ['value' => $user['id'],
+                                    'active' => false,
+                                    'text' => $user['username']]);
         }
 
         $eventList = [];
@@ -103,7 +103,7 @@ class TournamentCollection extends DataCollection {
             [
                 'key' => 'team_competition',
                 'label' => i('Team competition', 'forge-tournaments'),
-                'value' => "on",
+                'value' => 'on',
                 'multilang' => false,
                 'type' => 'checkbox',
                 'order' => 40,
@@ -125,68 +125,77 @@ class TournamentCollection extends DataCollection {
                 'value' => 2,
                 'multilang' => false,
                 'type' => 'number',
-                'order' => 50,
+                'order' => 60,
                 'position' => 'right',
                 'hint' => i('Amount of substitutes', 'forge-tournaments')
             ],
             [
                 'key' => 'game_rules',
                 'label' => i('Game rules', 'forge-tournaments'),
-                'value' => "",
+                'value' => '',
                 'multilang' => true,
                 'type' => 'url',
-                'order' => 60,
+                'order' => 70,
                 'position' => 'right',
                 'hint' => i('Link to the game rules', 'forge-tournaments')
             ],
             [
                 'key' => 'additional_description',
                 'label' => i('Additional description', 'forge-tournaments'),
-                'value' => "",
+                'value' => '',
                 'multilang' => true,
                 'type' => 'text',
-                'order' => 60,
+                'order' => 80,
                 'position' => 'left',
                 'hint' => i('Describe the tournament a little more, please', 'forge-tournaments')
             ],
             [
                 'key' => 'image_big',
                 'label' => i('Big image', 'forge-tournaments'),
-                'value' => "",
+                'value' => '',
                 'multilang' => true,
                 'type' => 'image',
-                'order' => 70,
+                'order' => 90,
                 'position' => 'right',
                 'hint' => i('Teaser image', 'forge-tournaments')
             ],
             [
                 'key' => 'image_thumbnail',
                 'label' => i('Thumbnail', 'forge-tournaments'),
-                'value' => "",
+                'value' => '',
                 'multilang' => false,
                 'type' => 'image',
-                'order' => 80,
+                'order' => 100,
                 'position' => 'right',
                 'hint' => i('Preview image', 'forge-tournaments')
             ],
             [
                 'key' => 'image_background',
                 'label' => i('Background image', 'forge-tournaments'),
-                'value' => "",
+                'value' => '',
                 'multilang' => false,
                 'type' => 'image',
-                'order' => 60,
+                'order' => 110,
                 'position' => 'right',
             ],
             [
                 'key' => 'start_time',
                 'label' => i('Start time', 'forge-tournaments'),
-                'value' => "",
+                'value' => '',
                 'multilang' => false,
                 'type' => 'datetime',
-                'order' => 60,
+                'order' => 120,
                 'position' => 'right',
             ],
+            [
+                'key' => 'encounters',
+                'label' => '',
+                'values' => '',
+                'multilang' => false,
+                'type' => 'tournament_encounter',
+                'order' => 15,
+                'position' => 'left'
+            ]
         ]);
     }
 }

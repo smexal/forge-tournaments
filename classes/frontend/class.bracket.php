@@ -93,18 +93,8 @@ class Bracket {
         $this->encounters[$round]['encounters'][$encounter][$teamNo] = $team;
     }
 
-    /**
-     * Renders the bracket with all set settings.
-     * @return html output
-     */
-    public function render() {
-        return App::instance()->render(
-            DOC_ROOT."modules/forge-tournaments/templates/components",
-            "bracket",
-            [
-                'encounterRounds' => $this->encounters
-            ]
-        );
+    public function getEncounters() {
+        return $this->encounters;
     }
 
 }
