@@ -32,7 +32,11 @@ class TournamentCollection extends DataCollection {
         $background = new Media($item->getMeta('image_background'));
         $big = new Media($item->getMeta('image_big'));
 
-        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/',
+        $db = App::instance()->db;
+        $db->where('tournament_id', $item->id);
+        $subscribedParticipants = count($db->get('forge_tournaments_tournament_participant'));
+
+        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
             'tournament',
             [
                 'enrollment_cta_label' => i('Enroll now', 'forge-tournaments'),
@@ -42,7 +46,7 @@ class TournamentCollection extends DataCollection {
                 'thumbnail' => $thumb->getUrl(),
                 'background' => $background->getUrl(),
                 'start_date' => $item->getMeta('start_time'),
-                'current_participants' => 0,
+                'current_participants' => $subscribedParticipants,
                 'max_participants' => $item->getMeta('max_participants'),
                 'big' => $big->getUrl(),
                 'url_enrollment' => Utils::getUrl(['enrollment', $item->slug()]),

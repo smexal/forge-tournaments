@@ -45,7 +45,7 @@ class TournamentView extends View {
                 'thumbnail' => $thumb->getUrl(),
                 'background' => $background->getUrl(),
                 'start_date' => $this->tournament->getMeta('start_time'),
-                'current_participants' => 0,
+                'current_participants' => $participants,
                 'max_participants' => $this->tournament->getMeta('max_participants'),
                 'big' => $big->getUrl(),
                 'url_enrollment' => Utils::getUrl(['enrollment', $this->tournament->slug()]),

@@ -34,7 +34,7 @@ class EnrollmentView extends View {
         $db->where('tournament_id', $tournament->id);
         $participants = count($db->get('forge_tournaments_tournament_participant'));
 
-        if ($tournament->getMeta('max_participants') < $participants) {
+        if ($tournament->getMeta('max_participants') >= $participants) {
             $form = $this->form($tournament);
         } else {
             $form = i('Tournament has no free slots left.', 'forge-tournaments');
