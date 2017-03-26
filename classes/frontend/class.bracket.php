@@ -20,17 +20,34 @@ class Bracket {
      * The size is measured in initial encounters and not participants.
      * @param int size
      */
-    public function __construct($size) {
-        if(!is_numeric($size)) {
-            Logger::debug("Bracket Size '$size' is not numeric.");
-            // assume a size, for further progress.
-            $size = 4;
-        }
+    public function __construct($tournament) {
+        $db = App::instance()->db;
 
-        $this->size = $size;
-        $this->rounds = log($size*2,2);
-
+        $this->size = $tournament->getMeta('max_participants')/2;
+        $this->rounds = log($this->size*2,2);
         $this->prepareEncounters();
+
+        for ($round = 0; $round < $this->rounds; $round++) {
+            $db->where('tournament_id', $tournament->id);
+            $db->where('round', $round);
+            $roundEncounters = $db->get('forge_tournaments_tournament_encounter');
+            foreach ($roundEncounters as $roundEncounter) {
+                $db->where('id', $roundEncounter['participant_id']);
+                $participant = $db->getOne('forge_tournaments_tournament_participant');
+                $name = '[' . $participant['key'] . '] ' . $participant['name'];
+
+                $this->setTeam(
+                    $round,
+                    $roundEncounter['encounter'],
+                    [
+                        'id' => 0,
+                        'name' => $name,
+                        'score' => '',
+                        'classes' => ''
+                    ]
+                );
+            }
+        }
     }
 
     /**
@@ -85,7 +102,7 @@ class Bracket {
             $team['classes'] = '';
         }
         if (! array_key_exists('id', $team)) {
-            Logger::debug('No Team "id" defined for bracket encounter, default null assumed.');
+            Logger::debug('No Team id defined for bracket encounter, default null assumed.');
             $team['id'] = null;
         }
 

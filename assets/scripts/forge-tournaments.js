@@ -16,6 +16,13 @@ var forgeTournament = {
             });
             container.append('<p class="message '+data.type+'">'+data.message+'</p>');
         }
+    },
+    setEncounterWinner : function(elem, team, tournament, round, encounter) {
+        console.log("elem: " + elem);
+        console.log("team: " + team);
+        console.log("tournament: " + tournament);
+        console.log("round: " + round);
+        console.log("encounter: " + encounter);
     }
 
 };

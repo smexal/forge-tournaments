@@ -74,7 +74,7 @@ class OrganisationComponent extends Component {
         return App::instance()->render(DOC_ROOT.'modules/forge-tournaments/templates/components/',
             'organisation_registration',
             [
-                'before' => $this->getField($this->prefix.'lead_text'),
+                'before' => $this->getField($this->prefix.'lead'),
                 'action' => Utils::getUrl(['api', 'forge-tournaments', 'add_organisation']),
                 'form' => $this->form(),
                 'allowed' => Auth::any(),

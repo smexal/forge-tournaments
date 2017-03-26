@@ -2,7 +2,7 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
-Require_once("config.php");
+require_once('config.php');
 
 use \Forge\Loader;
 use \Forge\Core\Abstracts\Module;
@@ -36,6 +36,7 @@ class ForgeTournaments extends Module {
 
         // backend
         Loader::instance()->addStyle('modules/forge-tournaments/assets/css/forge-tournaments.less');
+        Loader::instance()->addStyle('modules/forge-tournaments/assets/css/bracket.less');
 
         Loader::instance()->addScript('modules/forge-tournaments/assets/scripts/forge-tournaments.js');
 

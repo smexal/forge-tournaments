@@ -50,34 +50,7 @@ class BracketComponent extends Component {
         $collection = App::instance()->cm->getCollection('forge-tournaments');
         $tournament = $collection->getItem($tournamentId);
 
-        $bracket = new Bracket($tournament->getMeta('max_participants')/2);
-
-        $db = App::instance()->db;
-        // $db->where('tournament_id', $tournament->id);
-        // $teams = $db->get('forge_tournaments_tournament_participant');
-
-        $roundsMax = log($tournament->getMeta('max_participants'), 2);
-
-        for ($round = 0; $round < $roundsMax; $round++) {
-            $db->where('tournament_id', $tournament->id);
-            $db->where('round', $round);
-            $roundEncounters = $db->get('forge_tournaments_tournament_encounter');
-            foreach ($roundEncounters as $roundEncounter) {
-                $db->where('id', $roundEncounter['participant_id']);
-                $participant = $db->getOne('forge_tournaments_tournament_participant');
-                $name = '[' . $participant['key'] . '] ' . $participant['name'];
-
-                $bracket->setTeam(
-                    $round,
-                    $roundEncounter['encounter'],
-                    [
-                        'name' => $name,
-                        'score' => '',
-                        'classes' => ''
-                    ]
-                );
-            }
-        }
+        $bracket = new Bracket($tournament);
 
         return App::instance()->render(
             DOC_ROOT.'modules/forge-tournaments/templates/components',

@@ -26,13 +26,28 @@ class TournamentCollection extends DataCollection {
         $this->custom_fields();
     }
 
+    public function customEditContent($id) {
+        $collection = App::instance()->cm->getCollection('forge-tournaments');
+        $tournament = $collection->getItem($id);
+
+        $bracket = new Bracket($tournament);
+
+        return App::instance()->render(
+            MOD_ROOT.'forge-tournaments/templates/fields',
+            'encounter',
+            [
+                'encounterRounds' => $bracket->getEncounters(),
+            ]
+        );
+    }
+
     public function render($item) {
 
         $thumb = new Media($item->getMeta('image_thumbnail'));
         $background = new Media($item->getMeta('image_background'));
         $big = new Media($item->getMeta('image_big'));
 
-        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/',
+        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views',
             'tournament',
             [
                 'enrollment_cta_label' => i('Enroll now', 'forge-tournaments'),
@@ -140,16 +155,6 @@ class TournamentCollection extends DataCollection {
                 'hint' => i('Link to the game rules', 'forge-tournaments')
             ],
             [
-                'key' => 'additional_description',
-                'label' => i('Additional description', 'forge-tournaments'),
-                'value' => '',
-                'multilang' => true,
-                'type' => 'text',
-                'order' => 80,
-                'position' => 'left',
-                'hint' => i('Describe the tournament a little more, please', 'forge-tournaments')
-            ],
-            [
                 'key' => 'image_big',
                 'label' => i('Big image', 'forge-tournaments'),
                 'value' => '',
@@ -188,14 +193,25 @@ class TournamentCollection extends DataCollection {
                 'position' => 'right',
             ],
             [
-                'key' => 'encounters',
-                'label' => '',
-                'values' => '',
-                'multilang' => false,
-                'type' => 'tournament_encounter',
-                'order' => 15,
-                'position' => 'left'
-            ]
+                'key' => 'additional_description',
+                'label' => i('Additional description', 'forge-tournaments'),
+                'value' => '',
+                'multilang' => true,
+                'type' => 'text',
+                'order' => 10,
+                'position' => 'left',
+                'hint' => i('Describe the tournament a little more, please', 'forge-tournaments')
+            ],
+            // [
+            //     'key' => 'encounters',
+            //     'label' => i('Manage bracket', 'forge-tournaments'),
+            //     'value' => '',
+            //     'multilang' => false,
+            //     'type' => '\Forge\Modules\ForgeTournaments\EncounterField::field',
+            //     'process:load' =>
+            //     'order' => 20,
+            //     'position' => 'left'
+            // ]
         ]);
     }
 }
