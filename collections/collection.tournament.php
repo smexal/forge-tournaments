@@ -7,7 +7,7 @@ use \Forge\Core\App\App;
 use \Forge\Core\App\CollectionManager;
 use \Forge\Core\Classes\Media;
 use \Forge\Core\Classes\User;
-use \Forge\Core\Classes\Utils;
+use \Forge\Core\Classes\Utils as CoreUtils;
 
 class TournamentCollection extends DataCollection {
     public $permission = 'manage.collection.sites';
@@ -32,13 +32,14 @@ class TournamentCollection extends DataCollection {
 
         $bracket = new Bracket($tournament);
 
-        return App::instance()->render(
+        $html = App::instance()->render(
             MOD_ROOT.'forge-tournaments/templates/fields',
             'encounter',
             [
                 'encounterRounds' => $bracket->getEncounters(),
             ]
         );
+        return $html;
     }
 
     public function render($item) {
@@ -64,7 +65,7 @@ class TournamentCollection extends DataCollection {
                 'current_participants' => $subscribedParticipants,
                 'max_participants' => $item->getMeta('max_participants'),
                 'big' => $big->getUrl(),
-                'url_enrollment' => Utils::getUrl(['enrollment', $item->slug()]),
+                'url_enrollment' => CoreUtils::getUrl(['enrollment', $item->slug()]),
                 'enrollment_label' => i('Enrollments', 'forge-tournaments'),
                 'short' => $item->getMeta('description'),
                 'long' => $item->getMeta('additional_description'),
@@ -206,6 +207,17 @@ class TournamentCollection extends DataCollection {
                 'position' => 'left',
                 'hint' => i('Describe the tournament a little more, please', 'forge-tournaments')
             ],
+            [
+                'key' => 'ft_phase_list', 
+                'label' => \i('Phase List', 'forge-quests'),
+                'type' => 'hidden',
+                'value' => '',
+                'order' => 20,
+                'position' => 'left',
+                'process:save' => '\Forge\Modules\ForgeTournaments\TournamentCollection::processSavePhases',
+                'process:load' => '\Forge\Modules\ForgeTournaments\TournamentCollection::processBuildPhases',
+                'process:afterRender' => '\Forge\Modules\ForgeTournaments\TournamentCollection::processRenderPhases'
+            ]
             // [
             //     'key' => 'encounters',
             //     'label' => i('Manage bracket', 'forge-tournaments'),
@@ -217,6 +229,57 @@ class TournamentCollection extends DataCollection {
             //     'position' => 'left'
             // ]
         ]);
+    }
+
+    public static function processRenderPhases($value) {
+        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
+            'tournament_phases',
+            [
+                'title' => \i('Phases', 'forge-tournaments'),
+                'phases' => [
+                    [
+                        'title' => 'Phase 1',
+                        'phase' => 'PHASE CONTENT'
+                    ],
+                    [
+                        'title' => 'Phase 2',
+                        'phase' => 'PHASE CONTENT 2'
+                    ],
+                    [
+                        'title' => 'Phase 3',
+                        'phase' => 'PHASE CONTENT 3'
+                    ]
+                ]
+            ]
+        );
+    }
+
+    public static function processSavePhases($value) {
+        return $value;
+
+        if(is_string($value))
+            return $value;
+        return htmlspecialchars(json_encode($value), ENT_QUOTES);
+    }
+
+    public static function processBuildPhases($value) {
+        return $value;
+
+
+        if(is_object($value)) {
+            return htmlspecialchars(json_encode($value), ENT_QUOTES);
+        }
+
+        try {
+            $value = json_decode($value, true);
+        } catch (Exception $e) {
+            return [];
+        }
+
+        if(!$value)
+            return [];
+        
+        return $value;
     }
 }
 

@@ -6,7 +6,7 @@ use \Forge\Core\Abstracts\View;
 use \Forge\Core\App\App;
 use \Forge\Core\Classes\Fields;
 use \Forge\Core\Classes\Media;
-use \Forge\Core\Classes\Utils;
+use \Forge\Core\Classes\Utils as CoreUtils;
 
 class EnrollmentView extends View {
     public $name = 'enrollment';
@@ -76,7 +76,7 @@ class EnrollmentView extends View {
                 'max_participants' => $tournament->getMeta('max_participants'),
                 'thumbnail' => $thumb->getUrl(),
                 'form' => $form,
-                'action' => Utils::getUrl(['api', 'forge-tournaments', 'enroll'])
+                'action' => CoreUtils::getUrl(['api', 'forge-tournaments', 'enroll'])
             ]
         );
     }
