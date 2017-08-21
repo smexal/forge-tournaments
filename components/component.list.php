@@ -20,13 +20,6 @@ class ListComponent extends Component {
                 'type' => 'select',
                 'callable' => true,
                 'values' => [$this, 'getEventListOptionValues']
-            ],
-            [
-                'label' => i('Is teamsize important?', 'forge-tournaments'),
-                'hint' => i('Show/hide the teamsize') ,
-                'key' => $this->prefix.'tournament_teamsize_visible',
-                'type' => 'checkbox',
-                'value' => true
             ]
         ];
         return [
@@ -60,7 +53,7 @@ class ListComponent extends Component {
         $items = $collection->items([
             'order' => 'created',
             'order_direction' => 'desc',
-            'limit' => 4, // make this variable
+            'limit' => 0, // make this variable
             'status' => 'published'
         ]);
         $tournamentItems = [];
@@ -73,15 +66,19 @@ class ListComponent extends Component {
             $participants = count($db->get('forge_tournaments_tournament_participant'));
 
             $enrollmentActive = false;
-            $actionURL = ''; // Link to tournament detail
-            $actionLabel = i('Detail', 'forge-tournaments');
+            $actionURL = $item->url(); // Link to tournament detail
+            $actionLabel = i('Details', 'forge-tournaments');
 
-            // Turnier hat noch nicht begonnen
+            // Turnier hat noch nicht begonnen oder Anmeldung noch nicht veröffentlicht
             if (new \DateTime($item->getMeta('start_time')) > new \DateTime()) {
+
+                if($item->getMeta('allow_signup')) {
+                    $actionURL = Utils::getUrl(['enrollment', $item->slug()]);
+                    $actionLabel = i('Enroll', 'forge-tournaments');
+                    $enrollmentActive = true;
+                }
                 $tournamentStatus = i('Upcoming', 'forge-tournaments');
-                $enrollmentActive = true;
-                $actionURL = Utils::getUrl(['enrollment', $item->slug()]);
-                $actionLabel = i('Enroll', 'forge-tournaments');
+                
             // Turniert läuft zur Zeit
             // TODO: Finde heraus wann ein Turnier noch nicht abgeschlossen ist
             } else if (true) {

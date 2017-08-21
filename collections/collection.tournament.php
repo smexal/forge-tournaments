@@ -52,9 +52,15 @@ class TournamentCollection extends DataCollection {
         $db->where('tournament_id', $item->id);
         $subscribedParticipants = count($db->get('forge_tournaments_tournament_participant'));
 
+        $enrollmentActive = false;
+        if($item->getMeta('allow_signup') === 'on') {
+            $enrollmentActive = true;
+        }
+
         return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
             'tournament',
             [
+                'enrollment_active' => $enrollmentActive,
                 'enrollment_cta_label' => i('Enroll now', 'forge-tournaments'),
                 'start_label' => i('Start', 'forge-tournaments'),
                 'status_label' => i('Status', 'forge-tournaments'),
@@ -113,7 +119,6 @@ class TournamentCollection extends DataCollection {
             [
                 'key' => 'max_participants',
                 'label' => i('Max. participants', 'forge-tournaments'),
-                'value' => 16,
                 'multilang' => false,
                 'type' => 'number',
                 'order' => 30,
@@ -123,7 +128,6 @@ class TournamentCollection extends DataCollection {
             [
                 'key' => 'team_competition',
                 'label' => i('Team competition', 'forge-tournaments'),
-                'value' => 'on',
                 'multilang' => false,
                 'type' => 'checkbox',
                 'order' => 40,
@@ -131,9 +135,17 @@ class TournamentCollection extends DataCollection {
                 'hint' => i('Sign-up only for teams?', 'forge-tournaments')
             ],
             [
+                'key' => 'allow_signup',
+                'label' => i('Allow Tournament signup', 'forge-tournaments'),
+                'multilang' => false,
+                'type' => 'checkbox',
+                'order' => 40,
+                'position' => 'right',
+                'hint' => ''
+            ],
+            [
                 'key' => 'team_size',
                 'label' => i('Team size', 'forge-tournaments'),
-                'value' => 8,
                 'multilang' => false,
                 'type' => 'number',
                 'order' => 50,
@@ -142,7 +154,6 @@ class TournamentCollection extends DataCollection {
             [
                 'key' => 'team_substitutes',
                 'label' => i('Team substitutes', 'forge-tournaments'),
-                'value' => 2,
                 'multilang' => false,
                 'type' => 'number',
                 'order' => 60,

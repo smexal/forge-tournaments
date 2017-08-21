@@ -18,6 +18,7 @@
                     <span class="title">{$start_label}</span>
                     <div>{$start_date}</div>
                 </div>
+                {if="$enrollment_active"}
                 <div class="enrollment">
                     <span class="title">{$enrollment_label}</span>
                     <div>{$current_participants} / {$max_participants}</div>
@@ -25,6 +26,7 @@
                 <div class="cta">
                     <a class="btn btn-primary btn-lg" href="{$url_enrollment}">{$enrollment_cta_label}</a>
                 </div>
+                {/if}
             </aside>
         </div>
         <div class="row">
