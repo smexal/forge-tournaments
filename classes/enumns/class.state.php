@@ -14,6 +14,7 @@ abstract class State {
     # Encounter results can be recorded 
     const RUNNING = 40;
     # NO Encounter results can be changed anymore by non-admins
+    # Admins can alter and fix wrong results
     const FINISHED = 50;
     # Upon completing a phase the winners are moved to the next phase
     const COMPLETED = 60;

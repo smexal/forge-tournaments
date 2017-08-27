@@ -9,8 +9,11 @@ use \Forge\Core\Abstracts\Module;
 use \Forge\Core\App\API;
 use \Forge\Core\App\Auth;
 use \Forge\Core\App\App;
+use \Forge\Core\Classes\Group;
+use \Forge\Core\Classes\Settings;
 use \Forge\Core\Classes\Media;
 use \Forge\Core\Classes\Localization;
+use \Forge\Modules\ForgeTournaments\Phases\PhaseRegistry;
 
 class ForgeTournaments extends Module {
     const FILE_SIZE_LIMIT = 5*1024*1024; // 5MB
@@ -33,6 +36,7 @@ class ForgeTournaments extends Module {
 
     public function start() {
         Auth::registerPermissions($this->permission);
+        $this->install();
 
         // backend
         Loader::instance()->addStyle('modules/forge-tournaments/assets/css/forge-tournaments.less');
@@ -52,6 +56,23 @@ class ForgeTournaments extends Module {
         App::instance()->tm->theme->addStyle(CORE_WWW_ROOT.'ressources/css/externals/tooltipster.bundle.min.css');
 
         API::instance()->register('forge-tournaments', [$this, 'apiAdapter']);
+        \registerModifier('Forge/Core/RelationDirectory/collectRelations', '\Forge\Modules\ForgeTournaments\PhaseCollection::relations');
+        \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterPhaseTypes', '\Forge\Modules\ForgeTournaments\PhaseCollection::registerPhaseTypes');
+
+        PhaseRegistry::instance()->prepare();
+    }
+
+    public function install() {
+        if(Settings::get($this->name . ".installed")) {
+            return;
+        }
+        Auth::registerPermissions($this->permission);
+        Auth::registerPermissions('api.collection.' . PhaseCollection::COLLECTION_NAME . '.read');
+        
+        $admins = Group::getByName('Administratoren');
+        $admins->grant(Auth::getPermissionID('api.collection.' . PhaseCollection::COLLECTION_NAME . '.read'));
+
+        Settings::set($this->name . ".installed", 1);
     }
 
     public function apiAdapter($data) {

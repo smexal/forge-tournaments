@@ -1,0 +1,11 @@
+<section class="tournament-phases">
+    <h3>{$title}</h3>
+    <ul class="phases-list collapsible-list">
+       {loop="$phases"}
+        <li>
+            <h4>{$value.title}</h4>
+            <div>{$value.phase}</div>
+        </li>
+        {/loop}
+    </ul>
+</section>
