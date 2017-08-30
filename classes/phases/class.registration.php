@@ -5,6 +5,7 @@ namespace Forge\Modules\ForgeTournaments\Phases;
 use \Forge\Modules\ForgeTournaments\Interfaces\IPhaseType;
 
 class RegistrationPhase extends BasePhase implements IPhaseType {
+    
     public static function identifier() : string {
         return \Forge\Modules\ForgeTournaments\PhaseType::REGISTRATION;
     }

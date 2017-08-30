@@ -101,6 +101,16 @@ class PhaseCollection extends DataCollection {
                 'hint' => i('The next phase after this one is completed', 'forge-tournaments'),
                 'process:modifyField' => [$this, 'processModifyPhaseType'],
             ],
+             [
+                'key' => 'participant_pool',
+                'label' => \i('Participant Pool', 'forge-tournaments'),
+                'value' => '',
+                'multilang' => false,
+                'type' => 'tag',
+                'order' => 20,
+                'position' => 'left',
+                'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments')
+            ]
         ]);
     }
 
