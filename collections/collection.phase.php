@@ -5,10 +5,12 @@ namespace Forge\Modules\ForgeTournaments;
 use \Forge\Core\Abstracts\DataCollection;
 use \Forge\Core\App\App;
 use \Forge\Core\Classes\User;
+use \Forge\Core\Classes\CollectionItem;
 use \Forge\Core\Classes\FieldUtils as FieldUtils;
 use \Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
 use \Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
-use \Forge\Modules\ForgeTournaments\Phases\PhaseRegistry;
+
+use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
 
 class PhaseCollection extends DataCollection {
     const COLLECTION_NAME = 'forge-tournaments-phase';
@@ -26,8 +28,14 @@ class PhaseCollection extends DataCollection {
 
     }
 
-    public function render($item) {
-        return "RENDER";
+    public function customEditContent($item_id) {
+        $html = '';
+        $item = new CollectionItem($item_id);
+        $phase = Utils::getSubtype('IPhaseType', $item, 'ft_phase_type');
+        if($phase) {
+            $html .= $phase->render($item);
+        }
+        return $html;
     }
 
     public static function relations($existing) {
@@ -47,12 +55,8 @@ class PhaseCollection extends DataCollection {
         ]);
     }
 
-    public static function registerPhaseTypes() {
-        $ns = '\\Forge\\Modules\\ForgeTournaments\\Phases\\';
-        PhaseRegistry::instance()->register($ns . 'KOPhase');
-        PhaseRegistry::instance()->register($ns . 'GroupPhase');
-        PhaseRegistry::instance()->register($ns . 'RegistrationPhase');
-        PhaseRegistry::instance()->register($ns . 'PerformancePhase');
+    public static function registerSubTypes() {
+        BaseRegistry::registerTypes('IPhaseType', FOREGE_TOURNAMENTS_COLLECTION_SUBTYPES['IPhaseType']);
     }
 
     private function custom_fields() {
@@ -106,7 +110,7 @@ class PhaseCollection extends DataCollection {
                 'label' => \i('Participant Pool', 'forge-tournaments'),
                 'value' => '',
                 'multilang' => false,
-                'type' => 'tag',
+                'type' => 'tags',
                 'order' => 20,
                 'position' => 'left',
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments')
@@ -115,15 +119,12 @@ class PhaseCollection extends DataCollection {
     }
 
     public function itemDependentFields($item) {
-        $phase_key = $item->getMeta('ft_phase_type');
-        $phase = PhaseRegistry::instance()->get($phase_key);
-        if(is_null($phase)) {
-            return;
+        $phase = Utils::getSubtype('IPhaseType', $item, 'ft_phase_type');
+        if(!is_null($phase)) {
+            $new_fields = $phase->fields($item);
+            $this->addFields($new_fields);
+            $this->customFields = $phase->modifyFields($this->customFields);
         }
-
-        $new_fields = $phase->fields($item);
-        $this->addFields($new_fields);
-        $this->customFields = $phase->modifyFields($this->customFields);
     }
 
     public function processModifyPhaseType($field, $item, $value) {
@@ -133,6 +134,5 @@ class PhaseCollection extends DataCollection {
         }
         return $field;
     }
-}
 
-?>
+}

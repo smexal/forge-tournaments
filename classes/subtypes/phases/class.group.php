@@ -1,8 +1,10 @@
 <?php
 
-namespace Forge\Modules\ForgeTournaments\Phases;
+namespace Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases;
 
 use \Forge\Modules\ForgeTournaments\Interfaces\IPhaseType;
+
+use \Forge\Core\Classes\CollectionItem;
 
 class GroupPhase extends BasePhase implements IPhaseType {
 
@@ -27,6 +29,10 @@ class GroupPhase extends BasePhase implements IPhaseType {
                 'hint' => i('My Field only appears when i am a group phase', 'forge-tournaments')
             ]
         ];
+    }
+
+    public function render(CollectionItem $item) : string {
+        return '<div style="color:red">MY Name is dem super duper GroupPhase</div>';
     }
 
 }

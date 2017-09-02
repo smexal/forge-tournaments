@@ -1,6 +1,6 @@
 <?php
 
-namespace Forge\Modules\ForgeTournaments\Phases;
+namespace Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases;
 
 use \Forge\Modules\ForgeTournaments\Interfaces\IPhaseType;
 

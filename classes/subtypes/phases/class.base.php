@@ -1,10 +1,11 @@
 <?php
 
-namespace Forge\Modules\ForgeTournaments\Phases;
+namespace Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases;
 
 use \Forge\Modules\ForgeTournaments\PhaseType;
+use \Forge\Core\Classes\CollectionItem;
 
-class BasePhase {
+abstract class BasePhase {
 
     public function fields($item=null) : array {
         return [];
@@ -16,6 +17,10 @@ class BasePhase {
 
     public function onStateChange($old, $new) {
         return;
+    }
+
+    public function render(CollectionItem $item) : string {
+        return '';
     }
 
 }

@@ -13,7 +13,9 @@ use \Forge\Core\Classes\Group;
 use \Forge\Core\Classes\Settings;
 use \Forge\Core\Classes\Media;
 use \Forge\Core\Classes\Localization;
-use \Forge\Modules\ForgeTournaments\Phases\PhaseRegistry;
+
+use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
+use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\ParticipantRegistry;
 
 class ForgeTournaments extends Module {
     const FILE_SIZE_LIMIT = 5*1024*1024; // 5MB
@@ -56,10 +58,14 @@ class ForgeTournaments extends Module {
         App::instance()->tm->theme->addStyle(CORE_WWW_ROOT.'ressources/css/externals/tooltipster.bundle.min.css');
 
         API::instance()->register('forge-tournaments', [$this, 'apiAdapter']);
+
         \registerModifier('Forge/Core/RelationDirectory/collectRelations', '\Forge\Modules\ForgeTournaments\PhaseCollection::relations');
-        \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterPhaseTypes', '\Forge\Modules\ForgeTournaments\PhaseCollection::registerPhaseTypes');
+
+        \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterIPhaseType', '\Forge\Modules\ForgeTournaments\PhaseCollection::registerSubTypes');
+        \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterIParticipantType', '\Forge\Modules\ForgeTournaments\ParticipantCollection::registerSubTypes');
 
         PhaseRegistry::instance()->prepare();
+        ParticipantRegistry::instance()->prepare();
     }
 
     public function install() {
