@@ -41,8 +41,11 @@ class ForgeTournaments extends Module {
         $this->install();
 
         // backend
+        Loader::instance()->addStyle('modules/forge-tournaments/assets/css/general.less');
         Loader::instance()->addStyle('modules/forge-tournaments/assets/css/forge-tournaments.less');
         Loader::instance()->addStyle('modules/forge-tournaments/assets/css/bracket.less');
+
+        Loader::instance()->addStyle('modules/forge-tournaments/assets/css/phases.less');
 
         Loader::instance()->addScript('modules/forge-tournaments/assets/scripts/forge-tournaments.js');
 
@@ -73,10 +76,15 @@ class ForgeTournaments extends Module {
             return;
         }
         Auth::registerPermissions($this->permission);
-        Auth::registerPermissions('api.collection.' . PhaseCollection::COLLECTION_NAME . '.read');
-        
+
+        $api_collections = [PhaseCollection::COLLECTION_NAME, ParticipantCollection::COLLECTION_NAME];
+
         $admins = Group::getByName('Administratoren');
-        $admins->grant(Auth::getPermissionID('api.collection.' . PhaseCollection::COLLECTION_NAME . '.read'));
+        foreach($api_collections as $name) {
+            Auth::registerPermissions('api.collection.' . $name . '.read');
+            $admins->grant(Auth::getPermissionID('api.collection.' . $name . '.read'));
+        }
+
 
         Settings::set($this->name . ".installed", 1);
     }

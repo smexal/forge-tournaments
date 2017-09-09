@@ -2,15 +2,16 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
-use \Forge\Core\Abstracts\DataCollection;
-use \Forge\Core\App\App;
-use \Forge\Core\Classes\User;
-use \Forge\Core\Classes\CollectionItem;
-use \Forge\Core\Classes\FieldUtils as FieldUtils;
-use \Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
-use \Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
+use Forge\Core\Abstracts\DataCollection;
+use Forge\Core\App\App;
+use Forge\Core\App\Auth;
+use Forge\Core\Classes\User;
+use Forge\Core\Classes\CollectionItem;
+use Forge\Core\Classes\FieldUtils as FieldUtils;
+use Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
+use Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
 
-use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
+use Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
 
 class PhaseCollection extends DataCollection {
     const COLLECTION_NAME = 'forge-tournaments-phase';
@@ -62,6 +63,25 @@ class PhaseCollection extends DataCollection {
     private function custom_fields() {
         $this->addFields([
             [
+                'key' => 'ft_tournament',
+                'label' => \i('Tournament', 'forge-tournaments'),
+                'values' => '',
+
+                'type' => 'collection',
+                'maxtags'=> 1,
+                'collection' => TournamentCollection::COLLECTION_NAME,
+                'data_source' => 'relation',
+                'relation' => [
+                    'identifier' => 'ft_next_phase'
+                ],
+
+                'value' => '',
+                'multilang' => false,
+                'order' => 10,
+                'position' => 'right',
+                'hint' => i('Select a tournament', 'forge-tournaments')
+            ],
+            [
                 'key' => 'ft_phase_status',
                 'label' => \i('Lifecycle', 'forge-tournaments'),
                 'values' => Utils::getPhaseStates(),
@@ -110,7 +130,15 @@ class PhaseCollection extends DataCollection {
                 'label' => \i('Participant Pool', 'forge-tournaments'),
                 'value' => '',
                 'multilang' => false,
-                'type' => 'tags',
+
+                'type' => 'collection',
+                /*'maxtags'=> 64,*/
+                'collection' => ParticipantCollection::COLLECTION_NAME,
+                'data_source' => 'relation',
+                'relation' => [
+                    'identifier' => 'ft_next_phase'
+                ],
+
                 'order' => 20,
                 'position' => 'left',
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments')
@@ -133,6 +161,13 @@ class PhaseCollection extends DataCollection {
             $field['readonly'] = true;
         }
         return $field;
+    }
+
+    public function subviewCreator() {
+
+        if (!Auth::allowed("manage.collection.sites")) {
+            return;
+        }
     }
 
 }
