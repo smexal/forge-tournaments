@@ -1,0 +1,17 @@
+<section class="tournament-phases">
+    <h3>{$title}</h3>
+    <ul class="phases-list ft-collapsible-list">
+       {loop="$phases"}
+        <li class="ft-collapsible__item">
+            <input type="checkbox" class="ft-hidden-input" id="collapsible-{$value.content|md5}" {if condition="$value.open"}checked="checked"{/if} />
+            <label for="collapsible-{$value.content|md5}" class="ft-collapsible-toggle ft-collapsible-title">{$value.title}</label>
+            <div class="ft-collapsible-content">{$value.content}</div>
+        </li>
+        {/loop}
+        {if condition="$add_phase"}
+        <li>
+            {$add_phase}
+        </li>
+        {/if}
+    </ul>
+</section>

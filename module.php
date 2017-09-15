@@ -9,8 +9,13 @@ use \Forge\Core\Abstracts\Module;
 use \Forge\Core\App\API;
 use \Forge\Core\App\Auth;
 use \Forge\Core\App\App;
+use \Forge\Core\Classes\Group;
+use \Forge\Core\Classes\Settings;
 use \Forge\Core\Classes\Media;
 use \Forge\Core\Classes\Localization;
+
+use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
+use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\ParticipantRegistry;
 
 class ForgeTournaments extends Module {
     const FILE_SIZE_LIMIT = 5*1024*1024; // 5MB
@@ -33,10 +38,14 @@ class ForgeTournaments extends Module {
 
     public function start() {
         Auth::registerPermissions($this->permission);
+        $this->install();
 
         // backend
+        Loader::instance()->addStyle('modules/forge-tournaments/assets/css/general.less');
         Loader::instance()->addStyle('modules/forge-tournaments/assets/css/forge-tournaments.less');
         Loader::instance()->addStyle('modules/forge-tournaments/assets/css/bracket.less');
+
+        Loader::instance()->addStyle('modules/forge-tournaments/assets/css/phases.less');
 
         Loader::instance()->addScript('modules/forge-tournaments/assets/scripts/forge-tournaments.js');
 
@@ -52,6 +61,32 @@ class ForgeTournaments extends Module {
         App::instance()->tm->theme->addStyle(CORE_WWW_ROOT.'ressources/css/externals/tooltipster.bundle.min.css');
 
         API::instance()->register('forge-tournaments', [$this, 'apiAdapter']);
+
+        \registerModifier('Forge/Core/RelationDirectory/collectRelations', '\Forge\Modules\ForgeTournaments\PhaseCollection::relations');
+
+        \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterIPhaseType', '\Forge\Modules\ForgeTournaments\PhaseCollection::registerSubTypes');
+        \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterIParticipantType', '\Forge\Modules\ForgeTournaments\ParticipantCollection::registerSubTypes');
+
+        PhaseRegistry::instance()->prepare();
+        ParticipantRegistry::instance()->prepare();
+    }
+
+    public function install() {
+        if(Settings::get($this->name . ".installed")) {
+            return;
+        }
+        Auth::registerPermissions($this->permission);
+
+        $api_collections = [PhaseCollection::COLLECTION_NAME, ParticipantCollection::COLLECTION_NAME];
+
+        $admins = Group::getByName('Administratoren');
+        foreach($api_collections as $name) {
+            Auth::registerPermissions('api.collection.' . $name . '.read');
+            $admins->grant(Auth::getPermissionID('api.collection.' . $name . '.read'));
+        }
+
+
+        Settings::set($this->name . ".installed", 1);
     }
 
     public function apiAdapter($data) {

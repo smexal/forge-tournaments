@@ -2,18 +2,21 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
-use \Forge\Core\Abstracts\DataCollection;
-use \Forge\Core\App\App;
-use \Forge\Core\App\CollectionManager;
-use \Forge\Core\Classes\Media;
-use \Forge\Core\Classes\User;
-use \Forge\Core\Classes\Utils as CoreUtils;
+use Forge\Core\Abstracts\DataCollection;
+use Forge\Core\App\App;
+use Forge\Core\App\Auth;
+use Forge\Core\App\CollectionManager;
+use Forge\Core\Classes\Media;
+use Forge\Core\Classes\User;
+use Forge\Core\Classes\Utils as CoreUtils;
 
 class TournamentCollection extends DataCollection {
+    const COLLECTION_NAME = 'forge-tournaments';
+
     public $permission = 'manage.collection.sites';
 
     protected function setup() {
-        $this->preferences['name'] = 'forge-tournaments'; //TODO: make this a class constant
+        $this->preferences['name'] = TournamentCollection::COLLECTION_NAME; //TODO: make this a class constant
         $this->preferences['title'] = i('Tournaments', 'forge-tournaments');
         $this->preferences['all-title'] = i('Manage tournaments', 'forge-tournaments');
         $this->preferences['add-label'] = i('Add tournament', 'forge-tournaments');
@@ -52,9 +55,15 @@ class TournamentCollection extends DataCollection {
         $db->where('tournament_id', $item->id);
         $subscribedParticipants = count($db->get('forge_tournaments_tournament_participant'));
 
+        $enrollmentActive = false;
+        if($item->getMeta('allow_signup') === 'on') {
+            $enrollmentActive = true;
+        }
+
         return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
             'tournament',
             [
+                'enrollment_active' => $enrollmentActive,
                 'enrollment_cta_label' => i('Enroll now', 'forge-tournaments'),
                 'start_label' => i('Start', 'forge-tournaments'),
                 'status_label' => i('Status', 'forge-tournaments'),
@@ -113,7 +122,6 @@ class TournamentCollection extends DataCollection {
             [
                 'key' => 'max_participants',
                 'label' => i('Max. participants', 'forge-tournaments'),
-                'value' => 16,
                 'multilang' => false,
                 'type' => 'number',
                 'order' => 30,
@@ -123,7 +131,6 @@ class TournamentCollection extends DataCollection {
             [
                 'key' => 'team_competition',
                 'label' => i('Team competition', 'forge-tournaments'),
-                'value' => 'on',
                 'multilang' => false,
                 'type' => 'checkbox',
                 'order' => 40,
@@ -131,9 +138,17 @@ class TournamentCollection extends DataCollection {
                 'hint' => i('Sign-up only for teams?', 'forge-tournaments')
             ],
             [
+                'key' => 'allow_signup',
+                'label' => i('Allow Tournament signup', 'forge-tournaments'),
+                'multilang' => false,
+                'type' => 'checkbox',
+                'order' => 40,
+                'position' => 'right',
+                'hint' => ''
+            ],
+            [
                 'key' => 'team_size',
                 'label' => i('Team size', 'forge-tournaments'),
-                'value' => 8,
                 'multilang' => false,
                 'type' => 'number',
                 'order' => 50,
@@ -142,7 +157,6 @@ class TournamentCollection extends DataCollection {
             [
                 'key' => 'team_substitutes',
                 'label' => i('Team substitutes', 'forge-tournaments'),
-                'value' => 2,
                 'multilang' => false,
                 'type' => 'number',
                 'order' => 60,
@@ -231,25 +245,37 @@ class TournamentCollection extends DataCollection {
         ]);
     }
 
-    public static function processRenderPhases($value) {
+    public static function processRenderPhases($value, $item) {
+
+        $phases = [
+            [
+                'title' => 'Phase 1 [done]',
+                'content' => 'PHASE CONTENT',
+                'open' => false
+            ],
+            [
+                'title' => 'Phase 2 [running]',
+                'content' => 'PHASE CONTENT 2',
+                'open' => false
+            ],
+            [
+                'title' => 'Phase 3 [fresh]',
+                'content' => 'PHASE CONTENT 3',
+                'open' => true
+            ]
+        ];
+
+        $add_phase_content = App::instance()->render(CORE_TEMPLATE_DIR . "assets/", "overlay-button", array(
+            'url' => CoreUtils::getUrl(array('manage', 'collections', 'forge-tournaments', 'edit', $item->id, 'addPhase')),
+            'label' => \i('Add Phase', 'forge-tournaments')
+        ));
+
         return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
             'tournament_phases',
             [
                 'title' => \i('Phases', 'forge-tournaments'),
-                'phases' => [
-                    [
-                        'title' => 'Phase 1',
-                        'phase' => 'PHASE CONTENT'
-                    ],
-                    [
-                        'title' => 'Phase 2',
-                        'phase' => 'PHASE CONTENT 2'
-                    ],
-                    [
-                        'title' => 'Phase 3',
-                        'phase' => 'PHASE CONTENT 3'
-                    ]
-                ]
+                'phases' => $phases,
+                'add_phase' => $add_phase_content
             ]
         );
     }
@@ -281,6 +307,17 @@ class TournamentCollection extends DataCollection {
         
         return $value;
     }
+
+
+    public function subviewAddPhase() {
+        if (!Auth::allowed("manage.collection.sites")) {
+            return;
+        }
+        die("ASdf");
+        return "TEST";
+    }
+
+
 }
 
 ?>

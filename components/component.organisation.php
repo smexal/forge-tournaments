@@ -105,7 +105,7 @@ class OrganisationComponent extends Component {
             'label' => $this->getField($this->prefix.'url'),
             'hint' => ''
         ));
-        $form.= Fields::fileStandart(array(
+        $form.= Fields::fileStandard(array(
             'key' => $this->prefix.'image',
             'label' => $this->getField($this->prefix.'image'),
             'hint' => ''

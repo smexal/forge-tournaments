@@ -35,10 +35,18 @@ class TournamentView extends View {
         $background = new Media($this->tournament->getMeta('image_background'));
         $big = new Media($this->tournament->getMeta('image_big'));
 
+        $enrollmentActive = false;
+        if($this->tournament->getMeta('allow_signup')) {
+            $enrollmentActive = true;
+        }
+
         return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
             'tournament',
             [
+                'enrollment_active' => $enrollmentActive,
                 'enrollment_cta_label' => i('Enroll now', 'forge-tournaments'),
+                'url_enrollment' => CoreUtils::getUrl(['enrollment', $this->tournament->slug()]),
+                'enrollment_label' => i('Enrollments', 'forge-tournaments'),
                 'start_label' => i('Start', 'forge-tournaments'),
                 'status_label' => i('Status', 'forge-tournaments'),
                 'title' => $this->tournament->getMeta('title'),
@@ -48,8 +56,6 @@ class TournamentView extends View {
                 'current_participants' => $participants,
                 'max_participants' => $this->tournament->getMeta('max_participants'),
                 'big' => $big->getUrl(),
-                'url_enrollment' => CoreUtils::getUrl(['enrollment', $this->tournament->slug()]),
-                'enrollment_label' => i('Enrollments', 'forge-tournaments'),
                 'short' => $this->tournament->getMeta('description'),
                 'long' => $this->tournament->getMeta('additional_description'),
                 'prices' => [],

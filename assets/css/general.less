@@ -1,0 +1,44 @@
+.ft-collapsible-list {
+    label {
+        cursor: pointer;
+
+        &::before {
+            content: "+";
+            display: inline-block;
+            margin-right: 0.5rem;
+            width: 1rem;
+        }
+    }
+
+    .ft-collapsible-content {
+        overflow: hidden;
+        height: 0;
+        transform: height 1s;
+    }
+
+    .ft-hidden-input:checked {
+        & + label {
+
+            &::before {
+                content: "-";
+            }
+        }
+        & + label + .ft-collapsible-content {
+            height: auto;
+        }
+    }
+
+    .ft-collapsible-title {
+        font-weight: bolder;
+        font-size: 1.5rem;
+    }
+}   
+
+.ft-hidden-input {
+    position: absolute;
+    visibility: hidden;
+    left: -10000px;
+    top: -10000px;
+    height: 0;
+    width: 0;
+}
