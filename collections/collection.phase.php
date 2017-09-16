@@ -41,14 +41,14 @@ class PhaseCollection extends DataCollection {
 
     public static function relations($existing) {
         return array_merge($existing, [
-            'ft_prev_phase' => new CollectionRelation(
-                'ft_prev_phase', 
+            'ft_next_phase' => new CollectionRelation(
+                'ft_next_phase', 
                 PhaseCollection::COLLECTION_NAME, 
                 PhaseCollection::COLLECTION_NAME, 
                 RelationDirection::DIRECTED
             ),
-            'ft_next_phase' => new CollectionRelation(
-                'ft_next_phase', 
+            'ft_participant_output_pool' => new CollectionRelation(
+                'ft_participant_output_pool', 
                 PhaseCollection::COLLECTION_NAME, 
                 PhaseCollection::COLLECTION_NAME, 
                 RelationDirection::DIRECTED
@@ -62,7 +62,7 @@ class PhaseCollection extends DataCollection {
 
     private function custom_fields() {
         $this->addFields([
-            [
+            /*[
                 'key' => 'ft_tournament',
                 'label' => \i('Tournament', 'forge-tournaments'),
                 'values' => '',
@@ -72,7 +72,9 @@ class PhaseCollection extends DataCollection {
                 'collection' => TournamentCollection::COLLECTION_NAME,
                 'data_source' => 'relation',
                 'relation' => [
-                    'identifier' => 'ft_next_phase'
+                    'identifier' => 'ft_phases',
+                    // Todo display reversed relation so the user can see to which parent the phase belongs
+                    // 'dire'
                 ],
 
                 'value' => '',
@@ -80,7 +82,7 @@ class PhaseCollection extends DataCollection {
                 'order' => 10,
                 'position' => 'right',
                 'hint' => i('Select a tournament', 'forge-tournaments')
-            ],
+            ], */
             [
                 'key' => 'ft_phase_status',
                 'label' => \i('Lifecycle', 'forge-tournaments'),
@@ -107,7 +109,7 @@ class PhaseCollection extends DataCollection {
             [
                 'key' => 'ft_next_phase',
                 'label' => \i('Next Phase', 'forge-tournaments'),
-                'values' => Utils::getPhaseTypes(),
+                'values' => [],
                 'value' => NULL,
                 'multilang' => false,
 
@@ -136,7 +138,7 @@ class PhaseCollection extends DataCollection {
                 'collection' => ParticipantCollection::COLLECTION_NAME,
                 'data_source' => 'relation',
                 'relation' => [
-                    'identifier' => 'ft_next_phase'
+                    'identifier' => 'ft_participant_output_pool'
                 ],
 
                 'order' => 20,

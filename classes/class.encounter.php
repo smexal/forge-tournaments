@@ -11,10 +11,10 @@ class Encounter {
    // Best of 1 / Best of 3 / Best of 5
    // Performance
    protected $type;
-   // A Match does have to have configurable fields based on the played game
+   // A Round does have to have configurable fields based on the played game
    // Maybe Define Game-Types as in toornament so that these fields do not have
    // to be regenerated each time
-   protected $matches;
+   protected $rounds;
    /*
     fn set/get/Members
     fn hasOpenSlots // Check if completed

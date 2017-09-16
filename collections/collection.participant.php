@@ -18,7 +18,7 @@ class ParticipantCollection extends DataCollection {
 
 
     protected function setup() {
-        $this->preferences['name'] = ParticipantCollection::COLLECTION_NAME; //TODO: make this a class constant
+        $this->preferences['name'] = ParticipantCollection::COLLECTION_NAME;
         $this->preferences['title'] = i('Participants', 'forge-tournaments');
         $this->preferences['all-title'] = i('Manage participant', 'forge-tournaments');
         $this->preferences['add-label'] = i('Add participant', 'forge-tournaments');
@@ -34,7 +34,7 @@ class ParticipantCollection extends DataCollection {
 
     public static function relations($existing) {
         return array_merge($existing, [
-            'ft_prev_phase' => new CollectionRelation(
+           /* 'ft_prev_phase' => new CollectionRelation(
                 'ft_prev_phase', 
                 ParticipantCollection::COLLECTION_NAME, 
                 ParticipantCollection::COLLECTION_NAME, 
@@ -45,7 +45,7 @@ class ParticipantCollection extends DataCollection {
                 ParticipantCollection::COLLECTION_NAME, 
                 ParticipantCollection::COLLECTION_NAME, 
                 RelationDirection::DIRECTED
-            )
+            )*/
         ]);
     }
 

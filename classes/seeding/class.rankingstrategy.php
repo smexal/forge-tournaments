@@ -4,9 +4,9 @@ namespace Forge\Modules\ForgeTournaments\Seeding;
 
 use Forge\Modules\ForgeTournaments\Interfaces\ISeedingStrategy;
 
-class RandomStrategy implements ISeedingStrategy {
+class RankingStrategy implements ISeedingStrategy {
     public static function getName() {
-        return 'random';
+        return 'ranking';
     }
    /*
     fn state();

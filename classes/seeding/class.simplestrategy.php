@@ -4,9 +4,12 @@ namespace Forge\Modules\ForgeTournaments\Seeding;
 
 use Forge\Modules\ForgeTournaments\Interfaces\ISeedingStrategy;
 
-class RandomStrategy implements ISeedingStrategy {
+/**
+ *  Just append at the end of the Array
+ */
+class SimpleStrategy implements ISeedingStrategy  {
     public static function getName() {
-        return 'random';
+        return 'simple';
     }
    /*
     fn state();
