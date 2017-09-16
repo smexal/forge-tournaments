@@ -57,7 +57,7 @@ class PhaseCollection extends DataCollection {
     }
 
     public static function registerSubTypes() {
-        BaseRegistry::registerTypes('IPhaseType', FOREGE_TOURNAMENTS_COLLECTION_SUBTYPES['IPhaseType']);
+        BaseRegistry::registerTypes('IPhaseType', FORGE_TOURNAMENTS_COLLECTION_SUBTYPES['IPhaseType']);
     }
 
     private function custom_fields() {

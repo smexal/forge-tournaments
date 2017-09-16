@@ -2,8 +2,6 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
-require_once('config.php');
-
 use \Forge\Loader;
 use \Forge\Core\Abstracts\Module;
 use \Forge\Core\App\API;
@@ -38,6 +36,9 @@ class ForgeTournaments extends Module {
 
     public function start() {
         Auth::registerPermissions($this->permission);
+
+        require_once(MOD_ROOT.'forge-tournaments/config.php');
+
         $this->install();
 
         // backend

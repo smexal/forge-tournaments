@@ -1,9 +1,9 @@
 <?php
-define("FORGE_TOURNAMENT_NS", 'Forge\\Modules\\ForgeTournaments');
-define("FORGE_TOURNAMENT_HOOK_NS", 'ForgeTournaments');
+define('FORGE_TOURNAMENT_NS', 'Forge\\Modules\\ForgeTournaments');
+define('FORGE_TOURNAMENT_HOOK_NS', 'ForgeTournaments');
 define('FORGE_TOURNAMENTS_DIR', MOD_ROOT . basename(dirname(__FILE__)) . '/');
 
-define('FOREGE_TOURNAMENTS_COLLECTION_SUBTYPES', [
+define('FORGE_TOURNAMENTS_COLLECTION_SUBTYPES', [
     'IPhaseType' => [
         '\\Forge\\Modules\\ForgeTournaments\\CollectionSubtypes\\Phases\\KOPhase',
         '\\Forge\\Modules\\ForgeTournaments\\CollectionSubtypes\\Phases\\GroupPhase',

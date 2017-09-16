@@ -50,7 +50,7 @@ class ParticipantCollection extends DataCollection {
     }
 
     public static function registerSubTypes() {
-        BaseRegistry::registerTypes('IParticipantType', FOREGE_TOURNAMENTS_COLLECTION_SUBTYPES['IParticipantType']);
+        BaseRegistry::registerTypes('IParticipantType', FORGE_TOURNAMENTS_COLLECTION_SUBTYPES['IParticipantType']);
     }
 
     private function custom_fields() {
