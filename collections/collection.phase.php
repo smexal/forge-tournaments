@@ -19,7 +19,7 @@ class PhaseCollection extends DataCollection {
 
 
     protected function setup() {
-        $this->preferences['name'] = PhaseCollection::COLLECTION_NAME; //TODO: make this a class constant
+        $this->preferences['name'] = PhaseCollection::COLLECTION_NAME;
         $this->preferences['title'] = i('Phases', 'forge-tournaments');
         $this->preferences['all-title'] = i('Manage phase', 'forge-tournaments');
         $this->preferences['add-label'] = i('Add phase', 'forge-tournaments');

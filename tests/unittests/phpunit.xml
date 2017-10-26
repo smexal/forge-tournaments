@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit colors="true" bootstrap="">
+    <testsuites>
+        <testsuite name="Forge Tournaments - Calculations">
+            <file>calculations/test.nodes.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>
