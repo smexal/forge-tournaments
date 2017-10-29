@@ -4,6 +4,10 @@ namespace Forge\Modules\ForgeTournaments\Interfaces;
 
 interface INode {
 
+    public function setIdentifier($identifier);
+
+    public function getIdentifier();
+
     public function setParent(INode $parent);
 
     public function hasParent() : bool;
@@ -16,7 +20,7 @@ interface INode {
 
     public function hasChildren() : bool;
 
-    public function getChildren() : INode;
+    public function getChildren() : array;
 
 }
 

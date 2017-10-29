@@ -24,10 +24,23 @@ use Forge\Modules\ForgeTournaments\Calculations;
 
 class TestNodes extends TestCase {
   
-    public function testNodeTree() {
-        error_log("test");
+    public function testChildNodeAssignement() {
         $node = new Node();
-        $this->assertEquals(1, 1);
+        $nodes = []; 
+        $nodes[] = new Node();
+        $nodes[] = new Node();
+        $nodes[] = new Node();
+
+        foreach($nodes as $child) {
+            $node->addChild($child);
+        }
+
+        $fetched_children = $node->getChildren();
+        $this->assertEquals(count($fetched_children), count($nodes));
+        foreach($fetched_children as $idx => $node) {
+            $this->assertEquals($node, $nodes[$idx]);
+        }
+
     }
 
     public static function setUpBeforeClass() {

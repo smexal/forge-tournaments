@@ -2,7 +2,74 @@
 
 use \Forge\SuperLoader as SuperLoader;
 
+use Forge\Modules\ForgeTournaments\Calculations\Node;
+use Forge\Modules\ForgeTournaments\Calculations\Tree;
+
 abstract class TestUtilsForgeTournaments {
+
+    public static function strBinaryTree($node) {
+        $str = '';
+        $depth = $node->getDepth();
+        $current_node = $node;
+        echo print_r($node->identifierArray(), 1);
+        for($i = 1; $i < $depth; $i++) {
+            $nodes = static::getNodesOfDepth($node, $i);
+            $list = array_map(function($node) { return $node->getIdentifier();}, $nodes);
+            $str .= implode(' ', $list) . "\n";
+        }
+        return $node->getIdentifier() . " \n" . $str;
+    }
+
+    public static function getNodesOfDepth($node, $depth, $current_depth=0) {
+        $list = [];
+        if($current_depth == 0 && $depth == $current_depth) {
+            return [$node];
+        }
+
+        if($current_depth + 1 == $depth) {
+            return $node->getChildren();
+        }
+
+        foreach($node->getChildren() as $child) {
+            $sub_list = static::getNodesOfDepth($child, $depth, $current_depth + 1);
+            $list = array_merge($list, $sub_list);
+        }
+
+        return $list;
+    }
+
+    public static function appendBinaryTree($node, $max_depth, $depth=0, $id_stack=null) {
+        if($depth == $max_depth) {
+            return $node;
+        }
+        $left = new Node();
+        $right = new Node();
+
+        if(is_array($id_stack) && count($id_stack) > 0) {
+            $left->setIdentifier(array_pop($id_stack));
+        }
+
+        if(is_array($id_stack) && count($id_stack) > 0) {
+            $right->setIdentifier(array_pop($id_stack));
+        }
+
+        $node->addChild($left);
+        $node->addChild($right);
+
+        foreach($node->getChildren() as &$child) {
+            $child = static::appendBinaryTree($child, $max_depth, $depth + 1, $id_stack);
+        }
+        return $node;
+    }
+
+    public static function nameStack() {
+        $stack = [];
+        for($i = 0; $i < 26; $i++) {
+            $stack[] = ord(32 + $i);
+        }
+        return $stack;
+    }
+
 
     public static function setup() {
         require_once(dirname(__FILE__) . "/config.php");

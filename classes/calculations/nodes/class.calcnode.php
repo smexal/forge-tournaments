@@ -15,7 +15,6 @@ class CalcNode extends Node implements ICalcNode {
         $this->identifier = $identifier;
     }
 
-
     public function addInputs(IInput $input) {
         $this->inputs[] = $input;
     }
