@@ -2,6 +2,7 @@
 
 namespace Forge\Modules\ForgeTournaments\Calculations\Nodes\Iterators;
 
+use Forge\Modules\ForgeTournaments\Interfaces\INode;
 use Forge\Modules\ForgeTournaments\Interfaces\INodeIterator;
 
 /**
@@ -14,15 +15,15 @@ use Forge\Modules\ForgeTournaments\Interfaces\INodeIterator;
  */
 class DepthFirstIterator extends NodeIterator {
 
-    public function _nextNode() : INode {
+    protected function _nextNode() {
         if (!$this->hasStarted()) {
-            return $this->base_node;
+            return $this->getBaseNode();
         }
         return $this->getDFNode($this->getCurrentNode());
     }
 
     private function getDFNode(INode $node) {
-        foreach ($this->getChildren() as $child) {
+        foreach ($node->getChildren() as $child) {
             if (!$this->isNodeVisited($child) && !$this->isNodeClosed($child)) {
                 return $child;
             }
@@ -30,7 +31,6 @@ class DepthFirstIterator extends NodeIterator {
         
         $this->setNodeClosed($node);
         if (!$node->hasParent()) {
-            $this->finishIteration();
             return null;
         }
         return $this->getDFNode($node->getParent());

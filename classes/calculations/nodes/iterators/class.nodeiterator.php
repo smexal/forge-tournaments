@@ -16,60 +16,75 @@ abstract class NodeIterator implements INodeIterator {
         $this->base_node = $node;
     }
 
-    public function nextNode() : INode {
+    public function nextNode() {
         $node = $this->_nextNode();
         $this->visitNode($node);
         $this->started = true;
+        return $this->getCurrentNode();
     }
+
+    // Returning null will automatically stop the iteration
+    abstract protected function _nextNode();
 
     public function hasStarted() : bool {
         return $this->started;
     }
 
-    public function finishIteration() {
-        $this->finished = true;
+    public function getCurrentNode() {
+        return $this->current_node;
+    }
+
+    public function getBaseNode() {
+        return $this->base_node;
     }
 
     public function hasFinished() : bool {
         return $this->finished;
     }
 
-    abstract protected function _nextNode() : INode;
-
-    public function getBaseNode() : INode {
-        return $this->base_node;
+    protected function finishIteration() {
+        $this->finished = true;
     }
 
-    protected function getCurrentNode() : INode {
-        return $this->current_node;
-    }
 
-    protected function setCurrentNode(INode $node) : INode {
+    protected function setCurrentNode($node) {
         $this->current_node = $node;
     }
 
-    private function visitNode(INode $node) {
+    protected function visitNode($node) {
         $this->setCurrentNode($node);
         $this->setNodeVisited($node);
+        if(is_null($node)) {
+            $this->finishIteration();
+        }
     }
 
-    private function setNodeClosed(INode $node) {
+    protected function setNodeClosed($node) {
         $this->nodes_closed[$this->getNodeUID($node)] = $node;
     }
 
-    private function isNodeClosed(INode $node) {
+    protected function isNodeClosed($node) {
+        if (is_null($node)) {
+            return null;
+        }
         return array_key_exists($this->getNodeUID($node), $this->nodes_closed);
     }
 
-    private function setNodeVisited(INode $node) {
+    protected function setNodeVisited($node) {
+        if (is_null($node)) {
+            return;
+        }
         $this->nodes_visited[$this->getNodeUID($node)] = $node;
     }
 
-    private function isNodeVisited(INode $node) {
+    protected function isNodeVisited($node) {
+        if (is_null($node)) {
+            return;
+        }
         return array_key_exists($this->getNodeUID($node), $this->nodes_visited);
     }
 
-    private function getNodeUID(INode $node) {
+    private function getNodeUID($node) {
         return spl_object_hash($node);
     }
 

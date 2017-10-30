@@ -38,19 +38,24 @@ abstract class TestUtilsForgeTournaments {
         return $list;
     }
 
-    public static function appendBinaryTree($node, $max_depth, $depth=0, $id_stack=null) {
+    public static function appendBinaryTree($node, $max_depth, $depth=0, &$id_stack=[]) {
+        if($depth==0) {
+            if(count($id_stack) > 0) {
+                $node->setIdentifier(array_shift($id_stack));
+            }
+        }
         if($depth == $max_depth) {
             return $node;
         }
         $left = new Node();
         $right = new Node();
 
-        if(is_array($id_stack) && count($id_stack) > 0) {
-            $left->setIdentifier(array_pop($id_stack));
+        if(count($id_stack) > 0) {
+            $left->setIdentifier(array_shift($id_stack));
         }
 
-        if(is_array($id_stack) && count($id_stack) > 0) {
-            $right->setIdentifier(array_pop($id_stack));
+        if(count($id_stack) > 0) {
+            $right->setIdentifier(array_shift($id_stack));
         }
 
         $node->addChild($left);
@@ -65,7 +70,7 @@ abstract class TestUtilsForgeTournaments {
     public static function nameStack() {
         $stack = [];
         for($i = 0; $i < 26; $i++) {
-            $stack[] = ord(32 + $i);
+            $stack[] = chr(65 + $i);
         }
         return $stack;
     }

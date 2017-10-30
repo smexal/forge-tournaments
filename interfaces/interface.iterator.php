@@ -4,8 +4,10 @@ namespace Forge\Modules\ForgeTournaments\Interfaces;
 
 interface INodeIterator {
 
-    public function nextNode() : INode;
+    public function nextNode();
 
-    public function hasNextNode() : bool;
+    public function hasStarted() : bool;
+    
+    public function hasFinished() : bool;
 
 }

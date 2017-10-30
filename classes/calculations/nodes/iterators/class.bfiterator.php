@@ -2,6 +2,7 @@
 
 namespace Forge\Modules\ForgeTournaments\Calculations\Nodes\Iterators;
 
+use Forge\Modules\ForgeTournaments\Interfaces\INode;
 use Forge\Modules\ForgeTournaments\Interfaces\INodeIterator;
 
 /**
@@ -12,20 +13,23 @@ use Forge\Modules\ForgeTournaments\Interfaces\INodeIterator;
  * 
  *  Results in: A, B, C, D, E, F, G, H, I, J, K, L, M, N, O
  */
-class BreadthFirstIterator implements INodeIterator {
+class BreadthFirstIterator extends NodeIterator {
 
     private $queue = [];
 
-    public function _nextNode() : INode {
+    protected function _nextNode() {
         if (!$this->hasStarted()) {
-            $this->queue[] = $this->base_node;
+            $this->queue[] = $this->getBaseNode();
             return reset($this->queue);
         }
-        return $this->getBFNode();
+        $node = $this->getBFNode();
+        return $node;
     }
 
     private function getBFNode() {
-        $queue_node = reset($this->queue);
+        if(!($queue_node = reset($this->queue))) {
+            return null;
+        }
         foreach ($queue_node->getChildren() as $child) {
             if (!$this->isNodeVisited($child) && !$this->isNodeClosed($child)) {
                 $this->queue[] = $child;
