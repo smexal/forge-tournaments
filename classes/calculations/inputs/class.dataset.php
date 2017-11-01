@@ -1,41 +1,63 @@
 <?php
 
-namespace Forge\Modules\ForgeTournaments\Calculations;
+namespace Forge\Modules\ForgeTournaments\Calculations\Inputs;
 
-class DataSet {
-    private $team_data = [];
+use Forge\Modules\ForgeTournaments\Interfaces\IDataSet;
+use Forge\Modules\ForgeTournaments\Interfaces\IDataSegment;
 
-    public function __construct() {}
+class DataSet implements IDataSet {
+    private $data_segments = [];
 
-    public function getTeamIDs() {
-        return array_keys($this->team_data);
+    public function __construct(array $data_segments = []) {
+        $this->addDataSegments($data_segments);
     }
 
-    public function appendTeamData(TeamData $data) {
-        if(!$this->hasTeamData($data->getTeamID())) {
-            $team_data[$data->getTeamID()] = $data;
-            return;
+    public function getSegmentIDs() {
+        return array_keys($this->data_segments);
+    }
+
+    public function addDataSegments(array $data_segments) {
+        foreach($data_segments as $data_segments) {
+            $this->addDataSegment($data_segments);
         }
-        $team_data[$data->getTeamID()]->merge($data);
+    }
+    public function addDataSegment(IDataSegment $data) {
+        if(!$this->hasDataSegment($data->getSegmentID())) {
+            $this->data_segments[$data->getSegmentID()] = $data;
+        } else {
+            $this->data_segments[$data->getSegmentID()]->merge($data);
+        }
     }
 
-    public function hasTeamData($team_id) : bool {
-        return isset($this->team_data[$team_id]);
+    public function hasDataSegment($segment_id) : bool {
+        return isset($this->data_segments[$segment_id]);
     }
 
-    public function getTeamData($team_id) : array {
-        return $this->hasTeamData() ? $this->team_data[$team_id] : null;
+    public function getDataSegment($segment_id) {
+        return $this->hasDataSegment($segment_id) ? $this->data_segments[$segment_id] : null;
     }
 
-    public function getAllTeamData() {
-        return $this->team_data;
+    public function getAllDataSegments() : array {
+        return $this->data_segments;
     }
 
-    public function merge(DataSet $data) {
-        foreach($data->getTeamData() as $new_team_data) {
-            $this->appendTeamData($new_team_data);
+    public function merge(IDataSet $data) {
+        foreach($data->getAllDataSegments() as $new_data_segment) {
+            $this->addDataSegment($new_data_segment);
         }
         return $this;
+    }
+
+    public function join(IDataSet $data) {
+        $new_ds = new DataSet();
+        foreach($this->getAllDataSegments() as $new_data_segment) {
+            $new_ds->addDataSegment($new_data_segment);
+        }
+        foreach($data->getAllDataSegments() as $new_data_segment) {
+            $new_ds->addDataSegment($new_data_segment);
+        }
+        //var_dump($new_ds);
+        return $new_ds;
     }
 
 }

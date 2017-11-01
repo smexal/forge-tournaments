@@ -1,8 +1,12 @@
 <?php
 
-namespace Forge\Modules\ForgeTournaments\Calculations;
+namespace Forge\Modules\ForgeTournaments\Calculations\Inputs;
 
-abstract class Input extends IInput {
+use Forge\Modules\ForgeTournaments\Interfaces\IInput;
+use Forge\Modules\ForgeTournaments\Interfaces\IDataSet;
+use Forge\Modules\ForgeTournaments\Interfaces\INode;
+
+abstract class Input implements IInput {
     const STATUS_OPEN = 0x0;
     const STATUS_OK = 0x1;
     const STATUS_CONFLICT = 0x2;
@@ -28,8 +32,8 @@ abstract class Input extends IInput {
         return $this->data;
     }
 
-    public function appendData(IDataSet $data, ICalcNode $node) : array {
-        return $data->merge($this->getDataSet());
+    public function appendData(IDataSet $data, INode $node) : IDataSet {
+        return $data->join($this->getDataSet());
     }
 
     public function getStatus() {

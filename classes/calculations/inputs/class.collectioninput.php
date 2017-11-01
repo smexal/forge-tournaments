@@ -1,8 +1,11 @@
 <?php
 
-namespace Forge\Modules\ForgeTournaments\Calculations;
+namespace Forge\Modules\ForgeTournaments\Calculations\Inputs;
 
-class CollectionInput extends IInput {
+use Forge\Modules\ForgeTournaments\Interfaces\ICalcNode;
+use Forge\Modules\ForgeTournaments\Interfaces\IInput;
+
+class CollectionInput implements ICalcNode {
     private $collection_id = null;
     private $metadata_keys = [];
 
@@ -12,7 +15,9 @@ class CollectionInput extends IInput {
         $this->metadata_keys = $metadata_keys;
     }
 
-    public function appendData() : array {
+
+    // TODO: Rework for DataSets
+    public function appendData() : IDataSet {
         if(!is_null(parent::getData())) {
             return parent::getData();
         }

@@ -3,6 +3,8 @@
 namespace Forge\Modules\ForgeTournaments\Calculations;
 
 use Forge\Modules\ForgeTournaments\Interfaces\ICalcNode;
+use Forge\Modules\ForgeTournaments\Interfaces\IInput;
+
 
 class CalcNode extends Node implements ICalcNode {
     // Eg.:TournamentXY.PhaseA.GroupZ.EncounterB.MatchT

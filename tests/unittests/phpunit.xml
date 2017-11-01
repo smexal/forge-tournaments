@@ -4,6 +4,8 @@
         <testsuite name="Forge Tournaments - Calculations">
             <file>calculations/test.nodes.php</file>
             <file>calculations/test.iterators.php</file>
+            <file>calculations/test.datasegments.php</file>
+            <file>calculations/test.iodata.php</file>
         </testsuite>
     </testsuites>
 </phpunit>

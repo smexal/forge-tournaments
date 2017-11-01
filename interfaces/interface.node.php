@@ -23,4 +23,3 @@ interface INode {
     public function getChildren() : array;
 
 }
-
