@@ -1,0 +1,3 @@
+[submodule "libs/formula-parser"]
+	path = libs/formula-parser
+	url = https://github.com/denissimon/formula-parser.git

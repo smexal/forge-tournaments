@@ -8,6 +8,7 @@ use \Forge\SuperLoader as SuperLoader;
 use \TestUtilsForgeTournaments as TestUtilsForgeTournaments;
 
 use Forge\Modules\ForgeTournaments\Calculations\Node;
+use Forge\Modules\ForgeTournaments\Calculations\CalcUtils;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\CollectionInput;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\Input;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\StaticInput;
@@ -56,7 +57,56 @@ class TestIOData extends TestCase {
         $this->assertNull($current->getDataSegment('Inexistent Identifier'));
     }
 
+    public function testFormula() {
+        $formula = 'a*x^2 + b*x + c';
+        $v = [
+            'a' => 2,
+            'b' => 3,
+            'c' => 4,
+            'x' => 2.5
+        ];
+        $expected = $v['a'] * pow($v['x'], 2) + $v['b'] * $v['x'] + $v['c'];
+        $calculated = CalcUtils::applyFormula($formula, $v, 4);
+        $this->assertEquals(round($expected, 4), $calculated);
+    }
+
+    public function testLongVarsFormula() {
+        $formula = 'alpha*exxx^2 + beta*exxx + gamma * matches.total_points';
+        $v = [
+            'alpha' => -1,
+            'beta' => 10,
+            'gamma' => -4,
+            'exxx' => 1.234,
+            'matches.total_points' => 22
+        ];
+        $expected = $v['alpha'] * pow($v['exxx'], 2) + $v['beta'] * $v['exxx'] + $v['gamma'] * $v['matches.total_points'];
+        $calculated = CalcUtils::applyFormula($formula, $v, 4);
+        $this->assertEquals(round($expected, 4), $calculated);
+    }
+
     public function testCalculationInput() {
+
+        return;
+
+        $alpha_data = new DataSet([
+            new DataSegment('team_a', ['time' => '33:30', 'fouls' => 10]),
+            new DataSegment('team_b', ['time' => '44:40', 'fouls' => 2])
+        ]);
+        $beta_data = new DataSet([
+            new DataSegment('team_a', ['men' => 5, 'women' => 2]),
+            new DataSegment('team_b', ['men' => 4, 'women' => 3])
+        ]);
+
+        $dummy_node = new Node();
+        $alpha = new StaticInput('alpha', $alpha_data);
+        $beta = new StaticInput('beta', $beta_data);
+        $current = new DataSet();
+        $current = $alpha->appendData($current, $dummy_node);
+        $current = $beta->appendData($current, $dummy_node);
+
+
+
+
         // Formulas
         // Saving to DataSet
         // Segment wise calculations?
