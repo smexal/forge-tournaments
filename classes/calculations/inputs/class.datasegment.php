@@ -22,8 +22,8 @@ class DataSegment implements IDataSegment{
         $this->data[$key] = $value;
     }
 
-    public function getValue($key, $value) {
-        $this->data[$key] = $value;
+    public function getValue($key) {
+        return $this->data[$key];
     }
 
     public function getData() : array {

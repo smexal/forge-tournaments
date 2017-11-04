@@ -12,6 +12,7 @@ use Forge\Modules\ForgeTournaments\Calculations\CalcUtils;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\CollectionInput;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\Input;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\StaticInput;
+use Forge\Modules\ForgeTournaments\Calculations\Inputs\CalculationInput;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\DataSegment;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\DataSet;
 
@@ -86,11 +87,9 @@ class TestIOData extends TestCase {
 
     public function testCalculationInput() {
 
-        return;
-
         $alpha_data = new DataSet([
-            new DataSegment('team_a', ['time' => '33:30', 'fouls' => 10]),
-            new DataSegment('team_b', ['time' => '44:40', 'fouls' => 2])
+            new DataSegment('team_a', ['time' => 12, 'fouls' => 10]),
+            new DataSegment('team_b', ['time' => 11, 'fouls' => 2])
         ]);
         $beta_data = new DataSet([
             new DataSegment('team_a', ['men' => 5, 'women' => 2]),
@@ -104,12 +103,19 @@ class TestIOData extends TestCase {
         $current = $alpha->appendData($current, $dummy_node);
         $current = $beta->appendData($current, $dummy_node);
 
+        $formula = '100 * time * (women / (men + women) / fouls)';
+        $calcinput = new CalculationInput('points', $formula);
 
+        $current = $calcinput->appendData($current, $dummy_node);
 
+        $expected_a = round(100 * 12  * (2 / (5 + 2) / 10), 4);
+        $expected_b = round(100 * 11  * (3 / (4 + 3) / 2), 4);
 
-        // Formulas
-        // Saving to DataSet
-        // Segment wise calculations?
+        $points_a = $current->getDataSegment('team_a')->getValue('points');
+        $points_b = $current->getDataSegment('team_b')->getValue('points');
+        
+        $this->assertEquals($points_a, $expected_a);
+        $this->assertEquals($points_b, $expected_b);
     }
 
 

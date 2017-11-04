@@ -8,7 +8,7 @@ interface IDataSegment {
 
     public function setValue($key, $value);
 
-    public function getValue($key, $value);
+    public function getValue($key);
 
     public function getData() : array ;
 
