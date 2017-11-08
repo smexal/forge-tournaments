@@ -319,5 +319,3 @@ class TournamentCollection extends DataCollection {
 
 
 }
-
-?>

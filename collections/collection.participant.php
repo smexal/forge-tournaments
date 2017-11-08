@@ -65,97 +65,6 @@ class ParticipantCollection extends DataCollection {
                 'order' => 10,
                 'position' => 'right',
                 'hint' => i('Select the participant status', 'forge-tournaments')
-            ],
-            [
-                'key' => 'end-date22222',
-                'label' => i('End Date22222', 'forge-events'),
-                'multilang' => true,
-                'type' => 'datetime',
-                'order' => 20,
-                'position' => 'left',
-                'hint' => ''
-            ],
-            [
-                'key' => 'myrepeater',
-                'label' => \i('Maaai Repeater', 'forge-tournaments'),
-                'multilang' => false,
-                'type' => 'repeater',
-                'order' => 10,
-                'position' => 'left',
-                'hint' => i('Select the participant status', 'forge-tournaments'),
-                'subfields' => [
-                     [
-                        'key' => 'alpha',
-                        'label' => i('Alpha', 'forge-tournaments'),
-                        'value' => "val_alpha",
-                        'multilang' => false,
-                        'type' => 'text',
-                        'hint' => i('Short key', 'forge-tournaments')
-                    ],
-                    [
-                        'key' => 'url',
-                        'label' => i('Website', 'forge-tournaments'),
-                        'value' => "",
-                        'multilang' => true,
-                        'type' => 'url',
-                        'order' => 60,
-                        'position' => 'right',
-                        'hint' => i('Link to the website', 'forge-tournaments')
-                    ],
-                    [
-                        'key' => 'image_logo',
-                        'label' => i('Logo', 'forge-tournaments'),
-                        'value' => "",
-                        'multilang' => true,
-                        'type' => 'image',
-                        'order' => 70,
-                        'position' => 'right',
-                        'hint' => i('Logo', 'forge-tournaments')
-                    ],
-                    [
-                        'key' => 'qc_action', 
-                        'label' => \i('Action', 'forge-quests'),
-                        'values' => [
-                            'alpha' => 'Alpha',
-                            'beta' => 'Beta',
-                            'gamma' => 'Gamma',
-                            'delta' => 'Delta',
-                            'yotta' => 'Yotta'
-                        ],
-                        'value' => 'gamma',
-                        'multilang' => false,
-                        'type' => 'select',
-                        'order' => 20,
-                        'position' => 'left'
-                    ],
-                    [
-                        'key' => 'comments',
-                        'label' => i('Allow Comments (Disqus)', 'forge-news'),
-                        'multilang' => true,
-                        'type' => 'checkbox',
-                        'order' => 20,
-                        'position' => 'right',
-                        'hint' => ''
-                    ],
-                     [
-                        'key' => 'end-date',
-                        'label' => i('End Date', 'forge-events'),
-                        'multilang' => true,
-                        'type' => 'datetime',
-                        'order' => 30,
-                        'position' => 'right',
-                        'hint' => ''
-                    ],
-                    [
-                        'key' => 'price',
-                        'label' => i('Event Price', 'forge-events'),
-                        'multilang' => true,
-                        'type' => 'number',
-                        'order' => 19,
-                        'position' => 'right',
-                        'hint' => ''
-                    ]
-                ]
             ]
         ]);
     }
@@ -177,5 +86,3 @@ class ParticipantCollection extends DataCollection {
         return $field;
     }
 }
-
-?>
