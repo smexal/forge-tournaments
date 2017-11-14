@@ -7,8 +7,8 @@ use \Forge\SuperLoader as SuperLoader;
 
 use \TestUtilsForgeTournaments as TestUtilsForgeTournaments;
 
-use Forge\Modules\ForgeTournaments\Calculations\Inputs\DataSegment;
-use Forge\Modules\ForgeTournaments\Calculations\Inputs\DataSet;
+use Forge\Modules\ForgeTournaments\Data\DataSegment;
+use Forge\Modules\ForgeTournaments\Data\DataSet;
 
 
 class TestDataSegments extends TestCase {

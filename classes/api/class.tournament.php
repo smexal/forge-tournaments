@@ -69,4 +69,8 @@ class Tournament extends APIFacade {
     $phase_id = $data['p1'];
   }
 
+  public function getMatch() {
+    
+  }
+
 }

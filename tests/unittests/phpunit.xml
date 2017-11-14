@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit colors="true" bootstrap="">
     <testsuites>
+        <testsuite name="Forge Tournaments - Data Handling">
+            <file>datahandling/test.datasegments.php</file>
+            <file>datahandling/test.datastorage.php</file>
+        </testsuite>
         <testsuite name="Forge Tournaments - Calculations">
             <file>calculations/test.nodes.php</file>
             <file>calculations/test.iterators.php</file>

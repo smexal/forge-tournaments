@@ -71,13 +71,14 @@ class MatchCollection extends DataCollection {
 </ul>";
     }
     public function renderNodeDataGathered() {
-        return '<table>
+        return '<table class="ft-result-table">
     <thead>
         <tr>
             <th>Data Key</th>
             <th>Source</th>
             <th>Participant 1</th>
             <th>Participant 2</th>
+            <th>Status</th>
         </tr>
     </thead>
     <tbody>
@@ -86,30 +87,35 @@ class MatchCollection extends DataCollection {
             <td>Participants</td>
             <td>10:00 [edit]</td>
             <td>11:00 [edit]</td>
+            <td>OK</td>
         </tr>
         <tr>
             <td>other</td>
             <td>OTHER PROVIDER</td>
             <td>23543.5 [edit]</td>
             <td class="amended"><del>2345.7</del> 2346.8 [edit]</td>
+            <td>OK</td>
         </tr>
         <tr>
             <td>points</td>
             <td>Participants</td>
             <td class="amended"><del>P1: 21 | P2: 29</del> 29 [edit]</td>
             <td class="conflicted">P1: 31 | P2: 29 [resolve]</td>
+            <td>Conflicted</td>
         </tr>
         <tr>
             <td>Stylnote</td>
             <td>Admin</td>
             <td class="missing"> -- [add]</td>
             <td class="missing"> -- [add]</td>
+            <td>Missing</td>
         </tr>
         <tr>
             <td>Winner</td>
             <td>System (Calculation)</td>
             <td> MISSING DATA (points) </td>
             <td> MISSING DATA (points) </td>
+            <td>Missing</td>
         </tr>
     </tbody>
 </table>';

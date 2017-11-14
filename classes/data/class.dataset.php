@@ -1,6 +1,6 @@
 <?php
 
-namespace Forge\Modules\ForgeTournaments\Calculations\Inputs;
+namespace Forge\Modules\ForgeTournaments\Data;
 
 use Forge\Modules\ForgeTournaments\Interfaces\IDataSet;
 use Forge\Modules\ForgeTournaments\Interfaces\IDataSegment;
