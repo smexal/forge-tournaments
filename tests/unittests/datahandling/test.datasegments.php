@@ -33,27 +33,35 @@ class TestDataSegments extends TestCase {
             ]
         ];
 
-        $alpha->addDataSegment(new DataSegment('team_a', [
+        $ds1 = new DataSegment('team_a');
+        $ds1->addData([
           'throws' => 40,
           'runs'   => 20
-        ]));
-        $alpha->addDataSegment(new DataSegment('team_a', [
+        ]);
+
+        $ds2 = new DataSegment('team_a');
+        $ds2->addData([
           'fouls' => 2,
           'time'   => '33:30',
           'runs'   => 22
-        ]));
+        ]);
 
-
-        $beta->addDataSegment(new DataSegment('team_b', [
+        $ds3 = new DataSegment('team_b');
+        $ds3->addData([
           'throws' => 30,
           'runs'   => 10
-        ]));
+        ]);
 
-
-        $beta->addDataSegment(new DataSegment('team_b', [
+        $ds4 = new DataSegment('team_b');
+        $ds4->addData([
           'fouls' => 3,
           'time'   => '30:40'
-        ]));
+        ]);
+
+        $alpha->addDataSegment($ds1);
+        $alpha->addDataSegment($ds2);
+        $beta->addDataSegment($ds3);
+        $beta->addDataSegment($ds4);
 
 
         $alpha->merge($beta);
@@ -63,9 +71,8 @@ class TestDataSegments extends TestCase {
         foreach(['team_a', 'team_b'] as $segment_id) {
             $ds = $alpha->getDataSegment($segment_id);
             
-            $ds_data = $ds->getData();
+            $ds_data = $ds->getAllData();
             $expected_s = $expected[$segment_id];
-
             $expected_s = ksort($expected_s);
             $ds_data  = ksort($ds_data);
             

@@ -8,6 +8,7 @@ use Forge\Modules\ForgeTournaments\Interfaces\ICalculation;
 use Forge\Modules\ForgeTournaments\Interfaces\IDataSegment;
 use Forge\Modules\ForgeTournaments\Interfaces\IDataSet;
 use Forge\Modules\ForgeTournaments\Calculations\CalcUtils;
+use Forge\Modules\ForgeTournaments\Data\DataSegment;
 
 class CalculationInput extends Input implements ICalculation {
     private $formula = null;
@@ -25,11 +26,13 @@ class CalculationInput extends Input implements ICalculation {
     }
 
     public function calculate(IDataSegment $data_segment) : IDataSegment {
-        $base_data = $data_segment->getData();
+        $base_data = $data_segment->getDataOfSource();
         $result = CalcUtils::applyFormula($this->formula, $base_data, 4);
-        return new DataSegment($data_segment->getSegmentID(), [
+        $ds = new DataSegment($data_segment->getSegmentID());
+        $ds->addData([
             $this->getKey() => $result
         ]);
+        return $ds;
     }
 
 }

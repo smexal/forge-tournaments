@@ -13,8 +13,8 @@ use Forge\Modules\ForgeTournaments\Calculations\Inputs\CollectionInput;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\Input;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\StaticInput;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\CalculationInput;
-use Forge\Modules\ForgeTournaments\Calculations\Inputs\DataSegment;
-use Forge\Modules\ForgeTournaments\Calculations\Inputs\DataSet;
+use Forge\Modules\ForgeTournaments\Data\DataSegment;
+use Forge\Modules\ForgeTournaments\Data\DataSet;
 
 
 class TestIOData extends TestCase {
@@ -26,14 +26,17 @@ class TestIOData extends TestCase {
             'team_b' => ['time' => '44:40', 'fouls' => 2, 'men' => 4, 'women' => 3]
         ];
 
-        $alpha_data = new DataSet([
-            new DataSegment('team_a', ['time' => '33:30', 'fouls' => 10]),
-            new DataSegment('team_b', ['time' => '44:40', 'fouls' => 2])
-        ]);
-        $beta_data = new DataSet([
-            new DataSegment('team_a', ['men' => 5, 'women' => 2]),
-            new DataSegment('team_b', ['men' => 4, 'women' => 3])
-        ]);
+        $ds1 = new DataSegment('team_a');
+        $ds1->addData(['time' => '33:30', 'fouls' => 10]);
+        $ds2 = new DataSegment('team_b');
+        $ds2->addData(['time' => '44:40', 'fouls' => 2]);
+        $ds3 = new DataSegment('team_a');
+        $ds3->addData(['men' => 5, 'women' => 2]);
+        $ds4 = new DataSegment('team_b');
+        $ds4->addData(['men' => 4, 'women' => 3]);
+
+        $alpha_data = new DataSet([$ds1, $ds2]);
+        $beta_data = new DataSet([$ds3, $ds4]);
 
         $dummy_node = new Node();
         $alpha = new StaticInput('alpha', $alpha_data);
@@ -46,7 +49,7 @@ class TestIOData extends TestCase {
         foreach(['team_a', 'team_b'] as $segment_id) {
             $ds = $current->getDataSegment($segment_id);
             
-            $ds_data = $ds->getData();
+            $ds_data = $ds->getDataOfSource('__default__');
             $expected_s = $expected[$segment_id];
 
             $expected_s = ksort($expected_s);
@@ -86,14 +89,17 @@ class TestIOData extends TestCase {
     }
 
     public function testCalculationInput() {
-        $alpha_data = new DataSet([
-            new DataSegment('team_a', ['time' => 12, 'fouls' => 10]),
-            new DataSegment('team_b', ['time' => 11, 'fouls' => 2])
-        ]);
-        $beta_data = new DataSet([
-            new DataSegment('team_a', ['men' => 5, 'women' => 2]),
-            new DataSegment('team_b', ['men' => 4, 'women' => 3])
-        ]);
+        $ds1 = new DataSegment('team_a');
+        $ds1->addData(['time' => 12, 'fouls' => 10]);
+        $ds2 = new DataSegment('team_b');
+        $ds2->addData(['time' => 11, 'fouls' => 2]);
+        $ds3 = new DataSegment('team_a');
+        $ds3->addData(['men' => 5, 'women' => 2]);
+        $ds4 = new DataSegment('team_b');
+        $ds4->addData(['men' => 4, 'women' => 3]);
+
+        $alpha_data = new DataSet([$ds1, $ds2]);
+        $beta_data = new DataSet([$ds3, $ds4]);
 
         $dummy_node = new Node();
         $alpha = new StaticInput('alpha', $alpha_data);

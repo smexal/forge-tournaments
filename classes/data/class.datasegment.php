@@ -11,13 +11,19 @@ class DataSegment implements IDataSegment {
     private $segment_id = null;
     private $data = [];
 
-    public function __construct($segment_id, $data) {
+    public function __construct($segment_id) {
         $this->segment_id = $segment_id;
-        $this->data = $data;
     }
+
 
     public function getSegmentID() {
         return $this->segment_id;
+    }
+
+    public function addData($data, $source='__default__') {
+        foreach($data as $key => $value) {
+            $this->setValue($key, $value, $source);
+        }
     }
 
     public function setValue($key, $value, $source='__default__') {
@@ -76,15 +82,12 @@ class DataSegment implements IDataSegment {
         if(is_null($data)) {
             return;
         }
-        foreach($data->getData() as $key => $source_data) {
-            foreach($source_data as $source => $value) {
-                if($this->hasSource($key, $source)) {
-                    $this->data[$key][$source] = array_merge($this->getData($source), $value);
-                } else {
-                    $this->data[$key][$source] = $value;
-                }
-                
+
+        foreach($data->getAllData() as $key => $source_data) {
+            if(!isset($this->data[$key])) {
+                $this->data[$key] = [];
             }
+            $this->data[$key]= array_merge($this->data[$key], $source_data);
         }
         return $this;
     }
