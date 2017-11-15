@@ -30,6 +30,7 @@ class Forgetournaments_0_0_1Migration implements IMigration {
             App::instance()->db->startTransaction();
             App::instance()->db->query(
                 'CREATE TABLE `ft_datastorage` (
+                    `segment_id` INT(11) AUTO_INCREMENT,
                     `ref_type` VARCHAR(32) NOT NULL,
                     `ref_id` INT(11) NOT NULL,
                     `source` VARCHAR(16) NOT NULL,
@@ -37,7 +38,7 @@ class Forgetournaments_0_0_1Migration implements IMigration {
                     `key` VARCHAR(16) NOT NULL,
                     `value` VARCHAR(64),
                     `changed` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY (`ref_type`, `ref_id`)
+                    PRIMARY KEY (`segment_id`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;'
             );
             App::instance()->db->commit();

@@ -82,6 +82,7 @@ abstract class TestUtilsForgeTournaments {
         // APP CONFIG
         $prev = error_reporting(0);
         define('DOC_ROOT', TestUtilsForgeTournaments::getAppRoot());
+        require_once(TestUtilsForgeTournaments::getAppRoot() . "/config-tests.php");
         require_once(TestUtilsForgeTournaments::getAppRoot() . "/config.php");
         error_reporting($prev);
         

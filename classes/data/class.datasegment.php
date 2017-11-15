@@ -20,6 +20,16 @@ class DataSegment implements IDataSegment {
         return $this->segment_id;
     }
 
+    public function setMultisourceData($data) {
+        $this->data = $data;
+    }
+
+    public function addMultisourceData($data) {
+        foreach($data as $source => $source_data) {
+            $this->addData($source, $source_data);
+        }
+    }
+
     public function addData($data, $source='__default__') {
         foreach($data as $key => $value) {
             $this->setValue($key, $value, $source);

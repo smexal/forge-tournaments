@@ -12,28 +12,38 @@ class DataSetStorage implements IDataSetStorage {
     public function __construct($ref_type, $ref_id, $storage_handler=null) {
         $this->ref_type = $ref_type;
         $this->ref_id = $ref_id;
-        if(is_null($this->storage_handler)) {
+        if(!is_null($storage_handler)) {
+            $this->storage_handler = $storage_handler;
+        } else {
             $this->storage_handler = \App::instance()->db;
-        } 
+        }
+    }
+
+    public function setStorageHandler($sh) {
+        $this->storage_handler = $sh;
+    }
+    public function getStorageHandler() {
+        return $this->storage_handler;
     }
 
     public function save(IDataSet $set) {
         $db = $this->storage_handler;
-        $list = [];
+        $insert_list = [];
         foreach($set->getAllDataSegments() as $segment) {
             foreach($segment->getAllData() as $key => $source_data) {
                 foreach($source_data as $source => $value) {
-                    $list[] = array(
+                    $insert_list[] = array(
                         'ref_id' => $this->ref_id,
                         'ref_type' => $this->ref_type,
                         'group' => $segment->getSegmentID(),
-                        'source' => $segment->getSource()
+                        'source' => $source,
+                        'key' => $key,
+                        'value' => $value
                     );
                 }
             }
         }
-        die(var_dump($insert));
-        //$db->insert("ft_datastorage", $insert);
+        $db->insertMultiple("ft_datastorage", $insert_list);
     }
 
     public function loadAll() {
@@ -46,21 +56,22 @@ class DataSetStorage implements IDataSetStorage {
         return $list;
     }
 
-    public function buildDataSets(array $list) {
+    public function buildDataSets(array $list_items) {
         $grouped_data = [];
-        foreach($list as $list) {
-            if(!isset($grouped_data[$list['group']])) {
-                $grouped_data[$list['group']] = [];
+        foreach($list_items as $item) {
+            if(!isset($grouped_data[$item['group']])) {
+                $grouped_data[$item['group']] = [];
             }
-            if(!isset($grouped_data[$list['group']][$list['key']])) {
-                $grouped_data[$list['group']][$list['key']] = [];
+            if(!isset($grouped_data[$item['group']][$item['key']])) {
+                $grouped_data[$item['group']][$item['key']] = [];
             }
-            $grouped_data[$list['group']][$list['key']][$list['source']] = $list['value'];
+            $grouped_data[$item['group']][$item['key']][$item['source']] = $item['value'];
         }
-
         $dataset = new DataSet();
         foreach($grouped_data as $segment_id => $segment_data) {
-            $dataset->addDataSegment(new DataSegment($segment_id, $segment_data));
+            $data_segment = new DataSegment($segment_id);
+            $data_segment->setMultisourceData($segment_data);
+            $dataset->addDataSegment($data_segment);
         }
         return $dataset;
     }
