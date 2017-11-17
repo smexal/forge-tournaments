@@ -14,6 +14,7 @@ use \Forge\Core\Classes\Localization;
 
 use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
 use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\ParticipantRegistry;
+use \Forge\Modules\ForgeTournaments\Data\SchemaLoader;
 
 class ForgeTournaments extends Module {
     const FILE_SIZE_LIMIT = 5*1024*1024; // 5MB
@@ -27,17 +28,24 @@ class ForgeTournaments extends Module {
     private $permission = 'manage.forge-tournaments';
 
     public function setup() {
+
         $this->version = '1.0.0';
         $this->id = 'forge-tournaments';
         $this->name = i('Forge Tournaments', 'forge-tournaments');
         $this->description = i('Tournament Management for Forge.', 'forge-tournaments');
         $this->image = $this->url().'assets/images/module-image.png';
+
+        require_once(MOD_ROOT.'forge-tournaments/config.php');
+        // Needs to be run before collections are gathered
+        SchemaLoader::instance()->load();
+    }
+
+    public function modules_loaded() {
     }
 
     public function start() {
         Auth::registerPermissions($this->permission);
 
-        require_once(MOD_ROOT.'forge-tournaments/config.php');
 
         $this->install();
 

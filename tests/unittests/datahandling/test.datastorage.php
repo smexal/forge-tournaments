@@ -7,7 +7,7 @@ use \Forge\SuperLoader as SuperLoader;
 
 use \TestUtilsForgeTournaments as TestUtilsForgeTournaments;
 
-use Forge\Modules\ForgeTournaments\Data\DataSetStorage;
+use Forge\Modules\ForgeTournaments\Data\DatasetStorage;
 use Forge\Modules\ForgeTournaments\Data\DataSegment;
 use Forge\Modules\ForgeTournaments\Data\DataSet;
 
@@ -17,7 +17,7 @@ class TestDataStorage extends TestCase {
 
     public function testDataSets() {
         $sh = new MockStorageHandler();
-        $storage = new DataSetStorage('test', 11, $sh);
+        $storage = new DatasetStorage('test', 11, $sh);
         //$storage->setStorageHandler()
         $ds1_a = new DataSegment('team_a');
         $ds2_a = new DataSegment('team_a');
@@ -65,6 +65,7 @@ class TestDataStorage extends TestCase {
         $team_beta->addDataSegment($ds3_a);
         $team_beta->addDataSegment($ds4_b);
         $team_beta->addDataSegment($ds5_b);
+        $team_beta->addDataSegment($ds6_b);
 
         $storage->save($team_alpha);
         $storage->save($team_beta);

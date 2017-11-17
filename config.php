@@ -4,7 +4,6 @@ define('FORGE_TOURNAMENT_HOOK_NS', 'ForgeTournaments');
 define('FORGE_TOURNAMENTS_DIR', MOD_ROOT . basename(dirname(__FILE__)) . '/');
 define('FORGE_TOURNAMENTS_LIBS_DIR', FORGE_TOURNAMENTS_DIR . 'libs/');
 define('FORGE_TOURNAMENTS_SCHEMAS_DIR', FORGE_TOURNAMENTS_DIR . 'schemas/');
-
 define('FORGE_TOURNAMENTS_COLLECTION_SUBTYPES', [
     'IPhaseType' => [
         '\\Forge\\Modules\\ForgeTournaments\\CollectionSubtypes\\Phases\\KOPhase',

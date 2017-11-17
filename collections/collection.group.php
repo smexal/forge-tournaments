@@ -2,7 +2,6 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
-use \Forge\Core\Abstracts\DataCollection;
 use \Forge\Core\App\App;
 use \Forge\Core\Classes\User;
 use \Forge\Core\Classes\FieldUtils as FieldUtils;
@@ -10,7 +9,7 @@ use \Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
 use \Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
 
 
-class GroupCollection extends DataCollection {
+class GroupCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments-group';
     public $permission = "manage.collection.sites";
 
@@ -23,6 +22,7 @@ class GroupCollection extends DataCollection {
         $this->preferences['single-item'] = i('Group', 'forge-tournaments');
 
         $this->custom_fields();
+        parent::setup();
 
     }
 
@@ -33,8 +33,14 @@ class GroupCollection extends DataCollection {
     public static function registerSubTypes() {
     }
 
-    private function custom_fields() {}
+    protected function custom_fields() {
 
-    public function itemDependentFields($item) {}
+        parent::custom_fields();
+    }
+
+    public function itemDependentFields($item) {
+
+        parent::itemDependentFields($item);
+    }
 
 }

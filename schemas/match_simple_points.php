@@ -2,6 +2,8 @@
 
 return [
     'match_simple_points',
+    \i('Match Simple Points', 'forge-tournaments'),
+    ['match'],
     [
         [
             'type' => 'integerN',

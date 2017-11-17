@@ -2,21 +2,34 @@
 
 namespace Forge\Modules\ForgeTournaments\Data;
 
-use Forge\Modules\ForgeTournaments\Interfaces\IDataSetStorage;
+use \Forge\Core\App\App;
+use Forge\Modules\ForgeTournaments\Interfaces\IDatasetStorage;
 use Forge\Modules\ForgeTournaments\Interfaces\IDataSet;
 
-class DataSetStorage implements IDataSetStorage {
+class DatasetStorage implements IDatasetStorage {
+    private static $instances = [];
+
     private $ref_type;
     private $ref_id;
-    private $storage_handler = null;
-    public function __construct($ref_type, $ref_id, $storage_handler=null) {
+    private $storage_handler;
+
+    public function getInstance($ref_type, $ref_id, $storage_handler=null) {
+        if(is_null($storage_handler)) {
+            $storage_handler = App::instance()->db;
+        }
+
+        $key = $ref_type . $ref_id . spl_object_hash($storage_handler);
+        if(isset(static::$instances[$key])) {
+            return static::$instances[$key];
+        }
+        static::$instances[$key] = new DatasetStorage($ref_type, $ref_id, $storage_handler);
+        return static::$instances[$key];
+    }
+
+    private function __construct($ref_type, $ref_id, $storage_handler) {
         $this->ref_type = $ref_type;
         $this->ref_id = $ref_id;
-        if(!is_null($storage_handler)) {
-            $this->storage_handler = $storage_handler;
-        } else {
-            $this->storage_handler = \App::instance()->db;
-        }
+        $this->storage_handler = $storage_handler;
     }
 
     public function setStorageHandler($sh) {

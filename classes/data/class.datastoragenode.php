@@ -3,12 +3,13 @@
 namespace Forge\Modules\ForgeTournaments\Data;
 
 use Forge\Modules\ForgeTournaments\Interfaces\IDataSchema;
+use Forge\Modules\ForgeTournaments\Interfaces\IDatasetStorage;
 
-class DataStorageNode implements IDataStorageNode {
+class DataStorageNode {
     private $dataschema;
     private $storage;
 
-    public function __construct(IDataSchema $dataschema, IDataSetStorage $storage) {
+    public function __construct(IDataSchema $dataschema, IDatasetStorage $storage) {
         $this->dataschema = $dataschema;
         $this->storage = $storage;
     }
@@ -17,7 +18,7 @@ class DataStorageNode implements IDataStorageNode {
         return $this->dataschema;
     }
 
-    public function getStorage() : IDataSetStorage {
+    public function getStorage() : IDatasetStorage {
         return $this->storage;
     }
 

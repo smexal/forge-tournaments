@@ -2,6 +2,8 @@
 
 return [
     'encounter_points_winner',
+    \i('Encounter Points Winner', 'forge-tournaments'),
+    ['encounter'],
     [
         [
             'type' => 'subsum',

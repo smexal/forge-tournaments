@@ -13,7 +13,7 @@ use Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
 
 use Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
 
-class PhaseCollection extends DataCollection {
+class PhaseCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments-phase';
     public $permission = "manage.collection.sites";
 
@@ -26,6 +26,7 @@ class PhaseCollection extends DataCollection {
         $this->preferences['single-item'] = i('Phase', 'forge-tournaments');
 
         $this->custom_fields();
+        parent::setup();
 
     }
 
@@ -60,7 +61,7 @@ class PhaseCollection extends DataCollection {
         BaseRegistry::registerTypes('IPhaseType', FORGE_TOURNAMENTS_COLLECTION_SUBTYPES['IPhaseType']);
     }
 
-    private function custom_fields() {
+    protected function custom_fields() {
         $this->addFields([
             /*[
                 'key' => 'ft_tournament',
@@ -146,6 +147,7 @@ class PhaseCollection extends DataCollection {
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments')
             ]
         ]);
+        parent::custom_fields();
     }
 
     public function itemDependentFields($item) {
