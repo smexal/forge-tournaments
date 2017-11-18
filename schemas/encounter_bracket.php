@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'encounter_points_winner',
-    \i('Encounter Points Winner', 'forge-tournaments'),
+    'encounter_bracket',
+    \i('Encounter Bracket', 'forge-tournaments'),
     ['encounter'],
     [
         [
@@ -23,8 +23,7 @@ return [
                 'compare_key' => 'matches_sum',
                 'conditions' => [
                     ['left', '<', 'right', 0],
-                    ['left', '>', 'right', 2],
-                    ['left', '=', 'right', 1],
+                    ['left', '>', 'right', 1]
                 ]
             ]
         ]

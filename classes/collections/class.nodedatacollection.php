@@ -12,6 +12,20 @@ class NodaDataCollection extends DataCollection {
     protected function setup() {}
 
     protected function custom_fields() {
+        $this->addFields([
+                [
+                    'key' => 'parent_node',
+                    'label' => \i('Parent Node', 'forge-tournaments'),
+                    'value' => null,
+                    'multilang' => false,
+                    'type' => 'text',
+                    'readonly' => true,
+                    'order' => 2,
+                    'position' => 'right',
+                    'hint' => ''
+                ]
+            ]);
+
         $schemas = $this->getDataschemaOptions();
         if(count($schemas) > 0) {
             $this->addFields([
@@ -104,13 +118,18 @@ class NodaDataCollection extends DataCollection {
     }
 
     public function renderNodeDataGathered($args, $value) {
+        $item_id = $args['__item_id'];
+        $storage_node = StorageNodeFactory::getByCollectionID($item_id);
+        $schema = $storage_node->getDataSchema();
+        $fields = $schema->getFields();
+
         return '<table class="ft-result-table">
     <thead>
         <tr>
             <th>Data Key</th>
             <th>Source</th>
-            <th>Participant 1</th>
-            <th>Participant 2</th>
+            <th>FOR Participant 1</th>
+            <th>FOR Participant 2</th>
             <th>Status</th>
         </tr>
     </thead>

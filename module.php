@@ -15,6 +15,7 @@ use \Forge\Core\Classes\Localization;
 use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
 use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\ParticipantRegistry;
 use \Forge\Modules\ForgeTournaments\Data\SchemaLoader;
+use \Forge\Modules\ForgeTournaments\Scoring\ScoringLoader;
 
 class ForgeTournaments extends Module {
     const FILE_SIZE_LIMIT = 5*1024*1024; // 5MB
@@ -38,6 +39,7 @@ class ForgeTournaments extends Module {
         require_once(MOD_ROOT.'forge-tournaments/config.php');
         // Needs to be run before collections are gathered
         SchemaLoader::instance()->load();
+        ScoringLoader::instance()->load();
     }
 
     public function modules_loaded() {

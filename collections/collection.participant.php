@@ -80,7 +80,7 @@ class ParticipantCollection extends DataCollection {
 
     public function processModifyParticipantType($field, $item, $value) {
         $phase_status = $item->getMeta('ft_phase_status');
-        if($phase_status > State::OPEN) {
+        if($phase_status > PhaseState::OPEN) {
             $field['readonly'] = true;
         }
         return $field;

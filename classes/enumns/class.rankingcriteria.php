@@ -1,4 +1,5 @@
 <?php
+namespace Forge\Modules\ForgeTournaments;
 
 abstract class RankingCriteria {
     const BY_TIME = 0;

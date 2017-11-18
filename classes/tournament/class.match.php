@@ -2,7 +2,7 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
-class Round {
+class Match {
    protected $participants;
    protected $data;
    protected $scoring;

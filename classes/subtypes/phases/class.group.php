@@ -19,14 +19,17 @@ class GroupPhase extends BasePhase implements IPhaseType {
     public function fields($item=null) : array {
         return [
             [
-                'key' => 'custom_group_field',
-                'label' => \i('Custom Group Field', 'forge-tournaments'),
-                'value' => '',
+                'key' => 'group_size',
+                'label' => \i('How many participants per group?', 'forge-tournaments'),
+                'value' => 4,
                 'multilang' => false,
-                'type' => 'text',
+                'type' => 'number',
                 'order' => 100,
                 'position' => 'left',
-                'hint' => i('My Field only appears when i am a group phase', 'forge-tournaments')
+                'hint' => i('', 'forge-tournaments'),
+                '__phase_states' => [
+
+                ]
             ]
         ];
     }

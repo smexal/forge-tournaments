@@ -1,4 +1,5 @@
 <?php
+namespace Forge\Modules\ForgeTournaments;
 
 abstract class Seeding {
     const RANDOM = 0;

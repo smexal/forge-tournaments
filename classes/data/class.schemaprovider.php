@@ -29,7 +29,7 @@ class SchemaProvider implements ISchemaProvider {
     }
 
     public function getSchema($id) {
-        if(isset($id)) {
+        if(isset($this->schemas[$id])) {
             return $this->schemas[$id];
         }
         return null;
