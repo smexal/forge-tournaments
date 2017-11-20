@@ -4,6 +4,7 @@ namespace Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases;
 
 use \Forge\Modules\ForgeTournaments\Interfaces\IPhaseType;
 
+use \ Forge\Modules\ForgeTournaments\PhaseState;
 use \Forge\Core\Classes\CollectionItem;
 
 class GroupPhase extends BasePhase implements IPhaseType {
@@ -27,9 +28,7 @@ class GroupPhase extends BasePhase implements IPhaseType {
                 'order' => 100,
                 'position' => 'left',
                 'hint' => i('', 'forge-tournaments'),
-                '__phase_states' => [
-
-                ]
+                '__last_phase_state' => PhaseState::FRESH
             ]
         ];
     }

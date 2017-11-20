@@ -3,6 +3,7 @@
 namespace Forge\Modules\ForgeTournaments;
 
 use Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
+use Forge\Modules\ForgeTournaments\Scoring\ScoringProvider;
 
 abstract class Utils {
 
@@ -45,6 +46,19 @@ abstract class Utils {
             ParticipantTypes::USER => \i('User', 'forge-tournaments'),
             ParticipantTypes::TEAM => \i('Team', 'forge-tournaments')
         ]);
+    }
+
+    public static function getScoringOptions() {
+        $scorings = ScoringProvider::instance()->getAllScorings();
+        return array_map(function($item) {
+            return $item['name'];
+        }, $scorings);
+    }
+
+    public static function getDefaultScoringID() {
+        $scorings = static::getScoringOptions();
+        $option = array_keys($scorings)[0];
+        return $option;
     }
 
 

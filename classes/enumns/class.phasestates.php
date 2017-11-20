@@ -20,11 +20,15 @@ abstract class PhaseState {
     # Upon completing a phase the winners are moved to the next phase
     const COMPLETED = 60;
 
+    const GROUP_PREPARE = 10;
+    const GROUP_RUNNING = 20;
+    const GROUP_DONE    = 30;
+
     # State groups define which states are allowed to be switched from and to
     const STATE_GROUPS = [
-        'prepare' => [PhaseState::FRESH, PhaseState::OPEN, PhaseState::READY],
-        'running' => [PhaseState::RUNNING, PhaseState::FINISHED],
-        'done'    => [PhaseState::COMPLETED]
+        PhaseState::GROUP_PREPARE => [PhaseState::FRESH, PhaseState::OPEN, PhaseState::READY],
+        PhaseState::GROUP_RUNNING => [PhaseState::RUNNING, PhaseState::FINISHED],
+        PhaseState::GROUP_DONE    => [PhaseState::COMPLETED]
     ];
 
 }

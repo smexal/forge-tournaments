@@ -55,11 +55,11 @@ class NodaDataCollection extends DataCollection {
     public function getNodeType() {
         $type = str_replace('forge-tournaments-', '', $this->preferences['name']);
         return strtolower($type);
-
     }
 
+
     public function itemDependentFields($item) {
-        $this->addFields([
+        $this->addUniqueFields([
             // THOSE ARE DEPENDENT ON data_schema
             [
                 'key' => 'node_fields',
