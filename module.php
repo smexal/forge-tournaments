@@ -16,6 +16,10 @@ use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
 use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\ParticipantRegistry;
 use \Forge\Modules\ForgeTournaments\Data\SchemaLoader;
 use \Forge\Modules\ForgeTournaments\Scoring\ScoringLoader;
+use \Forge\Modules\ForgeTournaments\EncounterCollection;
+use \Forge\Modules\ForgeTournaments\MatchCollection;
+use \Forge\Modules\ForgeTournaments\GroupCollection;
+use \Forge\Modules\ForgeTournaments\PhaseCollection;
 
 class ForgeTournaments extends Module {
     const FILE_SIZE_LIMIT = 5*1024*1024; // 5MB
@@ -80,6 +84,10 @@ class ForgeTournaments extends Module {
 
         PhaseRegistry::instance()->prepare();
         ParticipantRegistry::instance()->prepare();
+        PoolRegistry::instance()->add('phase', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\PhaseCollection'));
+        PoolRegistry::instance()->add('group', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\GroupCollection'));
+        PoolRegistry::instance()->add('encounter', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\EncounterCollection'));
+        PoolRegistry::instance()->add('match', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\MatchCollection'));
     }
 
     public function install() {

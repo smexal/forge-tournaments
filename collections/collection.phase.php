@@ -72,7 +72,8 @@ class PhaseCollection extends NodaDataCollection {
                 'type' => 'collection',
                 'maxtags'=> 1,
                 'collection' => TournamentCollection::COLLECTION_NAME,
-                'data_source' => 'relation',
+                'data_source_save' => 'relation',
+                'data_source_load' => 'relation',
                 'relation' => [
                     'identifier' => 'ft_phases',
                     // Todo display reversed relation so the user can see to which parent the phase belongs
@@ -94,7 +95,8 @@ class PhaseCollection extends NodaDataCollection {
                 'multilang' => false,
                 'order' => 10,
                 'position' => 'right',
-                'hint' => i('Select the phase status', 'forge-tournaments')
+                'hint' => i('Select the phase status', 'forge-tournaments'),
+                'data_source_save' => [$this, 'savePhaseStatus']
             ],
             [
                 'key' => 'ft_phase_type',
@@ -118,7 +120,8 @@ class PhaseCollection extends NodaDataCollection {
                 'type' => 'collection',
                 'maxtags'=> 1,
                 'collection' => PhaseCollection::COLLECTION_NAME,
-                'data_source' => 'relation',
+                'data_source_save' => 'relation',
+                'data_source_load' => 'relation',
                 'relation' => [
                     'identifier' => 'ft_next_phase'
                 ],
@@ -148,7 +151,8 @@ class PhaseCollection extends NodaDataCollection {
                 'type' => 'collection',
                 /*'maxtags'=> 64,*/
                 'collection' => ParticipantCollection::COLLECTION_NAME,
-                'data_source' => 'relation',
+                'data_source_save' => 'relation',
+                'data_source_load' => 'relation',
                 'relation' => [
                     'identifier' => 'ft_participant_output_pool'
                 ],
@@ -224,21 +228,6 @@ class PhaseCollection extends NodaDataCollection {
             $this->customFields = $phase->modifyFields($this->customFields);
         }
 
-
-/*
-[
-                'key' => 'ft_phase_status',
-                'type' => 'select',
-                'label' => \i('Lifecycle', 'forge-tournaments'),
-                'values' => Utils::getPhaseStates(),
-                'value' => PhaseState::FRESH,
-                'multilang' => false,
-                'order' => 10,
-                'position' => 'right',
-                'hint' => i('Select the phase status', 'forge-tournaments')
-            ],
-
-*/
         foreach($this->customFields as &$field) {
             if(isset($field['__last_phase_state'])) {
                 $field['process:modifyField'] = [$this, 'processModifyPhaseType'];
@@ -267,6 +256,11 @@ class PhaseCollection extends NodaDataCollection {
             $field['readonly'] = true;
         }
         return $field;
+    }
+
+    public function savePhaseStatus($item, $field, $value, $lang) {
+        $phase = PoolRegistry::getPool('phase')->getInstance($item->id);
+        $phase->changeState($value);
     }
 
     public function subviewCreator() {
