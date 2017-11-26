@@ -6,15 +6,12 @@ return [
     ['encounter'],
     [
         [
-            'type' => 'integerN',
+            'type' => 'subsum',
             'key'  => 'matches_sum',
-            'source' => 'participant',
+            'source' => 'system',
             'required' => 1,
             'field_config' => [
-                'boN' => 3,
-                'validators' => [
-                    'boNValidator::validate'
-                ]
+                'subkey' => 'winner',
             ]
         ],
         [

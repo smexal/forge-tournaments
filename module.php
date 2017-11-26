@@ -86,11 +86,11 @@ class ForgeTournaments extends Module {
         ParticipantRegistry::instance()->prepare();
         
         // Prevent too many accesses to db by keeping the instances in the Memory
-        PoolRegistry::instance()->add('phase', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\Phase'));
-        PoolRegistry::instance()->add('group', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\Group'));
-        PoolRegistry::instance()->add('encounter', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\Encounter'));
-        PoolRegistry::instance()->add('match', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\Match'));
-        PoolRegistry::instance()->add('collection', new GenericPool('\\Forge\\Core\\Classes\\CollectionItem'));
+        PoolRegistry::instance()->add('phase', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\Phase', 64));
+        PoolRegistry::instance()->add('group', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\Group', 128));
+        PoolRegistry::instance()->add('encounter', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\Encounter', 256));
+        PoolRegistry::instance()->add('match', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\Match', 512));
+        PoolRegistry::instance()->add('collection', new GenericPool('\\Forge\\Core\\Classes\\CollectionItem', 1024));
 
         PhaseBuilder::instance();
     }

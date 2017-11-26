@@ -2,7 +2,7 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
-class Match {
+class Match extends HierarchicalEntity {
    protected $participants;
    protected $data;
    protected $scoring;

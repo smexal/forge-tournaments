@@ -6,6 +6,6 @@ interface IPool {
 
     public function getInstance($id, $args=[]);
 
-    public function addInstance($id, $instance);
+    public function setInstance($id, $instance);
     
 }

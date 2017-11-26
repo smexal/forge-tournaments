@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit colors="true" bootstrap="">
     <testsuites>
-        <testsuite name="Forge Tournaments - Data Handling">
+        <testsuite name="Forge Tournaments - Phase Building">
+            <file>phasegeneration/test.phasebuilder.php</file>
+        </testsuite>
+        <!-- <testsuite name="Forge Tournaments - Data Handling">
             <file>datahandling/test.datasegments.php</file>
             <file>datahandling/test.datastorage.php</file>
         </testsuite>
@@ -10,6 +13,6 @@
             <file>calculations/test.iterators.php</file>
             <file>calculations/test.datasegments.php</file>
             <file>calculations/test.iodata.php</file>
-        </testsuite>
+        </testsuite> -->
     </testsuites>
 </phpunit>

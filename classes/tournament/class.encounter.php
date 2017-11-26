@@ -3,11 +3,12 @@
 namespace Forge\Modules\ForgeTournaments;
 
 use \Forge\Core\App\App;
+
 /**
  * The Encounter determines which participant
  * will be victorius
  */
-class Encounter {
+class Encounter extends HierarchicalEntity {
    // Best of 1 / Best of 3 / Best of 5
    // Performance
    protected $type;
@@ -15,6 +16,13 @@ class Encounter {
    // Maybe Define Game-Types as in toornament so that these fields do not have
    // to be regenerated each time
    protected $rounds;
+
+    public function addMatches($matches) {
+        foreach($matches as $match) {
+            $match->setParent($this);
+        }
+    }
+
    /*
     fn set/get/Members
     fn hasOpenSlots // Check if completed

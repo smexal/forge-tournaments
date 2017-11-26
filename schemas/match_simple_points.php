@@ -8,7 +8,7 @@ return [
         [
             'type' => 'integerN',
             'key'  => 'points',
-            'source' => 'team',
+            'source' => 'participant',
             'required' => 1,
             'field_config' => [
                 'not_same' => 1

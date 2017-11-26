@@ -5,6 +5,7 @@ return [
     \i('User performance', 'forge-tournaments'),
     [
         'participants' => \Forge\Modules\ForgeTournaments\ParticipantTypes::USER,
+        'encounter_handling' => 'performance',
         'match_handling' => 'performance',
         'phase_types' => [
             'performance' =>  [

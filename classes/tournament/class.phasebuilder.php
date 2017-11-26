@@ -46,54 +46,72 @@ class PhaseBuilder {
     public function build($phase) {
         switch ($phase->getType()) {
 
-            case PahseTypes::REGISTRATION:
+            case PhaseTypes::REGISTRATION:
                 $this->buildRegistrationPhase($phase);
             break;
 
-            case PahseTypes::GROUP:
+            case PhaseTypes::GROUP:
+                $this->buildPhase($phase);
                 $this->buildGroupPhase($phase);
             break;
 
-            case PahseTypes::KOSYSTEM:
+            case PhaseTypes::KOSYSTEM:
                 $this->buildBracketPhase($phase);
             break;
 
-            case PahseTypes::PERFORMANCE:
+            case PhaseTypes::PERFORMANCE:
                 $this->buildPerformancePhase($phase);
             break;
         }
 
     }
+
+   public function buildPhase($scoring) {
+        $scoring = $phase->getScoring();
+        
+    }
     
-    private function buildRegistrationPhase($phase) {
+   public function buildRegistrationPhase($phase) {
 
     }
     
-    private function buildGroupPhase($phase) {
+   public function buildGroupPhase($phase) {
         $scoring = $phase->getScoring();
+        $scoring = $scoring['group'];
         $num_participants = $phase->getParticipantList()->count();
         $group_size = $phase->getGroupSize();
         $num_groups = ceil($num_participants / $group_size);
         
+        $num_remaining = $num_participants % $group_size;
+
         $tree = new CollectionTree($phase->getItem());
-        $group_list = $this->buildGroups($num_groups, $group_size);
+        $groups = $this->buildGroups($phase->getID(), $scoring['group'], $num_groups, $group_size);
+
+        foreach($groups as $idx => $group) {
+            // Distribute missing slots to the remaining 
+            $num_encounters = $group_size - ($idx >= $num_remaining ? -1 : 0);
+            // Summenformel
+            $num = $num_encounters * ($num_encounters + 1) / 2;
+            $encounters = $this->buildEncounters($group->getID(), $scoring['encounter'], $num);
+        }
     }
     
-    private function buildBracketPhase($phase) {
+   public function buildBracketPhase($phase) {
 
     }
     
-    private function buildPerformancePhase($phase) {
+   public function buildPerformancePhase($phase) {
 
     }
 
     /********************
      * BUILD SUB NODES
      ********************/
-    private function buildGroups($num, $size) {
+   public function buildGroups($parent_id, $data_schema, $num, $size) {
         $args = [
             'name' => \i('Group IDX %d'),
-            'type' => GroupCollection::COLLECTION_NAME
+            'type' => GroupCollection::COLLECTION_NAME,
+            'parent' => $parent_id
         ];
         $metas = [
             'ft_group_nr' =>[
@@ -103,19 +121,59 @@ class PhaseBuilder {
             'ft_group_size' =>[
                 'value' => $size,
                 'lang' => '0',
-            ]
+            ],
+            'ft_data_schema' =>[
+                'value' => $data_schema,
+                'lang' => '0',
+            ],
         ];
         $groups = [];
         for($i = 0; $i < $num; $i++) {
             $metas['ft_group_nr']['value'] = $i + 1;
+
+            $args['name'] = sprintf($args['name'], $metas['ft_group_nr']['value']);
+
             $item = new CollectionItem(CollectionItem::create($args, $metas));
             PoolRegistry::getPool('collection')->setInstance($item->id, $item);
             
             $group = PoolRegistry::getPool('group')->getInstance($item->id, $item);
-
             $groups[] = $group;
         }
 
+        return $groups;
+    }
+
+    public function buildEncounters($parent_id, $data_schema, $num) {
+        $args = [
+            'name' => \i('Encounter IDX %d'),
+            'type' => GroupCollection::COLLECTION_NAME,
+            'parent' => $parent_id
+        ];
+        $metas = [
+            'ft_encounter_nr' =>[
+                'value' => 'TBD',
+                'lang' => '0',
+            ],
+            'ft_data_schema' =>[
+                'value' => $data_schema,
+                'lang' => '0',
+            ],
+        ];
+        $encounters = [];
+        for($i = 0; $i < $num; $i++) {
+            $metas['ft_encounter_nr']['value'] = $i + 1;
+
+            $args['name'] = sprintf($args['name'], $metas['ft_encounter_nr']['value']);
+
+            $item = new CollectionItem(CollectionItem::create($args, $metas));
+            $item->setMeta('ft_data_schema');
+            PoolRegistry::getPool('collection')->setInstance($item->id, $item);
+            
+            $encounter = PoolRegistry::getPool('encounter')->getInstance($item->id, $item);
+            $encounters[] = $encounter;
+        }
+
+        return $encounters;
     }
 
 }

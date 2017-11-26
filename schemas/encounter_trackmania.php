@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'match_trackmania',
-    \i('Match Trackmania', 'forge-tournaments'),
-    ['match'],
+    'encounter_trackmania',
+    \i('Encounter Trackmania', 'forge-tournaments'),
+    ['encounter'],
     [
         [
             'type' => 'trackmania_time_adapter',
@@ -11,6 +11,10 @@ return [
             'source' => 'system',
             'required' => 1,
             'field_config' => []
-        ]
+        ],
+        /**
+         * 1. convert time to points
+         * 
+         */
     ]
 ];
