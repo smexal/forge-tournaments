@@ -7,7 +7,7 @@ use \Forge\Modules\ForgeTournaments\Interfaces\IPhaseType;
 class RegistrationPhase extends BasePhase implements IPhaseType {
     
     public static function identifier() : string {
-        return \Forge\Modules\ForgeTournaments\PhaseType::REGISTRATION;
+        return \Forge\Modules\ForgeTournaments\PhaseTypes::REGISTRATION;
     }
 
     public static function name() : string {

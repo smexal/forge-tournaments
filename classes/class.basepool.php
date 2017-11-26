@@ -21,9 +21,17 @@ abstract class BasePool implements IPool {
         return $this->instances[$id];
     }
 
+    public function setInstance($id, $instance) {
+        $this->registerInstance($id, $instance);
+    }
+
     abstract protected function buildInstance($id, $args=[]);
 
+
     protected function registerInstance($id, $instance) {
+        if(count($this->instances) >= $this->max_pool_size) {
+            unset($this->instances[current(array_keys($this->instances))]);
+        }
         $this->instances[$id] = $instance;
     }
 

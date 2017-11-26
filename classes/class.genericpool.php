@@ -6,8 +6,6 @@ use Forge\Modules\ForgeTournaments\Interfaces\IBasePool;
 
 class GenericPool extends BasePool {
 
-    protected $instances = [];
-    protected $max_pool_size = 64; 
     protected $ns_class = null;
 
     public function __construct($ns_class, $max_pool_size=64) {
@@ -16,8 +14,8 @@ class GenericPool extends BasePool {
     }
 
     public function buildInstance($id, $args=[]) {
-       $cls = $this->ns_class;
-       return new $cls($id);
+        $args = !is_array($args) ? [$args] : $args;
+        $r = new ReflectionClass($this->ns_class);
+        return $r->newInstanceArgs($args);
     }
-
 }

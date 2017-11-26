@@ -14,8 +14,30 @@ class ParticipantList {
     protected $seeder;
 
     public function __construct(array $participants) {
-        $this->participants = $participants;
+        $this->setParticipants($participants);
     }
+
+    public function setParticipants($participants) {
+        $this->participants = $participants;
+        if(($missing = $num_slots - count($this->participants)) > 0) {
+            $this->participants = array_merge($this->participants, array_fill(0, count($missing), null));
+        }
+        if($missing < 0) {
+            $participants_overflowing = array_splice($this->participants, $num_slots, -$missing);
+            // TODO: Reassing overflowing participants according to the shuffle strategy
+        }
+    }
+
+    public function count() {
+        $count = 0;
+        foreach($this->participants as $p) {
+            if(!is_null($p)) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
    /*
     fn set/get/Members
     fn hasOpenSlots // Check if completed

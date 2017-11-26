@@ -11,6 +11,8 @@ use \Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
 
 class GroupCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments-group';
+    protected static $PARENT_COLLECTION = PhaseCollection::COLLECTION_NAME;
+
     public $permission = "manage.collection.sites";
 
 

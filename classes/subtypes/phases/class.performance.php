@@ -6,7 +6,7 @@ use \Forge\Modules\ForgeTournaments\Interfaces\IPhaseType;
 
 class PerformancePhase extends BasePhase implements IPhaseType {
     public static function identifier() : string {
-        return \Forge\Modules\ForgeTournaments\PhaseType::PERFORMANCE;
+        return \Forge\Modules\ForgeTournaments\PhaseTypes::PERFORMANCE;
     }
 
     public static function name() : string {

@@ -10,7 +10,7 @@ class Sorting {
 
     private $sortby;
 
-    public function __costruct($sortby=Sorting::SORT_RESULT_DESC) {
+    public function __construct($sortby=Sorting::SORT_RESULT_DESC) {
         $this->sortby = $sortby;
     }
 

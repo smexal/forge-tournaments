@@ -11,6 +11,8 @@ use \Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
 
 class MatchCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments-match';
+    protected static $PARENT_COLLECTION = EncounterCollection::COLLECTION_NAME;
+
     public $permission = "manage.collection.sites";
 
 

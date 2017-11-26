@@ -17,7 +17,7 @@ abstract class StorageNodeFactory {
         $ref_id = $item->getID();
         $ref_type = str_replace('forge-tournaments-', '', $item->getType());
         $ref_type = strtolower($ref_type);
-        $schema_id = $item->getMeta('data_schema');
+        $schema_id = $item->getMeta('ft_data_schema');
         return static::getInstance($ref_type, $ref_id, $schema_id);
     }
 

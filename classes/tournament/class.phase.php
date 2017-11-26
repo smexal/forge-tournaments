@@ -4,16 +4,18 @@ namespace Forge\Modules\ForgeTournaments;
 
 use \Forge\Core\App\App;
 use Forge\Modules\ForgeTournaments\Utils;
+use Forge\Modules\ForgeTournaments\Scoring\ScoringProvider;
 
 class Phase {
     protected $collection_id;
     protected $collection;
     protected $participant_list; // ParticipantList
 
-
-    public function __construct($collection_id) {
-        $this->item_id;
-        $this->participant_list;
+    /**
+     * @param mixed $item Either the item itself or the item_id
+     */
+    public function __construct($item) {
+        $this->item = $item;
     }
 
     public function getParticipantList() {
@@ -24,15 +26,7 @@ class Phase {
     }
 
     public function getItem() {
-        if(!is_null($this->item)) {
-            return $this->item;
-        }
-        $this->item = new CollectionItem($this->item_id);
         return $this->item;
-    }
-
-    public function getItemID() {
-        return $this->item_id;
     }
 
     public function addParticipant($participant) {
@@ -49,11 +43,25 @@ class Phase {
             return false;
         }
 
-        \fireEvent(FORGE_TOURNAMENT_NS . '/phase/changeStatus', $new_status, $status);
         $this->getItem()->setMeta('ft_phase_status', $new_status);
+        \fireEvent(FORGE_TOURNAMENT_NS . '/phase/changeStatus', $this, $new_status, $status);
 
         return true;
     }
+
+    public function getType() {
+        return $this->getItem()->getMeta('ft_phase_type');
+    }
+
+    public function getGroupSize() {
+        return $this->getItem()->getMeta('ft_group_size');
+    }
+
+    public function getScoring() {
+        $scoring_type = $this->getItem()->getMeta('ft_scoring');
+        return ScoringProvider::instance()->getScoring($scoring);
+    }
+
   /*
     fn setPreviousPhase
     fn setNextPhase

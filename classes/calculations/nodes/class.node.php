@@ -42,6 +42,16 @@ class Node implements INode {
         $node->setParent($this);
     }
 
+    public function setChildren(array $children) {
+        $this->children = $children;
+    }
+
+    public function addChildren(array $children) {
+        foreach($children as $node) {
+            $this->addChild($node);
+        }
+    }
+
     public function removeChild(INode $node) {
         $idx = array_search($node, $this->children, true);
         if(!is_numeric($idx)) {
@@ -52,11 +62,6 @@ class Node implements INode {
         $node->setParent(null);
     }
 
-    public function addChildren(array $children) {
-        foreach($children as $node) {
-            $this->addChild($node);
-        }
-    }
 
     public function hasChildren() : bool {
         return count($this->children) == 0;

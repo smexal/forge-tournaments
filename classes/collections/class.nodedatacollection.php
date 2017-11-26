@@ -2,27 +2,39 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
-use \Forge\Core\Abstracts\DataCollection;
-use \Forge\Core\Classes\CollectionItem;
-use \Forge\Modules\ForgeTournaments\Data\DatasetStorage;
-use \Forge\Modules\ForgeTournaments\Data\SchemaProvider;
-use \Forge\Modules\ForgeTournaments\Data\StorageNodeFactory;
+use Forge\Core\Classes\Relations\Enums\DefaultRelations;
+use Forge\Core\Abstracts\DataCollection;
+use Forge\Core\Classes\CollectionItem;
+use Forge\Modules\ForgeTournaments\Data\DatasetStorage;
+use Forge\Modules\ForgeTournaments\Data\SchemaProvider;
+use Forge\Modules\ForgeTournaments\Data\StorageNodeFactory;
 
 class NodaDataCollection extends DataCollection {
+    protected static $PARENT_COLLECTION;
+
     protected function setup() {}
 
     protected function custom_fields() {
         $this->addFields([
-                [
+                    [
                     'key' => 'parent_node',
                     'label' => \i('Parent Node', 'forge-tournaments'),
-                    'value' => null,
+                    'values' => [],
+                    'value' => NULL,
                     'multilang' => false,
-                    'type' => 'text',
-                    'readonly' => true,
-                    'order' => 2,
+
+                    'type' => 'collection',
+                    'maxtags'=> 1,
+                    'collection' => static::$PARENT_COLLECTION,
+                    'data_source_save' => 'relation',
+                    'data_source_load' => 'relation',
+                    'relation' => [
+                        'identifier' => DefaultRelations::PARENT_OF
+                    ],
+
+                    'order' => 1,
                     'position' => 'right',
-                    'hint' => ''
+                    'readonly' => true
                 ]
             ]);
 
@@ -30,7 +42,7 @@ class NodaDataCollection extends DataCollection {
         if(count($schemas) > 0) {
             $this->addFields([
                 [
-                    'key' => 'data_schema',
+                    'key' => 'ft_data_schema',
                     'label' => \i('Select which dataschema this node has', 'forge-tournaments'),
                     'values' => $schemas,
                     'value' => array_keys($schemas)[0],

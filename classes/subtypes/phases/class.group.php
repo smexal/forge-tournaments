@@ -10,7 +10,7 @@ use \Forge\Core\Classes\CollectionItem;
 class GroupPhase extends BasePhase implements IPhaseType {
 
     public static function identifier() : string {
-        return \Forge\Modules\ForgeTournaments\PhaseType::GROUP;
+        return \Forge\Modules\ForgeTournaments\PhaseTypes::GROUP;
     }
 
     public static function name() : string {
@@ -20,7 +20,7 @@ class GroupPhase extends BasePhase implements IPhaseType {
     public function fields($item=null) : array {
         return [
             [
-                'key' => 'group_size',
+                'key' => 'ft_group_size',
                 'label' => \i('How many participants per group?', 'forge-tournaments'),
                 'value' => 4,
                 'multilang' => false,

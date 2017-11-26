@@ -16,6 +16,8 @@ use Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
 
 class PhaseCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments-phase';
+    protected static $PARENT_COLLECTION = TournamentCollection::COLLECTION_NAME;
+    
     public $permission = "manage.collection.sites";
 
 
@@ -103,7 +105,7 @@ class PhaseCollection extends NodaDataCollection {
                 'type' => 'select',
                 'label' => \i('Phase type', 'forge-tournaments'),
                 'values' => Utils::getPhaseTypes(),
-                'value' => PhaseType::REGISTRATION,
+                'value' => PhaseTypes::REGISTRATION,
                 'multilang' => false,
                 'order' => 10,
                 'position' => 'left',
@@ -259,7 +261,7 @@ class PhaseCollection extends NodaDataCollection {
     }
 
     public function savePhaseStatus($item, $field, $value, $lang) {
-        $phase = PoolRegistry::getPool('phase')->getInstance($item->id);
+        $phase = PoolRegistry::getPool('phase')->getInstance($item->id, [$item]);
         $phase->changeState($value);
     }
 
