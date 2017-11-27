@@ -59,8 +59,17 @@ class DatasetStorage implements IDatasetStorage {
         $db->insertMultiple("ft_datastorage", $insert_list);
     }
 
+    public function deleteAll() {
+        $db = $this->storage_handler;
+        $db->reset();
+        $db->where('ref_type', $this->ref_type);
+        $db->where('ref_id', $this->ref_id);
+        return $db->delet('ft_datastorage');
+    }
+
     public function loadAll() {
         $db = $this->storage_handler;
+        $db->reset();
         $db->where('ref_type', $this->ref_type);
         $db->where('ref_id', $this->ref_id);
         $db->orderBy('changed', 'ASC');

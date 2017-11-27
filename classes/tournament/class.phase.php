@@ -23,12 +23,13 @@ class Phase extends HierarchicalEntity {
             return false;
         }
 
-        if($status != $new_status) {
+        $can_change = \triggerModifier(FORGE_TOURNAMENT_NS . '/phase/canChangeState', true, $this, $new_status, $status);
+        if(!$can_change && $status != $new_status) {
             return false;
         }
 
         $this->getItem()->setMeta('ft_phase_status', $new_status);
-        \fireEvent(FORGE_TOURNAMENT_NS . '/phase/changeStatus', $this, $new_status, $status);
+        \fireEvent(FORGE_TOURNAMENT_NS . '/phase/changedStatus', $this, $new_status, $status);
 
         return true;
     }

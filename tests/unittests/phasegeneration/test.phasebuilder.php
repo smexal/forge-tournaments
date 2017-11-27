@@ -12,6 +12,7 @@ class TestPhasebuilder extends TestCase {
 
     public function testBuildEncounters() {
         $phase_builder = PhaseBuilder::instance();
+        die(var_dump($phase_builder));
     }
 
 

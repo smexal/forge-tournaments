@@ -2,21 +2,34 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
-use Forge\Modules\ForgeTournaments\Calculations\Nodes\CollectionNode;
-use Forge\Modules\ForgeTournaments\Calculations\Nodes\Iterators\BreadthFirstIterator;
 use Forge\Core\Traits\Singleton;
 use Forge\Modules\ForgeTournaments\PhaseTypes;
+
+use Forge\Modules\ForgeTournaments\Calculations\Nodes\CollectionNode;
+use Forge\Modules\ForgeTournaments\Calculations\Nodes\Iterators\BreadthFirstIterator;
+
+use Forge\Modules\ForgeTournaments\Data\StorageNodeFactory;
 
 class PhaseBuilder {
     use Singleton;
 
     protected function __construct() {
-        \registerEvent(FORGE_TOURNAMENT_NS . '/phase/changeStatus', [$this, 'onPhaseStateChange']);
+        \registerModifier(FORGE_TOURNAMENT_NS . '/phase/canChangeState', [$this, 'canChangeState']);
+        \registerEvent(FORGE_TOURNAMENT_NS . '/phase/changedStatus', [$this, 'onPhaseStateChange']);
+    }
+
+    // TODO: Add validation if enough participants are available
+    // If the groups can be filled usw.
+    public function canChangeState($dochange, $phase, $new_state, $old_state) {
+        return true;
     }
 
     public function onPhaseStateChange($phase, $new_state, $old_state) {
         switch ($new_state) {
             case PhaseState::READY:
+                if(!$this->canBuild()) {
+                    return false;
+                }
                 $this->clean($phase);
                 $this->build($phase);
             break;
@@ -25,17 +38,22 @@ class PhaseBuilder {
                 # code...
             break;
         }
+        return true;
     }
 
+    /**
+     * Remove old groups, matches and encounters
+     */
     public function clean($phase) {
         $tree = new CollectionTree($phase->getItem());
         $tree->build();
 
         $iterator = new BreadthFirstIterator($tree->getRoot());
-        $list = [];
         while(!is_null($n = $iterator->nextNode())) {
             $item = $node->getItem();
             $item->delete();
+            $storage_node = StorageNodeFactory::getByCollectionID($item->getID());
+            $storage_node->deleteAllData();
         }
 
     }
@@ -44,6 +62,7 @@ class PhaseBuilder {
      * BUILD PHASE
      ********************/
     public function build($phase) {
+        $this->buildPhase($phase);
         switch ($phase->getType()) {
 
             case PhaseTypes::REGISTRATION:
@@ -51,7 +70,6 @@ class PhaseBuilder {
             break;
 
             case PhaseTypes::GROUP:
-                $this->buildPhase($phase);
                 $this->buildGroupPhase($phase);
             break;
 
@@ -66,9 +84,9 @@ class PhaseBuilder {
 
     }
 
-   public function buildPhase($scoring) {
+   public function buildPhase($phase) {
         $scoring = $phase->getScoring();
-        
+        $phase->getItem()->setMeta('data_schema', $scoring['phase']);
     }
     
    public function buildRegistrationPhase($phase) {
@@ -81,16 +99,16 @@ class PhaseBuilder {
         $num_participants = $phase->getParticipantList()->count();
         $group_size = $phase->getGroupSize();
         $num_groups = ceil($num_participants / $group_size);
-        
+
         $num_remaining = $num_participants % $group_size;
 
         $tree = new CollectionTree($phase->getItem());
         $groups = $this->buildGroups($phase->getID(), $scoring['group'], $num_groups, $group_size);
 
         foreach($groups as $idx => $group) {
-            // Distribute missing slots to the remaining 
+            // Distribute missing slots to the remaining groups
             $num_encounters = $group_size - ($idx >= $num_remaining ? -1 : 0);
-            // Summenformel
+            // Gaussian sum formula
             $num = $num_encounters * ($num_encounters + 1) / 2;
             $encounters = $this->buildEncounters($group->getID(), $scoring['encounter'], $num);
         }
@@ -109,7 +127,7 @@ class PhaseBuilder {
      ********************/
    public function buildGroups($parent_id, $data_schema, $num, $size) {
         $args = [
-            'name' => \i('Group IDX %d'),
+            'name' => \i('Group %s'),
             'type' => GroupCollection::COLLECTION_NAME,
             'parent' => $parent_id
         ];
@@ -127,11 +145,12 @@ class PhaseBuilder {
                 'lang' => '0',
             ],
         ];
+        
         $groups = [];
         for($i = 0; $i < $num; $i++) {
             $metas['ft_group_nr']['value'] = $i + 1;
 
-            $args['name'] = sprintf($args['name'], $metas['ft_group_nr']['value']);
+            $args['name'] = sprintf($args['name'], chr(64 + $metas['ft_group_nr']['value']));
 
             $item = new CollectionItem(CollectionItem::create($args, $metas));
             PoolRegistry::getPool('collection')->setInstance($item->id, $item);
@@ -145,7 +164,7 @@ class PhaseBuilder {
 
     public function buildEncounters($parent_id, $data_schema, $num) {
         $args = [
-            'name' => \i('Encounter IDX %d'),
+            'name' => \i('Encounter %d'),
             'type' => GroupCollection::COLLECTION_NAME,
             'parent' => $parent_id
         ];
@@ -159,6 +178,7 @@ class PhaseBuilder {
                 'lang' => '0',
             ],
         ];
+
         $encounters = [];
         for($i = 0; $i < $num; $i++) {
             $metas['ft_encounter_nr']['value'] = $i + 1;
@@ -166,7 +186,6 @@ class PhaseBuilder {
             $args['name'] = sprintf($args['name'], $metas['ft_encounter_nr']['value']);
 
             $item = new CollectionItem(CollectionItem::create($args, $metas));
-            $item->setMeta('ft_data_schema');
             PoolRegistry::getPool('collection')->setInstance($item->id, $item);
             
             $encounter = PoolRegistry::getPool('encounter')->getInstance($item->id, $item);

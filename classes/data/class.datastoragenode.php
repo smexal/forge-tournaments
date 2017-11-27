@@ -22,4 +22,8 @@ class DataStorageNode {
         return $this->storage;
     }
 
+    public function deleteAllData() {
+        $this->storage->deleteAll();
+    }
+
 }
