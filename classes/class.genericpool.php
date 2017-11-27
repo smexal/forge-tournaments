@@ -15,7 +15,7 @@ class GenericPool extends BasePool {
 
     public function buildInstance($id, $args=[]) {
         $args = !is_array($args) ? [$args] : $args;
-        $r = new ReflectionClass($this->ns_class);
+        $r = new \ReflectionClass($this->ns_class);
         return $r->newInstanceArgs($args);
     }
 }

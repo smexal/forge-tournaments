@@ -261,7 +261,7 @@ class PhaseCollection extends NodaDataCollection {
     }
 
     public function savePhaseStatus($item, $field, $value, $lang) {
-        $phase = PoolRegistry::getPool('phase')->getInstance($item->id, [$item]);
+        $phase = PoolRegistry::instance()->getPool('phase')->getInstance($item->id, [$item]);
         $phase->changeState($value);
     }
 

@@ -4,6 +4,7 @@ namespace Forge\Modules\ForgeTournaments;
 
 use Forge\Core\Traits\Singleton;
 use Forge\Modules\ForgeTournaments\PhaseTypes;
+use Forge\Core\Classes\CollectionItem;
 
 use Forge\Modules\ForgeTournaments\Calculations\Nodes\CollectionNode;
 use Forge\Modules\ForgeTournaments\Calculations\Nodes\Iterators\BreadthFirstIterator;
@@ -145,7 +146,7 @@ class PhaseBuilder {
                 'lang' => '0',
             ],
         ];
-        
+
         $groups = [];
         for($i = 0; $i < $num; $i++) {
             $metas['ft_group_nr']['value'] = $i + 1;
@@ -153,9 +154,9 @@ class PhaseBuilder {
             $args['name'] = sprintf($args['name'], chr(64 + $metas['ft_group_nr']['value']));
 
             $item = new CollectionItem(CollectionItem::create($args, $metas));
-            PoolRegistry::getPool('collection')->setInstance($item->id, $item);
+            PoolRegistry::instance()->getPool('collection')->setInstance($item->id, $item);
             
-            $group = PoolRegistry::getPool('group')->getInstance($item->id, $item);
+            $group = PoolRegistry::instance()->getPool('group')->getInstance($item->id, $item);
             $groups[] = $group;
         }
 
@@ -186,9 +187,9 @@ class PhaseBuilder {
             $args['name'] = sprintf($args['name'], $metas['ft_encounter_nr']['value']);
 
             $item = new CollectionItem(CollectionItem::create($args, $metas));
-            PoolRegistry::getPool('collection')->setInstance($item->id, $item);
+            PoolRegistry::instance()->getPool('collection')->setInstance($item->id, $item);
             
-            $encounter = PoolRegistry::getPool('encounter')->getInstance($item->id, $item);
+            $encounter = PoolRegistry::instance()->getPool('encounter')->getInstance($item->id, $item);
             $encounters[] = $encounter;
         }
 
