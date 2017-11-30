@@ -39,12 +39,17 @@ class Phase extends HierarchicalEntity {
     }
 
     public function getGroupSize() {
-        return $this->getItem()->getMeta('ft_group_size');
+        return $this->getMeta('ft_group_size', 3);
     }
 
     public function getScoring() {
         $scoring_type = $this->getItem()->getMeta('ft_scoring');
-        return ScoringProvider::instance()->getScoring($scoring);
+        return ScoringProvider::instance()->getScoring($scoring_type);
+    }
+
+    public function getScoringSchemas() {
+        $scoring = $this->getScoring();
+        return $scoring['config']['phase_types'][$this->getType()]['schemas'];
     }
 
     public function addGroups($groups) {
@@ -57,8 +62,6 @@ class Phase extends HierarchicalEntity {
     fn setPreviousPhase
     fn setNextPhase
     fn validate // Check if completed
-    fn addParticipant // Assignment method used in shufflePool
-    fn addParticipants
     fn shuffleParticipantList(Random/BestScore/)
     fn generateEncounters
     fn close

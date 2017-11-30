@@ -66,28 +66,6 @@ class PhaseCollection extends NodaDataCollection {
 
     protected function custom_fields() {
         $this->addFields([
-            /*[
-                'key' => 'ft_tournament',
-                'label' => \i('Tournament', 'forge-tournaments'),
-                'values' => '',
-
-                'type' => 'collection',
-                'maxtags'=> 1,
-                'collection' => TournamentCollection::COLLECTION_NAME,
-                'data_source_save' => 'relation',
-                'data_source_load' => 'relation',
-                'relation' => [
-                    'identifier' => 'ft_phases',
-                    // Todo display reversed relation so the user can see to which parent the phase belongs
-                    // 'dire'
-                ],
-
-                'value' => '',
-                'multilang' => false,
-                'order' => 10,
-                'position' => 'right',
-                'hint' => i('Select a tournament', 'forge-tournaments')
-            ], */
             [
                 'key' => 'ft_phase_status',
                 'type' => 'select',
@@ -134,29 +112,18 @@ class PhaseCollection extends NodaDataCollection {
                 'hint' => i('The next phase after this one is completed', 'forge-tournaments')
             ],
             [
-                'key' => 'ft_participant_pool_size',
-                'label' => \i('Participant pool size', 'forge-tournaments'),
-                'value' => 16,
-                'multilang' => false,
-                'type' => 'number',
-                'order' => 10,
-                'position' => 'right',
-                'hint' => \i('Define how many participants are allowed. Use -1 for no restriction', 'forge-tournaments'),
-                '__last_phase_state' => PhaseState::FRESH
-            ],
-            [
-                'key' => 'participant_pool',
-                'label' => \i('Participant Pool', 'forge-tournaments'),
+                'key' => 'ft_participant_output_list',
+                'label' => \i('Participant output list', 'forge-tournaments'),
                 'value' => '',
                 'multilang' => false,
 
                 'type' => 'collection',
-                /*'maxtags'=> 64,*/
+                /*'maxtags'=> 64, SET BY ft_num_winners*/
                 'collection' => ParticipantCollection::COLLECTION_NAME,
                 'data_source_save' => 'relation',
                 'data_source_load' => 'relation',
                 'relation' => [
-                    'identifier' => 'ft_participant_output_pool'
+                    'identifier' => 'ft_participant_output_list'
                 ],
 
                 'order' => 20,
@@ -188,7 +155,19 @@ class PhaseCollection extends NodaDataCollection {
                 '__last_phase_state' => PhaseState::FRESH
             ]
         ]);
-        parent::custom_fields();
+
+        $fields = parent::inheritedFields();
+
+        foreach($fields as $field) {
+            if($field['key'] == 'ft_participant_list_size') {
+                $field['__last_phase_state'] = PhaseState::FRESH;
+            }
+            if($field['key'] == 'ft_participant_list') {
+                $field['__last_phase_state'] = PhaseState::OPEN;
+            }
+        }
+
+        $this->addFields($fields);
     }
 
     public function itemDependentFields($item) {

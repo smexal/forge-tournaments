@@ -36,7 +36,7 @@ class MatchCollection extends NodaDataCollection {
     }
 
     protected function custom_fields() {
-        parent::custom_fields();
+        $this->addFields(parent::inheritedFields());
     }
 
 

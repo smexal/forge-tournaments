@@ -5,6 +5,10 @@ namespace Forge\Modules\ForgeTournaments;
 use Forge\Core\Classes\Relations\Enums\DefaultRelations;
 use Forge\Core\Abstracts\DataCollection;
 use Forge\Core\Classes\CollectionItem;
+use Forge\Core\Classes\Relations\Relation;
+use Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
+use Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
+
 use Forge\Modules\ForgeTournaments\Data\DatasetStorage;
 use Forge\Modules\ForgeTournaments\Data\SchemaProvider;
 use Forge\Modules\ForgeTournaments\Data\StorageNodeFactory;
@@ -14,47 +18,85 @@ class NodaDataCollection extends DataCollection {
 
     protected function setup() {}
 
-    protected function custom_fields() {
-        $this->addFields([
-                    [
-                    'key' => 'parent_node',
-                    'label' => \i('Parent Node', 'forge-tournaments'),
-                    'values' => [],
-                    'value' => NULL,
-                    'multilang' => false,
+    public static function relations($existing) {
+        return array_merge($existing, [
+            'ft_participant_list' => new Relation(
+                'ft_participant_list',
+                RelationDirection::DIRECTED
+            )
+        ]);
+    }
 
-                    'type' => 'collection',
-                    'maxtags'=> 1,
-                    'collection' => static::$PARENT_COLLECTION,
-                    'data_source_save' => 'relation',
-                    'data_source_load' => 'relation',
-                    'relation' => [
-                        'identifier' => DefaultRelations::PARENT_OF
-                    ],
+    protected function inheritedFields() {
+        $fields = [
+            [
+                'key' => 'parent_node',
+                'label' => \i('Parent Node', 'forge-tournaments'),
+                'values' => [],
+                'value' => NULL,
+                'multilang' => false,
 
-                    'order' => 1,
-                    'position' => 'right',
-                    'readonly' => true
-                ]
-            ]);
+                'type' => 'collection',
+                'maxtags'=> 1,
+                'collection' => static::$PARENT_COLLECTION,
+                'data_source_save' => 'relation',
+                'data_source_load' => 'relation',
+                'relation' => [
+                    'identifier' => DefaultRelations::PARENT_OF
+                ],
+
+                'order' => 1,
+                'position' => 'right',
+                'readonly' => true
+            ],
+            [
+                'key' => 'ft_participant_list_size',
+                'label' => \i('Participant list size', 'forge-tournaments'),
+                'value' => 16,
+                'multilang' => false,
+                'type' => 'number',
+                'order' => 10,
+                'position' => 'right',
+                'hint' => \i('Define how many participants are allowed. Use -1 for no restriction', 'forge-tournaments'),
+            ],
+            [
+                'key' => 'ft_participant_list',
+                'label' => \i('Participant list', 'forge-tournaments'),
+                'value' => '',
+                'multilang' => false,
+
+                'type' => 'collection',
+                /*'maxtags'=> 64, SET BY ft_num_winners*/
+                'collection' => static::COLLECTION_NAME,
+                'data_source_save' => 'relation',
+                'data_source_load' => 'relation',
+                'relation' => [
+                    'identifier' => 'ft_participant_list'
+                ],
+
+                'order' => 20,
+                'position' => 'left',
+                'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
+            ],
+        ];
 
         $schemas = $this->getDataschemaOptions();
         if(count($schemas) > 0) {
-            $this->addFields([
-                [
-                    'key' => 'ft_data_schema',
-                    'label' => \i('Select which dataschema this node has', 'forge-tournaments'),
-                    'values' => $schemas,
-                    'value' => array_keys($schemas)[0],
-                    'multilang' => false,
-                    'type' => 'select',
-                    'readonly' => false,
-                    'order' => 3,
-                    'position' => 'right',
-                    'hint' => i('Save collection for effect to take place, this might hide data which is already saved', 'forge-tournaments')
-                ]
-            ]);
+            $fields[] = [
+                'key' => 'ft_data_schema',
+                'label' => \i('Select which dataschema this node has', 'forge-tournaments'),
+                'values' => $schemas,
+                'value' => array_keys($schemas)[0],
+                'multilang' => false,
+                'type' => 'select',
+                'readonly' => false,
+                'order' => 3,
+                'position' => 'right',
+                'hint' => i('Save collection for effect to take place, this might hide data which is already saved', 'forge-tournaments')
+            ];
         }
+
+        return $fields;
     }
 
     public function getDataschemaOptions() {

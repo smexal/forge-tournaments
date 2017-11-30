@@ -78,6 +78,7 @@ class ForgeTournaments extends Module {
         API::instance()->register('forge-tournaments', [$this, 'apiAdapter']);
 
         \registerModifier('Forge/Core/RelationDirectory/collectRelations', '\Forge\Modules\ForgeTournaments\PhaseCollection::relations');
+        \registerModifier('Forge/Core/RelationDirectory/collectRelations', '\Forge\Modules\ForgeTournaments\NodaDataCollection::relations');
 
         \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterIPhaseType', '\Forge\Modules\ForgeTournaments\PhaseCollection::registerSubTypes');
         \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterIParticipantType', '\Forge\Modules\ForgeTournaments\ParticipantCollection::registerSubTypes');

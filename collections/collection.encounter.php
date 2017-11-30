@@ -36,7 +36,7 @@ class EncounterCollection extends NodaDataCollection {
     }
 
     protected function custom_fields() {
-        parent::custom_fields();
+        $this->addFields(parent::inheritedFields());
     }
 
     public function itemDependentFields($item) {

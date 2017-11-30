@@ -13,19 +13,40 @@ class ParticipantList {
     protected $num_slots;
     protected $seeder;
 
-    public function __construct(array $participants) {
+    public function __construct($num_slots, array $participants=[]) {
+        $this->num_slots = $num_slots;
         $this->setParticipants($participants);
     }
 
     public function setParticipants($participants) {
         $this->participants = $participants;
-        if(($missing = $num_slots - count($this->participants)) > 0) {
-            $this->participants = array_merge($this->participants, array_fill(0, count($missing), null));
+        error_log(print_r($this->num_slots, 1));
+        error_log(print_r($this->participants, 1));
+        if(($missing = $this->num_slots - count($this->participants)) > 0) {
+            error_log(print_r($missing, 1));
+            $this->participants = array_merge($this->participants, array_fill(0, $missing, null));
         }
         if($missing < 0) {
-            $participants_overflowing = array_splice($this->participants, $num_slots, -$missing);
+            $participants_overflowing = array_splice($this->participants, $this->num_slots, -$missing);
             // TODO: Reassing overflowing participants according to the shuffle strategy
         }
+    }
+
+    public function addParticipant($participant) {
+        $idx = $this->findNextSlot();
+        if($idx === false) {
+            return false;
+        }
+        $this->participants[$idx] = $participant;
+    }
+
+    private function findNextSlot() {
+        foreach($this->participants as $idx => $p) {
+            if(is_null($p)) {
+                return $idx;
+            }
+        }
+        return false;
     }
 
     public function count() {

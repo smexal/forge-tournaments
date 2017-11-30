@@ -13,23 +13,49 @@ use TestUtilsForgeTournaments as TestUtilsForgeTournaments;
 
 class TestPhasebuilder extends TestCase {
 
-
     public function testBuildEncounters() {
-        $phase_builder = PhaseBuilder::instance();
         $item = $this->makePhase();
         $phase = ForgeTournaments\PoolRegistry::instance()->getPool('phase')->getInstance($item->getID(), $item);
-        die(var_dump($phase));
+        
+        $idx = 0;
+        $phase->addParticipant($this->makeParticipant(++$idx));
+        $phase->addParticipant($this->makeParticipant(++$idx));
+        $phase->addParticipant($this->makeParticipant(++$idx));
+        $phase->addParticipant($this->makeParticipant(++$idx));
+        $phase->addParticipant($this->makeParticipant(++$idx));
+        $phase->addParticipant($this->makeParticipant(++$idx));
+        $phase->addParticipant($this->makeParticipant(++$idx));
+        $phase->addParticipant($this->makeParticipant(++$idx));
+
+        error_log(print_r($phase->getParticipantList(), 1));
+        die();
+        PhaseBuilder::instance()->build($phase);
     }
 
+    public function makePhase($name='') {
+        $set_metas = [
+            'ft_data_schema' => 'phase_result_group',
+            'ft_phase_type' => ForgeTournaments\PhaseTypes::GROUP,
 
-    public function makePhase() {
-        $phase_collection = App::instance()->cm->getCollection(ForgeTournaments\PhaseCollection::COLLECTION_NAME);
-        $args = [
-            'name' => \i('Teset Phase'),
-            'type' => ForgeTournaments\PhaseCollection::COLLECTION_NAME
         ];
+        $item =  $this->makeCollectionItem(ForgeTournaments\PhaseCollection::COLLECTION_NAME, 'Test Phase' . $name);
+
+        return $item;
+    }
+
+    public function makeParticipant($name='') {
+        return $this->makeCollectionItem(ForgeTournaments\ParticipantCollection::COLLECTION_NAME, 'Test Participant' . $name);
+    }
+
+    public function makeCollectionItem($c_name, $name, $set_metas=[]) {
+        $participant = App::instance()->cm->getCollection($c_name);
+        $args = [
+            'name' => $name,
+            'type' => $c_name
+        ];
+
         $metas = [];
-        $fields = $phase_collection->fields();
+        $fields = $participant->fields();
         foreach($fields as $field) {
             if(isset($field['data_source_save'])) {
                 continue;
@@ -42,12 +68,16 @@ class TestPhasebuilder extends TestCase {
                 'lang' => 0
             ];
         }
-        $metas['ft_data_schema']['value'] = 'phase_result_group';
-        $metas['ft_phase_type']['value'] = ForgeTournaments\PhaseTypes::GROUP;
+
+        foreach($set_metas as $key => $value) {
+            $metas[$key] = [
+                'value' => $value,
+                'lang' => 0
+            ];
+        }
 
         $item = new CollectionItem(CollectionItem::create($args, $metas));
         return $item;
-
     }
 
     public static function setUpBeforeClass() {

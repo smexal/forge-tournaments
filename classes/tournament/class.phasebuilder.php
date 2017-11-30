@@ -86,7 +86,7 @@ class PhaseBuilder {
     }
 
    public function buildPhase($phase) {
-        $scoring = $phase->getScoring();
+        $scoring = $phase->getScoringSchemas();
         $phase->getItem()->setMeta('data_schema', $scoring['phase']);
     }
     
@@ -95,13 +95,20 @@ class PhaseBuilder {
     }
     
    public function buildGroupPhase($phase) {
-        $scoring = $phase->getScoring();
+        $scoring = $phase->getScoringSchemas();
         $scoring = $scoring['group'];
         $num_participants = $phase->getParticipantList()->count();
         $group_size = $phase->getGroupSize();
         $num_groups = ceil($num_participants / $group_size);
 
         $num_remaining = $num_participants % $group_size;
+
+        die(var_dump(
+    $scoring,
+    $num_participants,
+    $group_size,
+    $num_groups,
+    $num_remaining));
 
         $tree = new CollectionTree($phase->getItem());
         $groups = $this->buildGroups($phase->getID(), $scoring['group'], $num_groups, $group_size);
