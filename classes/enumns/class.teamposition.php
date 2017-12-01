@@ -1,4 +1,5 @@
 <?php
+namespace Forge\Modules\ForgeTournaments;
 
 abstract class TeamPosition {
     const CAPTAIN = 0;

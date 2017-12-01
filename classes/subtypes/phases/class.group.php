@@ -4,12 +4,13 @@ namespace Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases;
 
 use \Forge\Modules\ForgeTournaments\Interfaces\IPhaseType;
 
+use \ Forge\Modules\ForgeTournaments\PhaseState;
 use \Forge\Core\Classes\CollectionItem;
 
 class GroupPhase extends BasePhase implements IPhaseType {
 
     public static function identifier() : string {
-        return \Forge\Modules\ForgeTournaments\PhaseType::GROUP;
+        return \Forge\Modules\ForgeTournaments\PhaseTypes::GROUP;
     }
 
     public static function name() : string {
@@ -19,14 +20,15 @@ class GroupPhase extends BasePhase implements IPhaseType {
     public function fields($item=null) : array {
         return [
             [
-                'key' => 'custom_group_field',
-                'label' => \i('Custom Group Field', 'forge-tournaments'),
-                'value' => '',
+                'key' => 'ft_group_size',
+                'label' => \i('How many participants per group?', 'forge-tournaments'),
+                'value' => 4,
                 'multilang' => false,
-                'type' => 'text',
+                'type' => 'number',
                 'order' => 100,
                 'position' => 'left',
-                'hint' => i('My Field only appears when i am a group phase', 'forge-tournaments')
+                'hint' => i('', 'forge-tournaments'),
+                '__last_phase_state' => PhaseState::FRESH
             ]
         ];
     }

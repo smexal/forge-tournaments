@@ -14,6 +14,12 @@ use \Forge\Core\Classes\Localization;
 
 use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
 use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\ParticipantRegistry;
+use \Forge\Modules\ForgeTournaments\Data\SchemaLoader;
+use \Forge\Modules\ForgeTournaments\Scoring\ScoringLoader;
+use \Forge\Modules\ForgeTournaments\EncounterCollection;
+use \Forge\Modules\ForgeTournaments\MatchCollection;
+use \Forge\Modules\ForgeTournaments\GroupCollection;
+use \Forge\Modules\ForgeTournaments\PhaseCollection;
 
 class ForgeTournaments extends Module {
     const FILE_SIZE_LIMIT = 5*1024*1024; // 5MB
@@ -27,17 +33,25 @@ class ForgeTournaments extends Module {
     private $permission = 'manage.forge-tournaments';
 
     public function setup() {
+
         $this->version = '1.0.0';
         $this->id = 'forge-tournaments';
         $this->name = i('Forge Tournaments', 'forge-tournaments');
         $this->description = i('Tournament Management for Forge.', 'forge-tournaments');
         $this->image = $this->url().'assets/images/module-image.png';
+
+        require_once(MOD_ROOT.'forge-tournaments/config.php');
+        // Needs to be run before collections are gathered
+        SchemaLoader::instance()->load();
+        ScoringLoader::instance()->load();
+    }
+
+    public function modules_loaded() {
     }
 
     public function start() {
         Auth::registerPermissions($this->permission);
 
-        require_once(MOD_ROOT.'forge-tournaments/config.php');
 
         $this->install();
 
@@ -64,12 +78,22 @@ class ForgeTournaments extends Module {
         API::instance()->register('forge-tournaments', [$this, 'apiAdapter']);
 
         \registerModifier('Forge/Core/RelationDirectory/collectRelations', '\Forge\Modules\ForgeTournaments\PhaseCollection::relations');
+        \registerModifier('Forge/Core/RelationDirectory/collectRelations', '\Forge\Modules\ForgeTournaments\NodaDataCollection::relations');
 
         \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterIPhaseType', '\Forge\Modules\ForgeTournaments\PhaseCollection::registerSubTypes');
         \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterIParticipantType', '\Forge\Modules\ForgeTournaments\ParticipantCollection::registerSubTypes');
 
         PhaseRegistry::instance()->prepare();
         ParticipantRegistry::instance()->prepare();
+        
+        // Prevent too many accesses to db by keeping the instances in the Memory
+        PoolRegistry::instance()->add('phase', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\Phase', 64));
+        PoolRegistry::instance()->add('group', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\Group', 128));
+        PoolRegistry::instance()->add('encounter', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\Encounter', 256));
+        PoolRegistry::instance()->add('match', new GenericPool('\\Forge\\Modules\\ForgeTournaments\\Match', 512));
+        PoolRegistry::instance()->add('collection', new GenericPool('\\Forge\\Core\\Classes\\CollectionItem', 1024));
+
+        PhaseBuilder::instance();
     }
 
     public function install() {

@@ -94,5 +94,3 @@ class OrganisationCollection extends DataCollection {
         ]);
     }
 }
-
-?>

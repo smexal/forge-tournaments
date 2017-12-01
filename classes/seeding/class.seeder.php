@@ -10,7 +10,7 @@ use Forge\Modules\ForgeTournaments\Interfaces\ISeedingStrategy;
  */
 class Seeder {
    protected $strategy;
-   // Used vor incrementally seeding
+   // Used for incrementally seeding
    protected $state;
 
    /*

@@ -6,7 +6,7 @@ use \Forge\Modules\ForgeTournaments\Interfaces\IPhaseType;
 
 class KOPhase extends BasePhase implements IPhaseType {
     public static function identifier() : string  {
-        return \Forge\Modules\ForgeTournaments\PhaseType::KOSYSTEM;
+        return \Forge\Modules\ForgeTournaments\PhaseTypes::KOSYSTEM;
     }
 
     public static function name() : string  {

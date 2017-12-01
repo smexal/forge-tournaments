@@ -73,18 +73,16 @@ class ParticipantCollection extends DataCollection {
         $participant = Utils::getSubtype('IParticipantType', $item, 'ft_participant_type');
         if(!is_null($participant)) {
             $new_fields = $participant->fields($item);
-            $this->addFields($new_fields);
+            $this->addUniqueFields($new_fields);
             $this->customFields = $participant->modifyFields($this->customFields);
         }
     }
 
     public function processModifyParticipantType($field, $item, $value) {
         $phase_status = $item->getMeta('ft_phase_status');
-        if($phase_status > State::OPEN) {
+        if($phase_status > PhaseState::OPEN) {
             $field['readonly'] = true;
         }
         return $field;
     }
 }
-
-?>
