@@ -20,8 +20,6 @@ class ParticipantList {
 
     public function setParticipants($participants) {
         $this->participants = $participants;
-        error_log(print_r($this->num_slots, 1));
-        error_log(print_r($this->participants, 1));
         if(($missing = $this->num_slots - count($this->participants)) > 0) {
             error_log(print_r($missing, 1));
             $this->participants = array_merge($this->participants, array_fill(0, $missing, null));
@@ -47,6 +45,10 @@ class ParticipantList {
             }
         }
         return false;
+    }
+
+    public function numSlots() {
+        return $this->num_slots;
     }
 
     public function count() {

@@ -39,7 +39,7 @@ class Phase extends HierarchicalEntity {
     }
 
     public function getGroupSize() {
-        return $this->getMeta('ft_group_size', 3);
+        return $this->getMeta('ft_group_size', 4);
     }
 
     public function getScoring() {

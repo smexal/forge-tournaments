@@ -96,26 +96,26 @@ class PhaseBuilder {
     
    public function buildGroupPhase($phase) {
         $scoring = $phase->getScoringSchemas();
-        $scoring = $scoring['group'];
         $num_participants = $phase->getParticipantList()->count();
         $group_size = $phase->getGroupSize();
         $num_groups = ceil($num_participants / $group_size);
 
         $num_remaining = $num_participants % $group_size;
 
-        die(var_dump(
-    $scoring,
-    $num_participants,
-    $group_size,
-    $num_groups,
-    $num_remaining));
+        var_dump(
+            "scoring: " . $scoring['group'] . "\n" .
+            "num_participants: " . $num_participants . "\n" .
+            "group_size: " . $group_size . "\n" .
+            "num_groups: " . $num_groups . "\n" .
+            "num_remaining: " . $num_remaining
+        );
+        die();
 
-        $tree = new CollectionTree($phase->getItem());
         $groups = $this->buildGroups($phase->getID(), $scoring['group'], $num_groups, $group_size);
-
+        die(var_dump($groups));
         foreach($groups as $idx => $group) {
             // Distribute missing slots to the remaining groups
-            $num_encounters = $group_size - ($idx >= $num_remaining ? -1 : 0);
+            $num_encounters = $group_size + ($idx >= $num_remaining ? -1 : 0);
             // Gaussian sum formula
             $num = $num_encounters * ($num_encounters + 1) / 2;
             $encounters = $this->buildEncounters($group->getID(), $scoring['encounter'], $num);

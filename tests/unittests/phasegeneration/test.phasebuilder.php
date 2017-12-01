@@ -17,18 +17,11 @@ class TestPhasebuilder extends TestCase {
         $item = $this->makePhase();
         $phase = ForgeTournaments\PoolRegistry::instance()->getPool('phase')->getInstance($item->getID(), $item);
         
-        $idx = 0;
-        $phase->addParticipant($this->makeParticipant(++$idx));
-        $phase->addParticipant($this->makeParticipant(++$idx));
-        $phase->addParticipant($this->makeParticipant(++$idx));
-        $phase->addParticipant($this->makeParticipant(++$idx));
-        $phase->addParticipant($this->makeParticipant(++$idx));
-        $phase->addParticipant($this->makeParticipant(++$idx));
-        $phase->addParticipant($this->makeParticipant(++$idx));
-        $phase->addParticipant($this->makeParticipant(++$idx));
+        for($i = 0; $i<30; $i++) {
+            $phase->addParticipant($this->makeParticipant($i));
+        }
+        die(var_dump($phase->getParticipantList()));
 
-        error_log(print_r($phase->getParticipantList(), 1));
-        die();
         PhaseBuilder::instance()->build($phase);
     }
 
@@ -36,9 +29,12 @@ class TestPhasebuilder extends TestCase {
         $set_metas = [
             'ft_data_schema' => 'phase_result_group',
             'ft_phase_type' => ForgeTournaments\PhaseTypes::GROUP,
+            'ft_group_size' => 4,
+            'ft_participant_list_size' => 32
 
         ];
-        $item =  $this->makeCollectionItem(ForgeTournaments\PhaseCollection::COLLECTION_NAME, 'Test Phase' . $name);
+        $_GLOBALS['makae-test'] = true;
+        $item =  $this->makeCollectionItem(ForgeTournaments\PhaseCollection::COLLECTION_NAME, 'Test Phase' . $name, $set_metas);
 
         return $item;
     }
@@ -64,18 +60,15 @@ class TestPhasebuilder extends TestCase {
                 continue;
             }
             $metas[$field['key']] = [
-                'value' => $field['value'],
-                'lang' => 0
+                'value' => $field['value']
             ];
         }
 
         foreach($set_metas as $key => $value) {
             $metas[$key] = [
-                'value' => $value,
-                'lang' => 0
+                'value' => $value
             ];
         }
-
         $item = new CollectionItem(CollectionItem::create($args, $metas));
         return $item;
     }
