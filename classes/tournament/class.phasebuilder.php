@@ -95,30 +95,46 @@ class PhaseBuilder {
     }
     
    public function buildGroupPhase($phase) {
-        $scoring = $phase->getScoringSchemas();
+        $scoring = $phase->getScoringConfig();
+        $schema = $phase->getScoringSchemas();
         $num_participants = $phase->getParticipantList()->count();
         $group_size = $phase->getGroupSize();
         $num_groups = ceil($num_participants / $group_size);
 
         $num_remaining = $num_participants % $group_size;
-
         var_dump(
-            "scoring: " . $scoring['group'] . "\n" .
+            "encounter_handling: " . $scoring['encounter_handling'] . "\n" .
+            "schema: " . $schema['group'] . "\n" .
             "num_participants: " . $num_participants . "\n" .
             "group_size: " . $group_size . "\n" .
             "num_groups: " . $num_groups . "\n" .
             "num_remaining: " . $num_remaining
         );
-        die();
 
-        $groups = $this->buildGroups($phase->getID(), $scoring['group'], $num_groups, $group_size);
-        die(var_dump($groups));
+        $slot_start = 0;
+        $slot_end = 0;
+        $groups = $this->buildGroups($phase->getID(), $schema['group'], $num_groups, $group_size);
         foreach($groups as $idx => $group) {
             // Distribute missing slots to the remaining groups
-            $num_encounters = $group_size + ($idx >= $num_remaining ? -1 : 0);
-            // Gaussian sum formula
-            $num = $num_encounters * ($num_encounters + 1) / 2;
-            $encounters = $this->buildEncounters($group->getID(), $scoring['encounter'], $num);
+            $num_group_participants = $group_size + (($num_groups - $idx) <= $num_remaining ? -1 : 0);
+            $slot_end = $slot_start + $num_group_participants - 1;
+            /// The following is for when 2 participants have an encounter
+            if($scoring['encounter_handling'] == ScoringDefinitions::ENCOUNTER_HANDLING_VERSUS) {
+                // Remove 1 because a participant cannot play against himself
+                $n = $num_group_participants - 1;
+                // Gaussian sum formula
+                $num_encounters = $n * ($n + 1) / 2;
+                $encounters = $this->buildEncounters($group->getID(), $schema['encounter'], $num_encounters);
+                
+                $this->recursiveAssign($encounters, range($slot_start, $slot_end));
+                $slot_start = $slot_end + 1;
+            } else if ($scoring['encounter'] == ScoringDefinitions::ENCOUNTER_HANDLING_SINGLE) {
+                $slot_start = $idx * $group_size;
+                for($i = 0; $i < count($encounters); $i++) {
+                    $encounter = $encounters[$i];
+                    $encounter->setSlots([$slot_start + $i]);
+                }
+            }
         }
     }
     
@@ -128,6 +144,24 @@ class PhaseBuilder {
     
    public function buildPerformancePhase($phase) {
 
+    }
+
+    public function recursiveAssign(&$encounters, $slot_ids) {
+        if(count($slot_ids) <= 1) {
+            return;
+        }
+        // Remove the first slot
+        // A B C
+        // B C
+        $first_slot = array_shift($slot_ids);
+        foreach($slot_ids as $second_slot) {
+            if(count($encounters) == 0) {
+                return;
+            }
+            $encounter = array_shift($encounters);
+            $encounter->setSlots([$first_slot, $second_slot]);
+        }
+        $this->recursiveAssign($encounters, $slot_ids);
     }
 
     /********************
@@ -140,18 +174,18 @@ class PhaseBuilder {
             'parent' => $parent_id
         ];
         $metas = [
-            'ft_group_nr' =>[
+            'ft_group_nr' => [
                 'value' => 'TBD',
-                'lang' => '0',
             ],
-            'ft_group_size' =>[
+            'ft_group_size' => [
                 'value' => $size,
-                'lang' => '0',
             ],
-            'ft_data_schema' =>[
+            'ft_data_schema' => [
                 'value' => $data_schema,
-                'lang' => '0',
             ],
+            'ft_participant_list_size' => [
+                'value' => $size
+            ] 
         ];
 
         $groups = [];
@@ -159,11 +193,10 @@ class PhaseBuilder {
             $metas['ft_group_nr']['value'] = $i + 1;
 
             $args['name'] = sprintf($args['name'], chr(64 + $metas['ft_group_nr']['value']));
-
             $item = new CollectionItem(CollectionItem::create($args, $metas));
-            PoolRegistry::instance()->getPool('collection')->setInstance($item->id, $item);
+            PoolRegistry::instance()->getPool('collection')->setInstance($item->getID(), $item);
             
-            $group = PoolRegistry::instance()->getPool('group')->getInstance($item->id, $item);
+            $group = PoolRegistry::instance()->getPool('group')->getInstance($item->getID(), $item);
             $groups[] = $group;
         }
 
@@ -194,9 +227,9 @@ class PhaseBuilder {
             $args['name'] = sprintf($args['name'], $metas['ft_encounter_nr']['value']);
 
             $item = new CollectionItem(CollectionItem::create($args, $metas));
-            PoolRegistry::instance()->getPool('collection')->setInstance($item->id, $item);
+            PoolRegistry::instance()->getPool('collection')->setInstance($item->getID(), $item);
             
-            $encounter = PoolRegistry::instance()->getPool('encounter')->getInstance($item->id, $item);
+            $encounter = PoolRegistry::instance()->getPool('encounter')->getInstance($item->getID(), $item);
             $encounters[] = $encounter;
         }
 

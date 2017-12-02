@@ -33,10 +33,9 @@ abstract class HierarchicalEntity {
     }
 
     protected function loadParticipantList() {
-         // Load Participant list form DB
+        // Load Participant list form DB
         $size = $this->getItem()->getMeta('ft_participant_list_size');
         $size = $size ? $size : 1;
-        var_dump($size);die();
         $relation = App::instance()->rd->getRelation('ft_participant_list');
 
         $participants = $relation->getOfLeft($this->getItem()->getID(), Prepares::AS_IDS_RIGHT);
@@ -50,6 +49,10 @@ abstract class HierarchicalEntity {
 
     public function setParent(HierarchicalEntity $entity) {
         $this->getItem()->setParent($entity->getItem()->getID());
+    }
+
+    public function getChildren() {
+        return $this->getItem()->getChildren();
     }
 
     protected function getMeta($key, $default=null, $lang=false) {

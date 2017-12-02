@@ -46,16 +46,27 @@ class Phase extends HierarchicalEntity {
         $scoring_type = $this->getItem()->getMeta('ft_scoring');
         return ScoringProvider::instance()->getScoring($scoring_type);
     }
+    
+    public function getScoringConfig() {
+        return $this->getScoring()['config'];
+    }
 
     public function getScoringSchemas() {
-        $scoring = $this->getScoring();
-        return $scoring['config']['phase_types'][$this->getType()]['schemas'];
+        return $this->getScoringConfig()['phase_types'][$this->getType()]['schemas'];
     }
 
     public function addGroups($groups) {
         foreach($group as $group) {
             $group->setParent($this);
         }
+    }
+
+    public function getGroups() {
+        $children = $this->getChildren();
+        foreach($children as $key => $child) {
+            $children[$key] = PoolRegistry::instance()->getPool('group')->getInstance($child->getID(), $child);
+        }
+        return $children;
     }
 
   /*

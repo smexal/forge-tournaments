@@ -16,13 +16,50 @@ class TestPhasebuilder extends TestCase {
     public function testBuildEncounters() {
         $item = $this->makePhase();
         $phase = ForgeTournaments\PoolRegistry::instance()->getPool('phase')->getInstance($item->getID(), $item);
-        
-        for($i = 0; $i<30; $i++) {
+        $this->assertEquals($phase,  ForgeTournaments\PoolRegistry::instance()->getPool('phase')->getInstance($item->getID()));
+
+        for($i = 0; $i < 30; $i++) {
             $phase->addParticipant($this->makeParticipant($i));
         }
-        die(var_dump($phase->getParticipantList()));
 
         PhaseBuilder::instance()->build($phase);
+
+        $phase = ForgeTournaments\PoolRegistry::instance()->getPool('phase')->getInstance($item->getID());
+
+        $groups = $phase->getGroups();
+        $this->assertCount(8, $groups);
+
+        foreach($groups as $idx => $group) {
+            /*var_dump("--- GROUP {$idx} START ---");*/
+            $this->assertEquals(4, $group->getGroupSize());
+            $encounters = $group->getEncounters();
+            
+            if($idx < 6) {
+                $this->assertEquals(6, count($encounters));
+            } else {
+                $this->assertEquals(3, count($encounters));
+            }
+          /*  foreach($group->getEncounters() as $encounter) {
+                var_dump(implode(',', $encounter->getSlots()));
+            }
+            var_dump("--- GROUP {$idx} END ---");*/
+        }
+
+        $g1_encounters = $groups[0]->getEncounters();
+        $this->assertEquals([0, 1], $g1_encounters[0]->getSlots());
+        $this->assertEquals([0, 2], $g1_encounters[1]->getSlots());
+        $this->assertEquals([2, 3], end($g1_encounters)->getSlots());
+
+        $g7_encounters = $groups[6]->getEncounters();
+        $this->assertEquals([24, 25], $g7_encounters[0]->getSlots());
+        $this->assertEquals([24, 26], $g7_encounters[1]->getSlots());
+        $this->assertEquals([25, 26], end($g7_encounters)->getSlots());
+
+        $g8_encounters = $groups[7]->getEncounters();
+        $this->assertEquals([27, 28], $g8_encounters[0]->getSlots());
+        $this->assertEquals([27, 29], $g8_encounters[1]->getSlots());
+        $this->assertEquals([28, 29], end($g8_encounters)->getSlots());
+
     }
 
     public function makePhase($name='') {

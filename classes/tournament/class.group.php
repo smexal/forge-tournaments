@@ -24,4 +24,16 @@ class Group extends HierarchicalEntity {
         }
     }
 
+    public function getEncounters() {
+        $children = $this->getChildren();
+        foreach($children as $key => $child) {
+            $children[$key] = PoolRegistry::instance()->getPool('encounter')->getInstance($child->getID(), $child);
+        }
+        return $children;
+    }
+
+    public function getGroupSize() {
+        return $this->getItem()->getMeta('ft_participant_list_size');
+    }
+
 }
