@@ -13,6 +13,36 @@ use TestUtilsForgeTournaments as TestUtilsForgeTournaments;
 
 class TestPhasebuilder extends TestCase {
 
+    public function testEntityPool() {
+        $entity_pool = new ForgeTournaments\EntityPool('\\Forge\\Core\\Classes\\CollectionItem', 4);
+
+        $ids = [];
+        for($i = 0; $i < 4; $i++) {
+            $item = new CollectionItem(CollectionItem::create([
+                'name' => 'Int: ' . $i,
+                'type' => 'forge-tournaments-prize'
+            ]));
+            $ids[] = $item->getID();
+            $entity_pool->setInstance($item->getID(), $item);
+        }
+
+        $this->assertTrue($entity_pool->hasInstance($ids[0]));
+        
+        foreach($ids as $id) {
+            $this->assertTrue($entity_pool->hasInstance($id));
+        }
+
+        $item =  new CollectionItem(CollectionItem::create([
+                'name' => 'Special',
+                'type' => 'forge-tournaments-prize'
+            ]));
+        $entity_pool->setInstance($item->getID(), $item);
+
+        $this->assertFalse($entity_pool->hasInstance($ids[0]));
+        $this->assertTrue($entity_pool->hasInstance($item->getID()));
+
+    }
+
     public function testBuildEncounters() {
         $item = $this->makePhase();
         $phase = ForgeTournaments\PoolRegistry::instance()->getPool('phase')->getInstance($item->getID(), $item);
@@ -60,6 +90,13 @@ class TestPhasebuilder extends TestCase {
         $this->assertEquals([27, 29], $g8_encounters[1]->getSlots());
         $this->assertEquals([28, 29], end($g8_encounters)->getSlots());
 
+
+        
+        PhaseBuilder::instance()->clean($phase);
+        $ctree = new \Forge\Modules\ForgeTournaments\Calculations\CollectionTree($phase->getItem());
+        $root = $ctree->build();
+      
+        $this->assertCount(0, $root->getChildren());
     }
 
     public function makePhase($name='') {
@@ -70,7 +107,6 @@ class TestPhasebuilder extends TestCase {
             'ft_participant_list_size' => 32
 
         ];
-        $_GLOBALS['makae-test'] = true;
         $item =  $this->makeCollectionItem(ForgeTournaments\PhaseCollection::COLLECTION_NAME, 'Test Phase' . $name, $set_metas);
 
         return $item;

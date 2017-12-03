@@ -7,7 +7,7 @@
 
 
 
-namespace Forge\Modules\ForgeTournaments\Calculations;
+namespace Forge\Modules\ForgeTournaments\Calculations\Nodes;
 
 class SortNode extends CalcNode {
     private $sorting = null;

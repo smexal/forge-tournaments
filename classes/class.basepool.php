@@ -13,8 +13,12 @@ abstract class BasePool implements IPool {
         $this->max_pool_size = $max_pool_size;
     }
 
+    public function hasInstance($id) {
+        return isset($this->instances[$id]);
+    }
+
     public function getInstance($id, $args=[]) {
-        if(!isset($this->instances[$id])) {
+        if(!$this->hasInstance($id)) {
             $instance = $this->buildInstance($id, $args);
             $this->registerInstance($id, $instance);
         }
@@ -25,12 +29,19 @@ abstract class BasePool implements IPool {
         $this->registerInstance($id, $instance);
     }
 
+    public function removeInstance($id) {
+        if($this->hasInstance($id)) {
+            unset($this->instances[$id]);
+        }
+    }
+
     abstract protected function buildInstance($id, $args=[]);
 
 
     protected function registerInstance($id, $instance) {
         if(count($this->instances) >= $this->max_pool_size) {
-            unset($this->instances[current(array_keys($this->instances))]);
+            $first_id = current(array_keys($this->instances));
+            $this->removeInstance($first_id);
         }
         $this->instances[$id] = $instance;
     }

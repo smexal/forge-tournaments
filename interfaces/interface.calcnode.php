@@ -6,7 +6,7 @@ interface ICalcNode {
 
     public function addInputs(IInput $input);
 
-    public function addCalculation(ICalculations $calculation);
+    public function addCalculation(ICalculation $calculation);
 
     public function inputsReady() : bool;
 

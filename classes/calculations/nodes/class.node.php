@@ -1,6 +1,6 @@
 <?php
 
-namespace Forge\Modules\ForgeTournaments\Calculations;
+namespace Forge\Modules\ForgeTournaments\Calculations\Nodes;
 
 use Forge\Modules\ForgeTournaments\Interfaces\INode;
 

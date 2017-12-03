@@ -63,7 +63,7 @@ class DatasetStorage implements IDatasetStorage {
         $db = $this->storage_handler;
         $db->where('ref_type', $this->ref_type);
         $db->where('ref_id', $this->ref_id);
-        return $db->delet('ft_datastorage');
+        return $db->delete('ft_datastorage');
     }
 
     public function loadAll() {

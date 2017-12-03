@@ -1,9 +1,10 @@
 <?php
 
-namespace Forge\Modules\ForgeTournaments\Calculations;
+namespace Forge\Modules\ForgeTournaments\Calculations\Nodes;
 
 use Forge\Modules\ForgeTournaments\Interfaces\ICalcNode;
 use Forge\Modules\ForgeTournaments\Interfaces\IInput;
+use Forge\Modules\ForgeTournaments\Interfaces\ICalculation;
 
 
 class CalcNode extends Node implements ICalcNode {
@@ -21,7 +22,7 @@ class CalcNode extends Node implements ICalcNode {
         $this->inputs[] = $input;
     }
 
-    public function addCalculation(ICalculations $calculation) {
+    public function addCalculation(ICalculation $calculation) {
         $this->calculations[] = $calculation;
     }
 

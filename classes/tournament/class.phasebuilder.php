@@ -6,6 +6,7 @@ use Forge\Core\Traits\Singleton;
 use Forge\Modules\ForgeTournaments\PhaseTypes;
 use Forge\Core\Classes\CollectionItem;
 
+use Forge\Modules\ForgeTournaments\Calculations\CollectionTree;
 use Forge\Modules\ForgeTournaments\Calculations\Nodes\CollectionNode;
 use Forge\Modules\ForgeTournaments\Calculations\Nodes\Iterators\BreadthFirstIterator;
 
@@ -51,12 +52,14 @@ class PhaseBuilder {
 
         $iterator = new BreadthFirstIterator($tree->getRoot());
         while(!is_null($n = $iterator->nextNode())) {
-            $item = $node->getItem();
-            $item->delete();
+            $item = $n->getItem();
             $storage_node = StorageNodeFactory::getByCollectionID($item->getID());
             $storage_node->deleteAllData();
+            // Only delete children
+            if($phase->getItem()->getID() != $item->getID()) {
+                $item->delete();
+            }
         }
-
     }
 
     /********************
@@ -87,7 +90,7 @@ class PhaseBuilder {
 
    public function buildPhase($phase) {
         $scoring = $phase->getScoringSchemas();
-        $phase->getItem()->setMeta('data_schema', $scoring['phase']);
+        $phase->getItem()->setMeta('ft_data_schema', $scoring['phase']);
     }
     
    public function buildRegistrationPhase($phase) {
@@ -102,14 +105,6 @@ class PhaseBuilder {
         $num_groups = ceil($num_participants / $group_size);
 
         $num_remaining = $num_participants % $group_size;
-        var_dump(
-            "encounter_handling: " . $scoring['encounter_handling'] . "\n" .
-            "schema: " . $schema['group'] . "\n" .
-            "num_participants: " . $num_participants . "\n" .
-            "group_size: " . $group_size . "\n" .
-            "num_groups: " . $num_groups . "\n" .
-            "num_remaining: " . $num_remaining
-        );
 
         $slot_start = 0;
         $slot_end = 0;
@@ -192,14 +187,13 @@ class PhaseBuilder {
         for($i = 0; $i < $num; $i++) {
             $metas['ft_group_nr']['value'] = $i + 1;
 
-            $args['name'] = sprintf($args['name'], chr(64 + $metas['ft_group_nr']['value']));
+            $args['name'] = sprintf( \i('Group %s'), chr(64 + $metas['ft_group_nr']['value']));
             $item = new CollectionItem(CollectionItem::create($args, $metas));
             PoolRegistry::instance()->getPool('collection')->setInstance($item->getID(), $item);
             
             $group = PoolRegistry::instance()->getPool('group')->getInstance($item->getID(), $item);
             $groups[] = $group;
         }
-
         return $groups;
     }
 
@@ -224,7 +218,7 @@ class PhaseBuilder {
         for($i = 0; $i < $num; $i++) {
             $metas['ft_encounter_nr']['value'] = $i + 1;
 
-            $args['name'] = sprintf($args['name'], $metas['ft_encounter_nr']['value']);
+            $args['name'] = sprintf(\i('Encounter %d'), $metas['ft_encounter_nr']['value']);
 
             $item = new CollectionItem(CollectionItem::create($args, $metas));
             PoolRegistry::instance()->getPool('collection')->setInstance($item->getID(), $item);

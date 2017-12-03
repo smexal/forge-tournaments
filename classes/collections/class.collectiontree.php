@@ -2,6 +2,8 @@
 
 namespace Forge\Modules\ForgeTournaments\Calculations;
 
+use Forge\Modules\ForgeTournaments\Calculations\Nodes\CollectionNode;
+
 class CollectionTree {
     private $root = null;
     
@@ -17,7 +19,7 @@ class CollectionTree {
         if($node == null) {
             $node = $this->root;
         }
-        $children = $node->buildChildren($node);
+        $children = $this->buildChildren($node);
         $node->setChildren($children);
         foreach($children as $child) {
             $this->build($child);
@@ -26,18 +28,10 @@ class CollectionTree {
     }
 
     public function buildChildren($node) {
-        $children_ids = $this->findChildren($node);
-        foreach($children_ids as $item_id) {
-            $node = new CollectionNode($item);
+        $children = $node->getItem()->getChildren();
+        foreach($children as $key => $item) {
+            $children[$key] = new CollectionNode($item);
         }
+        return $children;
     }
-
-    private function findChildren($node) {
-        $item = $node->getItem();
-        $list = CollectionQuery::items([
-            'parent' => $item->getID()
-        ], CollectionQuery::AS_COLLECTIONS);
-        return $list;
-    }
-
 }
