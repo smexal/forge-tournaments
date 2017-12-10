@@ -22,11 +22,11 @@ abstract class Utils {
         return \triggerModifier(FORGE_TOURNAMENT_NS . '/phase_state_groups', PhaseState::STATE_GROUPS);
     }
 
-    public function getSubtype($type, $item, $meta_key) {
+    public static function getSubtype($type, $item, $meta_key) {
         if(!$item) {
             throw new \Exception("Can not handle empty item for getting SubType");
         }
-        
+
         $reg_key = $item->getMeta($meta_key);
         return BaseRegistry::getRegistry($type)->get($reg_key);
     }
