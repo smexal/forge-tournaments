@@ -39,7 +39,10 @@ class GroupPhase extends BasePhase implements IPhaseType {
         $phase = PoolRegistry::instance()->getPool('phase')->getInstance($item->id, $item);
         $groups = $phase->getGroups();
         foreach($groups as $group) {
-            $html .= "<h5>{$group->getItem()->getName()}</h5>";
+            $group_item = $group->getItem();
+            $html .= "<h5>";
+            $html .= "<a href=\"" . $group_item->url(true) . "\" target=\"_blank\">{$group_item->getName()}</a>";
+            $html .= "</h5>";
             
             $html .= "<ul>";
             $participants = $group->getParticipantList();

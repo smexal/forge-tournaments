@@ -204,7 +204,7 @@ class PhaseBuilder {
         return $groups;
     }
 
-    public function buildEncounters($parent_id, $data_schema, $num) {
+    public function buildEncounters($parent_id, $data_schema, $num, $size=2) {
         $args = [
             'name' => \i('Encounter %d'),
             'type' => EncounterCollection::COLLECTION_NAME,
@@ -219,6 +219,9 @@ class PhaseBuilder {
                 'value' => $data_schema,
                 'lang' => '0',
             ],
+            'ft_participant_list_size' => [
+                'value' => $size
+            ] 
         ];
 
         $encounters = [];
