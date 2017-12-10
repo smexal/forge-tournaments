@@ -42,6 +42,7 @@ class NodaDataCollection extends DataCollection {
                 'data_source_save' => 'relation',
                 'data_source_load' => 'relation',
                 'relation' => [
+                    'direction' => \Forge\Core\Classes\Relations\Enums\Directions::REVERSED,
                     'identifier' => DefaultRelations::PARENT_OF
                 ],
 

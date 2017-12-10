@@ -29,7 +29,7 @@ class GroupPhase extends BasePhase implements IPhaseType {
                 'order' => 100,
                 'position' => 'left',
                 'hint' => i('', 'forge-tournaments'),
-                '__last_phase_status' => PhaseState::FRESH
+                '__last_phase_status' => PhaseState::OPEN
             ]
         ];
     }

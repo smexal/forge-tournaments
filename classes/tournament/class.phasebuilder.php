@@ -104,7 +104,7 @@ class PhaseBuilder {
     }
     
    public function buildGroupPhase($phase) {
-    error_log("BUILD GROUP PHASE {$phase->getID()}");
+        error_log("BUILD GROUP PHASE {$phase->getID()}");
         $scoring = $phase->getScoringConfig();
         $schema = $phase->getScoringSchemas();
         $num_participants = $phase->getParticipantList()->count();
@@ -207,7 +207,7 @@ class PhaseBuilder {
     public function buildEncounters($parent_id, $data_schema, $num) {
         $args = [
             'name' => \i('Encounter %d'),
-            'type' => GroupCollection::COLLECTION_NAME,
+            'type' => EncounterCollection::COLLECTION_NAME,
             'parent' => $parent_id
         ];
         $metas = [
