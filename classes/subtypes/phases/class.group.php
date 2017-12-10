@@ -2,10 +2,11 @@
 
 namespace Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases;
 
-use \Forge\Modules\ForgeTournaments\Interfaces\IPhaseType;
+use Forge\Modules\ForgeTournaments\Interfaces\IPhaseType;
 
-use \ Forge\Modules\ForgeTournaments\PhaseState;
-use \Forge\Core\Classes\CollectionItem;
+use  Forge\Modules\ForgeTournaments\PhaseState;
+use Forge\Core\Classes\CollectionItem;
+use Forge\Modules\ForgeTournaments\PoolRegistry;
 
 class GroupPhase extends BasePhase implements IPhaseType {
 
@@ -28,13 +29,35 @@ class GroupPhase extends BasePhase implements IPhaseType {
                 'order' => 100,
                 'position' => 'left',
                 'hint' => i('', 'forge-tournaments'),
-                '__last_phase_state' => PhaseState::FRESH
+                '__last_phase_status' => PhaseState::FRESH
             ]
         ];
     }
 
     public function render(CollectionItem $item) : string {
-        return '<div style="color:red">MY Name is dem super duper GroupPhase</div>';
+        $html = '';
+        $phase = PoolRegistry::instance()->getPool('phase')->getInstance($item->id, $item);
+        $groups = $phase->getGroups();
+        foreach($groups as $group) {
+            $html .= "<h5>{$group->getItem()->getName()}</h5>";
+            
+            $html .= "<ul>";
+            $participants = $group->getParticipantList();
+            for($i = 0; $i < $participants->numSlots(); $i++) {
+                $slot = $participants->getSlot($i);
+
+                $slot_name = is_null($slot) ? 'EMPTY' : 'USED UP';
+
+                $html .= '<li>';
+                $html .= 'Slot ' . ($i + 1) .': ';
+                $html .= '<span>' . $slot_name . '</span>';
+                $html .= '</li>';
+            }
+            $html .= "</ul>";
+            $html .= "<br />";
+            $html .= "<br />";
+        }
+        return $html;
     }
 
 }

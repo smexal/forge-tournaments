@@ -30,6 +30,13 @@ class ParticipantList {
         }
     }
 
+    public function getSlot($slot_id) {
+        if(!isset($this->participants[$slot_id]) || is_null($this->participants[$slot_id])) {
+            return null;
+        }
+        return $this->participants[$slot_id];
+    }
+
     public function addParticipant($participant) {
         $idx = $this->findNextSlot();
         if($idx === false) {

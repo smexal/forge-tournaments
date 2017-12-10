@@ -18,12 +18,14 @@ class Phase extends HierarchicalEntity {
     }
 
     public function changeStatus($new_status) {
-        $status = $this->getItem()->getMeta('ft_phase_status');
-        if(!in_array($new_status, Utils::getPhaseStates())) {
+        $new_status = (int) $new_status;
+        $status = (int) $this->getItem()->getMeta('ft_phase_status');
+        if(!array_key_exists($new_status, Utils::getPhaseStates())) {
             return false;
         }
 
         $can_change = \triggerModifier(FORGE_TOURNAMENT_NS . '/phase/canChangeState', true, $this, $new_status, $status);
+        error_log("can change: " . $can_change ? 'Y': 'N');
         if(!$can_change && $status != $new_status) {
             return false;
         }
@@ -63,6 +65,7 @@ class Phase extends HierarchicalEntity {
 
     public function getGroups() {
         $children = $this->getChildren();
+        error_log(print_r($children, 1));
         foreach($children as $key => $child) {
             $children[$key] = PoolRegistry::instance()->getPool('group')->getInstance($child->getID(), $child);
         }

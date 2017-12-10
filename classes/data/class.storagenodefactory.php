@@ -32,6 +32,7 @@ abstract class StorageNodeFactory {
         
         $schema = SchemaProvider::instance()->getSchema($schema_id);
         $storage = DatasetStorage::getInstance($ref_type, $ref_id);
+
         $node = new DataStorageNode($schema, $storage);
         static::$instances[$key] = $node;
         return static::$instances[$key];

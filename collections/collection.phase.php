@@ -51,8 +51,8 @@ class PhaseCollection extends NodaDataCollection {
                 PhaseCollection::COLLECTION_NAME, 
                 RelationDirection::DIRECTED
             ),
-            'ft_participant_output_pool' => new CollectionRelation(
-                'ft_participant_output_pool', 
+            'ft_participant_output_list' => new CollectionRelation(
+                'ft_participant_output_list', 
                 PhaseCollection::COLLECTION_NAME, 
                 PhaseCollection::COLLECTION_NAME, 
                 RelationDirection::DIRECTED
@@ -65,7 +65,7 @@ class PhaseCollection extends NodaDataCollection {
     }
 
     protected function custom_fields() {
-        $this->addFields([
+        $fields = [
             [
                 'key' => 'ft_phase_status',
                 'type' => 'select',
@@ -73,7 +73,7 @@ class PhaseCollection extends NodaDataCollection {
                 'values' => Utils::getPhaseStates(),
                 'value' => PhaseState::FRESH,
                 'multilang' => false,
-                'order' => 10,
+                'order' => 3,
                 'position' => 'right',
                 'hint' => i('Select the phase status', 'forge-tournaments'),
                 'data_source_save' => [$this, 'savePhaseStatus']
@@ -85,10 +85,34 @@ class PhaseCollection extends NodaDataCollection {
                 'values' => Utils::getPhaseTypes(),
                 'value' => PhaseTypes::REGISTRATION,
                 'multilang' => false,
-                'order' => 10,
-                'position' => 'left',
+                'order' => 4,
+                'position' => 'right',
                 'hint' => i('Select the phase type', 'forge-tournaments'),
-                '__last_phase_state' =>  PhaseState::FRESH
+                '__last_phase_status' =>  PhaseState::FRESH,
+            ],
+            [
+                'key' => 'ft_scoring',
+                'label' => \i('Scoring type', 'forge-tournaments'),
+                'values' => Utils::getScoringOptions(),
+                'value' => Utils::getDefaultScoringID(),
+                'multilang' => false,
+                'type' => 'select',
+                'order' => 4,
+                'position' => 'right',
+                'hint' => '',
+                '__first_phase_status' =>  PhaseState::OPEN,
+                '__last_phase_status' => PhaseState::OPEN,
+            ],
+            [
+                'key' => 'ft_num_winners',
+                'label' => \i('How many participants are reaching the next phase?', 'forge-tournaments'),
+                'value' => 8,
+                'multilang' => false,
+                'type' => 'number',
+                'order' => 7,
+                'position' => 'right',
+                'hint' => \i('Ensure the following phase has at least as many total slots available', 'forge-tournaments'),
+                '__last_phase_status' => PhaseState::FRESH
             ],
             [
                 'key' => 'ft_next_phase',
@@ -129,90 +153,63 @@ class PhaseCollection extends NodaDataCollection {
                 'order' => 20,
                 'position' => 'left',
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
-                '__last_phase_state' => PhaseState::OPEN
+                '__last_phase_status' => PhaseState::OPEN
             ],
-            [
-                'key' => 'ft_scoring',
-                'label' => \i('Scoring type', 'forge-tournaments'),
-                'values' => Utils::getScoringOptions(),
-                'value' => Utils::getDefaultScoringID(),
-                'multilang' => false,
-                'type' => 'select',
-                'order' => 10,
-                'position' => 'right',
-                'hint' => '',
-                '__last_phase_state' => PhaseState::OPEN
-            ],
-            [
-                'key' => 'ft_num_winners',
-                'label' => \i('How many participants are reaching the next phase?', 'forge-tournaments'),
-                'value' => 8,
-                'multilang' => false,
-                'type' => 'number',
-                'order' => 10,
-                'position' => 'right',
-                'hint' => \i('Ensure the following phase has at least as many total slots available', 'forge-tournaments'),
-                '__last_phase_state' => PhaseState::FRESH
-            ]
-        ]);
+        ];
+
+        $fields = $this->setPhaseStateHandlers($fields);
+        $this->addFields($fields);
 
         $fields = parent::inheritedFields();
 
-        foreach($fields as $field) {
+        foreach($fields as &$field) {
             if($field['key'] == 'ft_participant_list_size') {
-                $field['__last_phase_state'] = PhaseState::FRESH;
+                $field['__last_phase_status'] = PhaseState::FRESH;
             }
             if($field['key'] == 'ft_participant_list') {
-                $field['__last_phase_state'] = PhaseState::OPEN;
+                $field['__first_phase_status'] = PhaseState::READY;
+                $field['__last_phase_status'] = PhaseState::READY;
+            }
+
+            if($field['key'] == 'ft_data_schema') {
             }
         }
 
+        $fields = $this->setPhaseStateHandlers($fields);
+
         $this->addFields($fields);
+    }
+
+    public function setPhaseStateHandlers($fields) {
+        foreach($fields as &$field) {
+            if(isset($field['__first_phase_status']) || isset($field['__last_phase_status'])) {
+                $field['process:modifyField'] = [$this, 'processModifyPhaseType'];
+            }
+        }
+        return $fields;
     }
 
     public function itemDependentFields($item) {
         $scoring = $item->getMeta('ft_scoring');
         $scoring = $scoring ? $scoring : Utils::getDefaultScoringID();
         $scoring = ScoringProvider::instance()->getScoring($scoring);
-        $match_handling = [
-            'versus' => [
-                'bo3' => \i('Best of 3', 'forge-tournaments'), 
-                'bo5' => \i('Best of 5', 'forge-tournaments'),
-                'bo1' => \i('Best of 1', 'forge-tournaments')
-            ],
-            'performance' => [
-                'single_result' => \i('Single result', 'forge-tournaments')
-            ]
-        ];
-        $mh_options = $match_handling[$scoring['config']['match_handling']];
-        $this->addUniqueFields([
-            [
-                'key' => 'match_handling',
-                'label' => \i('How are the matches handled?', 'forge-tournaments'),
-                'values' => $mh_options,
-                'value' => count($mh_options) ? reset($mh_options) : null,
-                'multilang' => false,
-                'type' => 'select',
-                'order' => 10,
-                'position' => 'right',
-                'grouped' => false,
-                'hint' => \i('Define how the winners of an encounter are determined', 'forge-tournaments')
-            ]
-        ]);
-
 
         $phase = Utils::getSubtype('IPhaseType', $item, 'ft_phase_type');
         if(!is_null($phase)) {
             $new_fields = $phase->fields($item);
-            error_log(print_r($new_fields, 1));
             $this->addUniqueFields($new_fields);
             $this->customFields = $phase->modifyFields($this->customFields);
         }
 
-        foreach($this->customFields as &$field) {
-            if(isset($field['__last_phase_state'])) {
+        $this->customFields = $this->setPhaseStateHandlers($this->customFields);
+
+        /*foreach($this->customFields as &$field) {
+            if(isset($field['__first_phase_status']) || isset($field['__last_phase_status'])) {
                 $field['process:modifyField'] = [$this, 'processModifyPhaseType'];
             }
+
+            // Lockdown phase switch to only allow inside the group
+            // And forward to the next phase state group
             if($field['key'] == 'ft_phase_status') {
                 $phase_status = $item->getMeta('ft_phase_status');
                 foreach(PhaseState::STATE_GROUPS as $gkey => $group) {
@@ -228,20 +225,27 @@ class PhaseCollection extends NodaDataCollection {
                     }
                 }
             }
-        }
+        }*/
     }
 
     public function processModifyPhaseType($field, $item, $value) {
         $phase_status = $item->getMeta('ft_phase_status');
-        if($phase_status > $field['__last_phase_state']) {
+        // error_log($field['key']);
+        if(isset($field['__first_phase_status']) && $phase_status < $field['__first_phase_status']) {
+            // error_log("$phase_status < {$field['__first_phase_status']}");
             $field['readonly'] = true;
+        } else if(isset($field['__last_phase_status']) && $phase_status > $field['__last_phase_status']) {
+            // error_log("$phase_status < {$field['__last_phase_status']}");
+            $field['readonly'] = true;
+        } else {
+            // error_log("$phase_status -> NONE");
         }
         return $field;
     }
 
     public function savePhaseStatus($item, $field, $value, $lang) {
-        $phase = PoolRegistry::instance()->getPool('phase')->getInstance($item->id, [$item]);
-        $phase->changeState($value);
+        $phase = PoolRegistry::instance()->getPool('phase')->getInstance($item->id, $item);
+        $phase->changeStatus($value);
     }
 
     public function subviewCreator() {

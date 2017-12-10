@@ -26,12 +26,14 @@ class PhaseBuilder {
         return true;
     }
 
+    /**
+     * Is only called if the previous state is NOT the same.
+     * A phase state can be changed back to the previous state
+     */
     public function onPhaseStateChange($phase, $new_state, $old_state) {
+        error_log("$old_state to -> $new_state");
         switch ($new_state) {
             case PhaseState::READY:
-                if(!$this->canBuild()) {
-                    return false;
-                }
                 $this->clean($phase);
                 $this->build($phase);
             break;
@@ -47,6 +49,7 @@ class PhaseBuilder {
      * Remove old groups, matches and encounters
      */
     public function clean($phase) {
+        error_log("CLEANING PHASE {$phase->getID()}");
         $tree = new CollectionTree($phase->getItem());
         $tree->build();
 
@@ -54,7 +57,9 @@ class PhaseBuilder {
         while(!is_null($n = $iterator->nextNode())) {
             $item = $n->getItem();
             $storage_node = StorageNodeFactory::getByCollectionID($item->getID());
-            $storage_node->deleteAllData();
+            if(!is_null($storage_node)) {
+                $storage_node->deleteAllData();
+            }
             // Only delete children
             if($phase->getItem()->getID() != $item->getID()) {
                 $item->delete();
@@ -66,6 +71,7 @@ class PhaseBuilder {
      * BUILD PHASE
      ********************/
     public function build($phase) {
+        error_log("BUILD PHASE {$phase->getID()}");
         $this->buildPhase($phase);
         switch ($phase->getType()) {
 
@@ -98,6 +104,7 @@ class PhaseBuilder {
     }
     
    public function buildGroupPhase($phase) {
+    error_log("BUILD GROUP PHASE {$phase->getID()}");
         $scoring = $phase->getScoringConfig();
         $schema = $phase->getScoringSchemas();
         $num_participants = $phase->getParticipantList()->count();

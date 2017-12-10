@@ -67,7 +67,7 @@ class NodaDataCollection extends DataCollection {
 
                 'type' => 'collection',
                 /*'maxtags'=> 64, SET BY ft_num_winners*/
-                'collection' => static::COLLECTION_NAME,
+                'collection' => ParticipantCollection::COLLECTION_NAME,
                 'data_source_save' => 'relation',
                 'data_source_load' => 'relation',
                 'relation' => [
@@ -84,15 +84,16 @@ class NodaDataCollection extends DataCollection {
         if(count($schemas) > 0) {
             $fields[] = [
                 'key' => 'ft_data_schema',
-                'label' => \i('Select which dataschema this node has', 'forge-tournaments'),
+                'label' => \i('Dataschema (field configuration)', 'forge-tournaments'),
                 'values' => $schemas,
                 'value' => array_keys($schemas)[0],
                 'multilang' => false,
                 'type' => 'select',
-                'readonly' => false,
-                'order' => 3,
+                // This is ALWAYS assigned by the fieldbuilder
+                'readonly' => true,
+                'order' => 5,
                 'position' => 'right',
-                'hint' => i('Save collection for effect to take place, this might hide data which is already saved', 'forge-tournaments')
+                'hint' => i('This is automatically assigned by the phasebuilder', 'forge-tournaments')
             ];
         }
 

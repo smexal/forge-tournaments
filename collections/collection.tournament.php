@@ -313,7 +313,6 @@ class TournamentCollection extends DataCollection {
         if (!Auth::allowed("manage.collection.sites")) {
             return;
         }
-        die("ASdf");
         return "TEST";
     }
 

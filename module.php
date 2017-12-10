@@ -22,7 +22,7 @@ use \Forge\Modules\ForgeTournaments\GroupCollection;
 use \Forge\Modules\ForgeTournaments\PhaseCollection;
 
 class ForgeTournaments extends Module {
-    const FILE_SIZE_LIMIT = 5*1024*1024; // 5MB
+    const FILE_SIZE_LIMIT = 5 * 1024 * 1024; // 5MB
 
     private static $name_field = 'forge_tournament_organisation_registration_name';
     private static $description_field = 'forge_tournament_organisation_registration_description';

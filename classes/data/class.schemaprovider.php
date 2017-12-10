@@ -12,7 +12,9 @@ class SchemaProvider implements ISchemaProvider {
 
     private $schemas = [];
 
-    protected function __construct() {}
+    protected function __construct() {
+        $this->addSchema(new DataSchema('null_schema', [], []));
+    }
 
     public function addSchema(IDataSchema $schema) {
         $this->schemas[$schema->getID()] = $schema;
@@ -32,7 +34,7 @@ class SchemaProvider implements ISchemaProvider {
         if(isset($this->schemas[$id])) {
             return $this->schemas[$id];
         }
-        return null;
+        return $this->getSchema('null_schema');
     }
 
 }
