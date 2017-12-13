@@ -101,7 +101,7 @@ class PhaseCollection extends NodaDataCollection {
                 'position' => 'right',
                 'hint' => '',
                 '__first_phase_status' =>  PhaseState::OPEN,
-                '__last_phase_status' => PhaseState::OPEN,
+                '__last_phase_status' => PhaseState::OPEN
             ],
             [
                 'key' => 'ft_num_winners',
@@ -144,12 +144,7 @@ class PhaseCollection extends NodaDataCollection {
                 'type' => 'collection',
                 /*'maxtags'=> 64, SET BY ft_num_winners*/
                 'collection' => ParticipantCollection::COLLECTION_NAME,
-                'data_source_save' => 'relation',
-                'data_source_load' => 'relation',
-                'relation' => [
-                    'identifier' => 'ft_participant_output_list'
-                ],
-
+                
                 'order' => 20,
                 'position' => 'left',
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
@@ -167,8 +162,8 @@ class PhaseCollection extends NodaDataCollection {
                 $field['__last_phase_status'] = PhaseState::FRESH;
             }
             if($field['key'] == 'ft_participant_list') {
-                $field['__first_phase_status'] = PhaseState::READY;
-                $field['__last_phase_status'] = PhaseState::READY;
+                $field['__first_phase_status'] = PhaseState::RUNNING;
+                $field['__last_phase_status'] = PhaseState::RUNNING;
             }
 
             if($field['key'] == 'ft_data_schema') {
@@ -190,6 +185,8 @@ class PhaseCollection extends NodaDataCollection {
     }
 
     public function itemDependentFields($item) {
+        parent::itemDependentFields($item);
+        
         $scoring = $item->getMeta('ft_scoring');
         $scoring = $scoring ? $scoring : Utils::getDefaultScoringID();
         $scoring = ScoringProvider::instance()->getScoring($scoring);
@@ -200,6 +197,7 @@ class PhaseCollection extends NodaDataCollection {
             $this->addUniqueFields($new_fields);
             $this->customFields = $phase->modifyFields($this->customFields);
         }
+
 
         $this->customFields = $this->setPhaseStateHandlers($this->customFields);
 
@@ -249,6 +247,7 @@ class PhaseCollection extends NodaDataCollection {
     }
 
     public function subviewCreator() {
+        return 'asdf';
         if (!Auth::allowed("manage.collection.sites")) {
             return;
         }

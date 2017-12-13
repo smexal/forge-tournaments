@@ -9,6 +9,7 @@ use \Forge\Core\App\App;
  * The slot place can be reassigned by shuffling
  */
 class ParticipantList {
+    // List of ids of participants of length $num_slots
     protected $participants;
     protected $num_slots;
     protected $seeder;
@@ -16,6 +17,10 @@ class ParticipantList {
     public function __construct($num_slots, array $participants=[]) {
         $this->num_slots = $num_slots;
         $this->setParticipants($participants);
+    }
+
+    public function getParticipants() {
+        return $this->participants;
     }
 
     public function setParticipants($participants) {
@@ -67,20 +72,5 @@ class ParticipantList {
         }
         return $count;
     }
-
-   /*
-    fn set/get/Members
-    fn hasOpenSlots // Check if completed
-    fn addParticipant(participant) // Sets a Participant according to the SEEDING Strategy
-    fn shuffle() // Moves the slots around according to the seeder's strategy
-    fn render(Admin)
-
-
-    fn setParticipantSlot(slotid, participant)
-    fn switchParticipantSlot(participant1, participant2)
-    fn removeParticipant(participant)
-    fn replaceParticipant(slotid, participant)
-    fn clearSlot(slotid)
-   */
 
 }

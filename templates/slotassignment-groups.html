@@ -1,0 +1,12 @@
+<div class="slotassignment-groups">
+    {loop="$groups"}
+        <ul class="slot-group slot-group-{$key}">
+            {loop="$value"}
+            <li data-slot-id="$name-{$value.slotid}">
+                <span class="slot-prefix">{$slot_prefix} {$value.slotid}:</span>
+                <span class="slot-label" datal-slot-value="{$value.value}">{$value.label}</span>
+            </li>
+            {/loop}
+        </ul>
+    {/loop}
+</div>

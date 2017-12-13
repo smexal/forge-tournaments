@@ -1,0 +1,22 @@
+<div class="form-group">
+    <input type="hidden"
+           name="{$name}" 
+           class="form-control{if="isset($error) && $error"} has-error{/if}{if="isset($input_class)"} {$input_class}{/if}" {if="isset($id)"}id="{$id}"{/if}
+           {if="$value"}value="{$value}"{/if}
+           {if="isset($data_attrs)"}
+               {loop="$data_attrs"}
+                   data-{$key}="{$value}"
+               {/loop}
+            {/if}
+    />
+    <div class="participant-pool">
+        <ul>
+            <li>Peter</li>
+            <li>Tester</li>
+            <li>Golem</li>
+        </ul>
+    </div>
+    <div class="slot-assignment-wrapper">
+        {$slot_assignment}
+    </div>
+</div>

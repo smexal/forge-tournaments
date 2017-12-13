@@ -75,20 +75,21 @@ class TestPhasebuilder extends TestCase {
             var_dump("--- GROUP {$idx} END ---");*/
         }
 
+        $participants = $phase->getParticipantList()->getParticipants();
         $g1_encounters = $groups[0]->getEncounters();
-        $this->assertEquals([0, 1], $g1_encounters[0]->getSlots());
-        $this->assertEquals([0, 2], $g1_encounters[1]->getSlots());
-        $this->assertEquals([2, 3], end($g1_encounters)->getSlots());
+        $this->assertEquals([$participants[0], $participants[1]], $g1_encounters[0]->getParticipantList()->getParticipants());
+        $this->assertEquals([$participants[0], $participants[2]], $g1_encounters[1]->getParticipantList()->getParticipants());
+        $this->assertEquals([$participants[2], $participants[3]], end($g1_encounters)->getParticipantList()->getParticipants());
 
         $g7_encounters = $groups[6]->getEncounters();
-        $this->assertEquals([24, 25], $g7_encounters[0]->getSlots());
-        $this->assertEquals([24, 26], $g7_encounters[1]->getSlots());
-        $this->assertEquals([25, 26], end($g7_encounters)->getSlots());
+        $this->assertEquals([$participants[24], $participants[25]], $g7_encounters[0]->getParticipantList()->getParticipants());
+        $this->assertEquals([$participants[24], $participants[26]], $g7_encounters[1]->getParticipantList()->getParticipants());
+        $this->assertEquals([$participants[25], $participants[26]], end($g7_encounters)->getParticipantList()->getParticipants());
 
         $g8_encounters = $groups[7]->getEncounters();
-        $this->assertEquals([27, 28], $g8_encounters[0]->getSlots());
-        $this->assertEquals([27, 29], $g8_encounters[1]->getSlots());
-        $this->assertEquals([28, 29], end($g8_encounters)->getSlots());
+        $this->assertEquals([$participants[27], $participants[28]], $g8_encounters[0]->getParticipantList()->getParticipants());
+        $this->assertEquals([$participants[27], $participants[29]], $g8_encounters[1]->getParticipantList()->getParticipants());
+        $this->assertEquals([$participants[28], $participants[29]], end($g8_encounters)->getParticipantList()->getParticipants());
 
 
         

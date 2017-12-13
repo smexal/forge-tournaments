@@ -46,9 +46,9 @@ class GroupPhase extends BasePhase implements IPhaseType {
             
             $html .= "<ul>";
             $participants = $group->getParticipantList();
+            error_log(print_r($participants, 1));
             for($i = 0; $i < $participants->numSlots(); $i++) {
                 $slot = $participants->getSlot($i);
-
                 $slot_name = is_null($slot) ? 'EMPTY' : 'USED UP';
 
                 $html .= '<li>';

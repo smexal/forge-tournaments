@@ -32,23 +32,46 @@ abstract class HierarchicalEntity {
        return $this->participant_list = $this->loadParticipantList();
     }
 
+    protected function getTournament() {
+        $parent = $this->getItem();
+        if($parent === TournamentCollection::COLLECTION_NAME) {
+            return $this;
+        }
+        while($parent) {
+            $parent = $this->getParent();
+            if($parent->getType() === TournamentCollection::COLLECTION_NAME) {
+                return $parent;
+            }
+        }
+        throw new \Exception("Can not find root entity");
+    }
+
+    protected function saveParticipantList() {    
+        $participant_ids = $this->getParticipantList()->getParticipants();
+        $this->getItem()->setMeta('ft_participant_list', $participant_ids);
+    }
+    
     protected function loadParticipantList() {
         // Load Participant list form DB
         $size = $this->getItem()->getMeta('ft_participant_list_size');
         $size = $size ? $size : 1;
-        $relation = App::instance()->rd->getRelation('ft_participant_list');
-
-        $participants = $relation->getOfLeft($this->getItem()->getID(), Prepares::AS_IDS_RIGHT);
         
+        $participants = $this->getMeta('ft_participant_list', []);
         return new ParticipantList($size, $participants);
     }
 
     public function addParticipant($participant) {
-        $this->getParticipantList()->addParticipant($participant->getID());
+        $participant = is_object($participant) ? $participant->getID() : $participant;
+        $this->getParticipantList()->addParticipant($participant);
+        $this->saveParticipantList();
     }
 
     public function setParent(HierarchicalEntity $entity) {
         $this->getItem()->setParent($entity->getItem()->getID());
+    }
+
+    public function getParent() {
+        return $this->getItem()->getParent();
     }
 
     public function getChildren() {

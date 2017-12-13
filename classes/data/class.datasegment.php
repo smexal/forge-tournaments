@@ -8,6 +8,8 @@ use Forge\Modules\ForgeTournaments\Interfaces\IDataSegment;
 class DataSegment implements IDataSegment {
     const DEFAULT_SOURCE = '__default__';
 
+    // who is this data recorded FOR?
+    // When recording the data the source specifies BY whom
     private $segment_id = null;
     private $data = [];
 
@@ -30,6 +32,7 @@ class DataSegment implements IDataSegment {
         }
     }
 
+    // source = by whom is this data recorded
     public function addData($data, $source='__default__') {
         foreach($data as $key => $value) {
             $this->setValue($key, $value, $source);

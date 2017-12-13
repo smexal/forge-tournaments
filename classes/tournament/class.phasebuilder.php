@@ -33,11 +33,11 @@ class PhaseBuilder {
     public function onPhaseStateChange($phase, $new_state, $old_state) {
         error_log("$old_state to -> $new_state");
         switch ($new_state) {
-            case PhaseState::READY:
+            case PhaseState::OPEN:
                 $this->clean($phase);
                 $this->build($phase);
             break;
-            
+
             default:
                 # code...
             break;
@@ -91,7 +91,6 @@ class PhaseBuilder {
                 $this->buildPerformancePhase($phase);
             break;
         }
-
     }
 
    public function buildPhase($phase) {
@@ -107,7 +106,9 @@ class PhaseBuilder {
         error_log("BUILD GROUP PHASE {$phase->getID()}");
         $scoring = $phase->getScoringConfig();
         $schema = $phase->getScoringSchemas();
-        $num_participants = $phase->getParticipantList()->count();
+        $participants = $phase->getParticipantList();
+        $num_participants = $participants->count();
+
         $group_size = $phase->getGroupSize();
         $num_groups = ceil($num_participants / $group_size);
 
@@ -120,22 +121,26 @@ class PhaseBuilder {
             // Distribute missing slots to the remaining groups
             $num_group_participants = $group_size + (($num_groups - $idx) <= $num_remaining ? -1 : 0);
             $slot_end = $slot_start + $num_group_participants - 1;
-            /// The following is for when 2 participants have an encounter
+            
+            // The following is for when 2 participants have an encounter
             if($scoring['encounter_handling'] == ScoringDefinitions::ENCOUNTER_HANDLING_VERSUS) {
                 // Remove 1 because a participant cannot play against himself
                 $n = $num_group_participants - 1;
                 // Gaussian sum formula
                 $num_encounters = $n * ($n + 1) / 2;
-                $encounters = $this->buildEncounters($group->getID(), $schema['encounter'], $num_encounters);
+                $encounters = $this->buildEncounters($group->getID(), $schema['encounter'], $num_encounters, 2);
                 
-                $this->recursiveAssign($encounters, range($slot_start, $slot_end));
+                $this->recursiveAssign($participants, $encounters, range($slot_start, $slot_end));
                 $slot_start = $slot_end + 1;
+
+            // This is if the encounter is a performacne competition
             } else if ($scoring['encounter'] == ScoringDefinitions::ENCOUNTER_HANDLING_SINGLE) {
-                $slot_start = $idx * $group_size;
+               throw new \Exception("Not yet defined!");
+               /* $slot_start = $idx * $group_size;
                 for($i = 0; $i < count($encounters); $i++) {
                     $encounter = $encounters[$i];
                     $encounter->setSlots([$slot_start + $i]);
-                }
+                }*/
             }
         }
     }
@@ -148,22 +153,24 @@ class PhaseBuilder {
 
     }
 
-    public function recursiveAssign(&$encounters, $slot_ids) {
+    public function recursiveAssign($participants, &$encounters, $slot_ids) {
         if(count($slot_ids) <= 1) {
             return;
         }
         // Remove the first slot
         // A B C
         // B C
+            error_log(print_r($participants, 1));
         $first_slot = array_shift($slot_ids);
         foreach($slot_ids as $second_slot) {
             if(count($encounters) == 0) {
                 return;
             }
             $encounter = array_shift($encounters);
-            $encounter->setSlots([$first_slot, $second_slot]);
+            $encounter->addParticipant($participants->getSlot($first_slot));
+            $encounter->addParticipant($participants->getSlot($second_slot));
         }
-        $this->recursiveAssign($encounters, $slot_ids);
+        $this->recursiveAssign($participants, $encounters, $slot_ids);
     }
 
     /********************

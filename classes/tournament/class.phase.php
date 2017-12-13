@@ -65,7 +65,6 @@ class Phase extends HierarchicalEntity {
 
     public function getGroups() {
         $children = $this->getChildren();
-        error_log(print_r($children, 1));
         foreach($children as $key => $child) {
             $children[$key] = PoolRegistry::instance()->getPool('group')->getInstance($child->getID(), $child);
         }

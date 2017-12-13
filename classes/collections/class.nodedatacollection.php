@@ -19,7 +19,7 @@ class NodaDataCollection extends DataCollection {
     protected function setup() {}
 
     public static function relations($existing) {
-        return array_merge($existing, [
+         return array_merge($existing, [
             'ft_participant_list' => new Relation(
                 'ft_participant_list',
                 RelationDirection::DIRECTED
@@ -53,7 +53,7 @@ class NodaDataCollection extends DataCollection {
             [
                 'key' => 'ft_participant_list_size',
                 'label' => \i('Participant list size', 'forge-tournaments'),
-                'value' => 16,
+                'value' => -1,
                 'multilang' => false,
                 'type' => 'number',
                 'order' => 10,
@@ -74,6 +74,19 @@ class NodaDataCollection extends DataCollection {
                 'relation' => [
                     'identifier' => 'ft_participant_list'
                 ],
+
+                'order' => 20,
+                'position' => 'left',
+                'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
+            ],
+            [
+                'key' => 'ft_slot_assignment',
+                'label' => \i('Slot assignment', 'forge-tournaments'),
+                'multilang' => false,
+
+                'type' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'render'],
+                'data_source_save' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'save'],
+                'data_source_load' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'load'],
 
                 'order' => 20,
                 'position' => 'left',
@@ -146,6 +159,13 @@ class NodaDataCollection extends DataCollection {
             ]
         ]);
 
+        foreach($this->customFields as &$field) {
+            if($field['key'] == 'ft_slot_assignment') {
+                $field['slot_count'] = $item->getMeta('ft_participant_list_size');
+                $field['group_count'] = 4;
+            }
+        }
+
     }
 
     public function renderNodeFields($args, $value) {
@@ -153,24 +173,45 @@ class NodaDataCollection extends DataCollection {
         $storage_node = StorageNodeFactory::getByCollectionID($item_id);
         $schema = $storage_node->getDataSchema();
         $fields = $schema->getFields();
-        $html = '<table class="ft-result-table">
+        $html = '<div class="form-group ft-result-table-wrapper">
+                 <table class="ft-result-table">
                     <thead>
                         <tr>
                             <th>' . \i('Key', 'forge-tournaments') . '</th>
                             <th>' . \i('Type', 'forge-tournaments') . '</th>
                             <th>' . \i('Source', 'forge-tournaments') . '</th>
                             <th>' . \i('Required', 'forge-tournaments') . '</th>
+                            <th>' . \i('Config', 'forge-tournaments') . '</th>
                         </tr>
-                    </thead>';
+                    </thead>
+                    </tbody>';
         foreach($fields as $field) {
+            $field_config = isset($field['field_config']) ? json_encode($field['field_config']): '';
             $html .= "<tr>
                         <td>{$field['key']}</td>
                         <td>{$field['type']}</td>
                         <td>{$field['source']}</td>
                         <td>{$field['required']}</td>
-                    </tr>";
+                        <td>{$field_config}</td>
+                      </tr>";
         }
+        $html .= '</tbody>
+                </table>
+              </div>';
+
+
+
         return $html;
+    }
+
+    public function getTournamentEntity($item) {
+        $node_type = $this->getNodeType();
+        $entity = PoolRegistry::instance()->getPool($node_type)->getInstance($item->getID(), $item);
+        return $entity;
+    }
+
+    public function saveParticipantList($item, $field, $value, $lang) {
+
     }
 
     public function renderNodeDataGathered($args, $value) {
@@ -178,55 +219,45 @@ class NodaDataCollection extends DataCollection {
         $storage_node = StorageNodeFactory::getByCollectionID($item_id);
         $schema = $storage_node->getDataSchema();
         $fields = $schema->getFields();
+        $data_sets = $storage_node->getStorage()->loadAll();
+        
+        $entity = $this->getTournamentEntity(new CollectionItem($item_id));
+        $participants = $entity->getParticipantList();
 
-        return '<table class="ft-result-table">
-    <thead>
-        <tr>
-            <th>Data Key</th>
-            <th>Source</th>
-            <th>FOR Participant 1</th>
-            <th>FOR Participant 2</th>
-            <th>Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Time</td>
-            <td>Participants</td>
-            <td>10:00 [edit]</td>
-            <td>11:00 [edit]</td>
-            <td>OK</td>
-        </tr>
-        <tr>
-            <td>other</td>
-            <td>OTHER PROVIDER</td>
-            <td>23543.5 [edit]</td>
-            <td class="amended"><del>2345.7</del> 2346.8 [edit]</td>
-            <td>OK</td>
-        </tr>
-        <tr>
-            <td>points</td>
-            <td>Participants</td>
-            <td class="amended"><del>P1: 21 | P2: 29</del> 29 [edit]</td>
-            <td class="conflicted">P1: 31 | P2: 29 [resolve]</td>
-            <td>Conflicted</td>
-        </tr>
-        <tr>
-            <td>Stylnote</td>
-            <td>Admin</td>
-            <td class="missing"> -- [add]</td>
-            <td class="missing"> -- [add]</td>
-            <td>Missing</td>
-        </tr>
-        <tr>
-            <td>Winner</td>
-            <td>System (Calculation)</td>
-            <td> MISSING DATA (points) </td>
-            <td> MISSING DATA (points) </td>
-            <td>Missing</td>
-        </tr>
-    </tbody>
-</table>';
+        $html = '<div class="form-group ft-result-table-wrapper">
+                     <table class="ft-result-table">
+                        <thead>
+                            <tr>
+                                <th>' . \i('Data Key', 'forge-tournaments') . '</th>
+                                <th>' . \i('Source', 'forge-tournaments') . '</th>';
+        for($i = 0; $i < $participants->numSlots(); $i++) {
+            $participant = $participants->getSlot($i);
+            $p_name = !$participant ? \i('Not yet set', 'forge-tournaments') : $participant->getName();
+            $html .=            '<th>' . $p_name . '</th>';
+        }
+
+        $html .= '              <th>Status</th>
+                            </tr>
+                        </thead>
+                       <tbody>';
+        foreach($fields as $field) {
+            $html .= "<tr>
+                        <td>{$field['key']}</td>
+                        <td>{$field['source']}</td>";
+
+            for($i = 0; $i < $participants->numSlots(); $i++) {
+                $participant = $participants->getSlot($i);
+                if(!$participant) {
+                    $html .= '<td> - [Add] </td>';
+                    continue;
+                }
+                $html .= '<td>----</td>';
+            }
+            $html .=    "<td>OK</td>
+                    </tr>";
+
+        }
+        return $html .= '</tbody></table></div>';
     }
 
 }
