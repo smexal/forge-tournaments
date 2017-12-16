@@ -67,10 +67,14 @@ class SlotAssignment {
             $args = call_user_func_array($args['prepare_template'], [$args, $value]);
         }
 
-        $args['value'] = json_encode($args);
-        error_log(print_r($args, 1));
+        $args['value'] = $value;
 
-        $args['slot_prefix']= \i('Slot ', 'forge-tournaments');
+        $args['slot_count'] = $args['slot_count'];
+        $args['pool_source_selector'] = rawurlencode($args['pool_source_selector']);
+        $args['data_label_open'] = \i('Open', 'forge-tournaments');
+        $args['slot_prefix'] = \i('Slot ', 'forge-tournaments');
+        $args['value_json'] = rawurlencode(json_encode($value));
+
         $args['slot_assignment'] = App::instance()->render($path, $file, $args);
         return App::instance()->render(
             MOD_ROOT.'forge-tournaments/templates/fields',
@@ -104,6 +108,17 @@ class SlotAssignment {
     }
     
     public static function prepareBracket() {
+        $encounter_count = ceil($value['slot_count'] / 2);
+        $encounters = [];
+        $counter = 0;
+
+        for($i = 0; $i < $encounter_count; $i++) {
+            $start = $i * 2;
+            $length = 2;
+            $encounters[$i] = array_slice($value['items'], $start, $length, true);
+        }
+
+        $args['encounters'] = $encounters;
         return $args;
     }
 }

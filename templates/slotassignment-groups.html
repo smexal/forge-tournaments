@@ -2,9 +2,9 @@
     {loop="$groups"}
         <ul class="slot-group slot-group-{$key}">
             {loop="$value"}
-            <li data-slot-id="$name-{$value.slotid}">
-                <span class="slot-prefix">{$slot_prefix} {$value.slotid}:</span>
-                <span class="slot-label" datal-slot-value="{$value.value}">{$value.label}</span>
+            <li data-slot-id="{$value.slotid}">
+                <span class="slot-prefix">{$slot_prefix} {$value.slotid + 1}:</span>
+                <span class="slot-label" data-slot-value="{$value.value}">{$value.label}</span>
             </li>
             {/loop}
         </ul>

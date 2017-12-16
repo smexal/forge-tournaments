@@ -57,12 +57,14 @@ class ForgeTournaments extends Module {
 
         // backend
         Loader::instance()->addStyle('modules/forge-tournaments/assets/css/general.less');
+        Loader::instance()->addStyle('modules/forge-tournaments/assets/css/slotassignment.less');
         Loader::instance()->addStyle('modules/forge-tournaments/assets/css/forge-tournaments.less');
         Loader::instance()->addStyle('modules/forge-tournaments/assets/css/bracket.less');
 
         Loader::instance()->addStyle('modules/forge-tournaments/assets/css/phases.less');
 
         Loader::instance()->addScript('modules/forge-tournaments/assets/scripts/forge-tournaments.js');
+        Loader::instance()->addScript('modules/forge-tournaments/assets/scripts/slotassignment.js');
 
         // frontend
         App::instance()->tm->theme->addScript($this->url().'assets/scripts/forge-tournaments.js', true);

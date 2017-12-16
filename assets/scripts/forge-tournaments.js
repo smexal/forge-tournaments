@@ -1,4 +1,18 @@
 var forgeTournament = {
+    slot_assignements: [],
+
+    init : function() {
+        this.loadSlotAssignements();
+    },
+
+    loadSlotAssignements : function() {
+        var self = this;
+        $("input[type=\"hidden\"].slots-output").each(function() {
+            self.slot_assignements.push(
+                new forge_tournaments.SlotAssignment($(this).closest('.sa-base')[0])
+            );
+        });
+    },
 
     formCallback : function(data) {
         var container = $(".forge-tournament-formular");
@@ -17,6 +31,7 @@ var forgeTournament = {
             container.append('<p class="message '+data.type+'">'+data.message+'</p>');
         }
     },
+
     setEncounterWinner : function(elem, team, tournament, round, encounter) {
         console.log("elem: " + elem);
         console.log("team: " + team);
@@ -26,3 +41,7 @@ var forgeTournament = {
     }
 
 };
+
+$(document).ready(function() {
+    forgeTournament.init();
+});

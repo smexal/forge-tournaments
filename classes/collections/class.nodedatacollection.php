@@ -87,7 +87,7 @@ class NodaDataCollection extends DataCollection {
                 'type' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'render'],
                 'data_source_save' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'save'],
                 'data_source_load' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'load'],
-
+                'pool_source_selector' => 'input[name="ft_participant_list"]',
                 'order' => 20,
                 'position' => 'left',
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),

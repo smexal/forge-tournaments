@@ -1,19 +1,17 @@
-<div class="form-group">
+<div class="form-group sa-base" data-label-open="{$data_label_open}" data-source-selector="{$pool_source_selector}">
     <input type="hidden"
-           name="{$name}" 
-           class="form-control{if="isset($error) && $error"} has-error{/if}{if="isset($input_class)"} {$input_class}{/if}" {if="isset($id)"}id="{$id}"{/if}
-           {if="$value"}value="{$value}"{/if}
+           name="{$name}"
+           value="{$value_json}"
+           data-slot-count="{$slot_count}"
+           class="form-control slots-output {if="isset($error) && $error"} has-error{/if}{if="isset($input_class)"} {$input_class}{/if}" {if="isset($id)"}id="{$id}"{/if}
            {if="isset($data_attrs)"}
                {loop="$data_attrs"}
                    data-{$key}="{$value}"
                {/loop}
             {/if}
     />
-    <div class="participant-pool">
-        <ul>
-            <li>Peter</li>
-            <li>Tester</li>
-            <li>Golem</li>
+    <div>
+        <ul class="sa-pool">
         </ul>
     </div>
     <div class="slot-assignment-wrapper">
