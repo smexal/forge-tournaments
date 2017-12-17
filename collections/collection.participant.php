@@ -74,7 +74,7 @@ class ParticipantCollection extends DataCollection {
         if(!is_null($participant)) {
             $new_fields = $participant->fields($item);
             $this->addUniqueFields($new_fields);
-            $this->customFields = $participant->modifyFields($this->customFields);
+            $this->customFields = $participant->modifyFields($this->customFields, $item);
         }
     }
 

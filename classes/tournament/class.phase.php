@@ -8,7 +8,7 @@ use Forge\Modules\ForgeTournaments\Scoring\ScoringProvider;
 
 class Phase extends HierarchicalEntity {
     protected $item;
-    protected $participant_list; // ParticipantList
+    protected $participant_list; // SlotAssignment
 
     /**
      * @param mixed $item The Related CollectionItem
@@ -71,11 +71,15 @@ class Phase extends HierarchicalEntity {
         return $children;
     }
 
+    public function getGroupCount() {
+        return ceil($this->getSlotAssignment()->numSlots() / $this->getGroupSize());
+    }
+
   /*
     fn setPreviousPhase
     fn setNextPhase
     fn validate // Check if completed
-    fn shuffleParticipantList(Random/BestScore/)
+    fn shuffleSlotAssignment(Random/BestScore/)
     fn generateEncounters
     fn close
     fn set/get/Members

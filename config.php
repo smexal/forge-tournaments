@@ -18,7 +18,7 @@ define('FORGE_TOURNAMENTS_COLLECTION_SUBTYPES', [
     ]
 ]);
 
-define('FORGE_TOURNAMENTS_SCORINGS', [
+/*define('FORGE_TOURNAMENTS_SCORINGS', [
     'egoshooter_group_bo3' => [
         'phase' => [
             'type' => 'group',
@@ -159,4 +159,4 @@ define('FORGE_TOURNAMENTS_SCORINGS', [
             ]
         ]
     ],
-]);
+]);*/

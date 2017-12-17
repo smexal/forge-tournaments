@@ -1,0 +1,15 @@
+<div>
+    {loop="$encounters"}
+        <h6>KO-Encounter Nr. {$key + 1}</h6>
+        <div class="slot-group">
+            <div data-slot-id="{$value.first.slotid}">
+                <span class="slot-prefix">{$slot_prefix} {$value.first.slotid + 1}:</span>
+                <span class="slot-label" data-slot-value="{$value.first.value}">{$value.first.label}</span>
+            </div>
+            <div data-slot-id="{$value.second.slotid}">
+                <span class="slot-prefix">{$slot_prefix} {$value.second.slotid + 1}:</span>
+                <span class="slot-label" data-slot-value="{$value.second.value}">{$value.second.label}</span>
+            </div>
+        </div>
+    {/loop}
+</div>

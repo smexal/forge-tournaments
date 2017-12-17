@@ -9,7 +9,6 @@ use \Forge\Core\App\App;
  */
 class Group extends HierarchicalEntity {
     protected $item;
-    protected $participant_list; // ParticipantList
 
     /**
      * @param mixed $item The Related CollectionItem
@@ -33,7 +32,6 @@ class Group extends HierarchicalEntity {
     }
 
     public function getGroupSize() {
-        return $this->getItem()->getMeta('ft_participant_list_size');
+        return $this->getSlotAssignement->numSlots();
     }
-
 }

@@ -15,7 +15,7 @@ return [
                     'encounter' => 'encounter_points_winner'
                 ]
             ],
-            'bracket' =>  [
+            'ko' =>  [
                 'schemas' => [
                     'phase' => 'phase_result_bracket',
                     'group' => 'group_bracket',

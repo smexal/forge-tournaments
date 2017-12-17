@@ -27,4 +27,15 @@ class KOPhase extends BasePhase implements IPhaseType {
             ]
         ];
     }
+
+    public function modifyFields(array $fields, $item = null) : array {
+        foreach($fields as &$field) {
+            if($field['key'] == 'ft_slot_assignment') {
+                $field['prepare_template'] = ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'prepareKO'];
+                $field['sa_tpl'] = FORGE_TOURNAMENTS_DIR . 'templates/slotassignment-ko';
+            }
+        }
+        return $fields;
+    }
+
 }

@@ -10,7 +10,13 @@ class SlotAssignment {
         $args['prepare_load'] = isset($args['prepare_load']) ? $args['prepare_load'] : ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'loadGroups'];
         
         $value = $item->getMeta($field['key'], $lang);
-        
+        if($value) {
+            $value = json_decode(rawurldecode($value), true);
+            $value = [
+                'items' => $value
+            ];
+        }
+
         if (!$value) {
             $value = isset($field['default']) ? $field['default'] : [
                 'items' => [],
@@ -48,20 +54,21 @@ class SlotAssignment {
     }
 
     public static function save($item, $field, $value, $lang) {
-        $value = json_encode($value);
+        $value = $value;
         if (isset($args['prepare_load']) && is_callable($args['prepare_load'])) {
             $value = call_user_func_array($args['prepare_load'], [$value, $item, $field, $lang]);
         }
-        $item->setMeta($field['key'], $value, $lang);
+        $item->updateMeta($field['key'], $value, $lang);
+
     }
 
     public static function render($args, $value) {
         $args['name'] = isset($args['name']) ? $args['name'] :  $args['key'];
-        $args['tpl'] = isset($args['tpl']) ? $args['tpl'] :  MOD_ROOT.'forge-tournaments/templates/slotassignment-groups';
-        $args['prepare_template'] = isset($args['prepare_template']) ? $args['prepare_template'] : ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'prepareGroups'];
+        $args['sa_tpl'] = isset($args['sa_tpl']) ? $args['sa_tpl'] : FORGE_TOURNAMENTS_DIR . 'templates/slotassignment-groups';
+        $args['prepare_template'] = isset($args['prepare_template']) ? $args['prepare_template'] : ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'prepareGroup'];
 
-        $path = dirname($args['tpl']);
-        $file = basename($args['tpl']);
+        $path = dirname($args['sa_tpl']);
+        $file = basename($args['sa_tpl']);
 
         if (isset($args['prepare_template']) && is_callable($args['prepare_template'])) {
             $args = call_user_func_array($args['prepare_template'], [$args, $value]);
@@ -69,7 +76,6 @@ class SlotAssignment {
 
         $args['value'] = $value;
 
-        $args['slot_count'] = $args['slot_count'];
         $args['pool_source_selector'] = rawurlencode($args['pool_source_selector']);
         $args['data_label_open'] = \i('Open', 'forge-tournaments');
         $args['slot_prefix'] = \i('Slot ', 'forge-tournaments');
@@ -91,34 +97,42 @@ class SlotAssignment {
         return $value;
     }
 
-    public static function prepareGroups($args, $value) {
+    public static function prepareGroup($args, $value) {
         $group_count = isset($args['group_count']) ? $args['group_count'] : 1;
-        $group_size = ceil($value['slot_count'] / $group_count);
-        $groups = [];
-        $counter = 0;
-
-        for($i = 0; $i < $group_count; $i++) {
-            $start = $i * $group_size;
-            $length = $group_size;
-            $groups[$i] = array_slice($value['items'], $start, $length, true);
-        }
-
-        $args['groups'] = $groups;
+        $args['groups'] = static::groupSlotsForGroup($value['items'], $group_count);
         return $args;
     }
     
-    public static function prepareBracket() {
-        $encounter_count = ceil($value['slot_count'] / 2);
-        $encounters = [];
-        $counter = 0;
+    public static function prepareKO($args, $value) {
+        $args['encounters'] = static::groupSlotsForKO($value['items']);
+        return $args;
+    }
 
+    public static function groupSlotsForGroup($slots, $group_count=1) { 
+        $slot_count = count($slots);
+        $group_size = ceil($slot_count / $group_count);
+        
+        $groups = [];
+        for($i = 0; $i < $group_count; $i++) {
+            $start = $i * $group_size;
+            $length = $group_size;
+            $groups[$i] = array_slice($slots, $start, $length, true);
+        }
+        return $groups;
+    }
+    public static function groupSlotsForKO($slots) { 
+        $slot_count = count($slots);
+        $encounter_count = ceil($slot_count / 2);
+        
+        $encounters = [];
         for($i = 0; $i < $encounter_count; $i++) {
             $start = $i * 2;
             $length = 2;
-            $encounters[$i] = array_slice($value['items'], $start, $length, true);
+            $encounters[$i] = [
+                'first' => $slots[$start],
+                'second' => $slots[$start + 1]
+            ];
         }
-
-        $args['encounters'] = $encounters;
-        return $args;
+        return $encounters;
     }
 }

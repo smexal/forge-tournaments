@@ -83,7 +83,9 @@ var forge_tournaments = (function() {
                 }
 
                 var slot = this.slots[slot_id];
-                this.pool[slot.value] = slot.label;
+                if(slot.value !== null) {
+                    this.addPoolEntry(slot.value, slot.label);
+                }
                 this.setSlot(slot_id, slot);
             }
         },
@@ -133,6 +135,9 @@ var forge_tournaments = (function() {
             this.pool[key].used = used;
 
             var pool_entry = this.getPoolEntryDOM(key);
+            if(!pool_entry) {
+                return;
+            }
             pool_entry.classList[used ? 'add' : 'remove']('used');
         },
 
@@ -157,6 +162,8 @@ var forge_tournaments = (function() {
         },
 
         setSlot: function(slot_id, data) {
+            data.slotid = slot_id;
+
             var prev_data = this.slots[slot_id];
             this.slots[slot_id] = data;
             

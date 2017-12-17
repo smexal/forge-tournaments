@@ -79,21 +79,21 @@ class ForgeTournaments extends Module {
 
         API::instance()->register('forge-tournaments', [$this, 'apiAdapter']);
 
-        \registerModifier('Forge/Core/RelationDirectory/collectRelations', '\Forge\Modules\ForgeTournaments\PhaseCollection::relations');
-        \registerModifier('Forge/Core/RelationDirectory/collectRelations', '\Forge\Modules\ForgeTournaments\NodaDataCollection::relations');
-
-        \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterIPhaseType', '\Forge\Modules\ForgeTournaments\PhaseCollection::registerSubTypes');
-        \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterIParticipantType', '\Forge\Modules\ForgeTournaments\ParticipantCollection::registerSubTypes');
-
-        PhaseRegistry::instance()->prepare();
-        ParticipantRegistry::instance()->prepare();
-        
         // Prevent too many accesses to db by keeping the instances in the Memory
         PoolRegistry::instance()->add('phase', new EntityPool('\\Forge\\Modules\\ForgeTournaments\\Phase', 64));
         PoolRegistry::instance()->add('group', new EntityPool('\\Forge\\Modules\\ForgeTournaments\\Group', 128));
         PoolRegistry::instance()->add('encounter', new EntityPool('\\Forge\\Modules\\ForgeTournaments\\Encounter', 256));
         PoolRegistry::instance()->add('match', new EntityPool('\\Forge\\Modules\\ForgeTournaments\\Match', 512));
-        PoolRegistry::instance()->add('collection', new EntityPool('\\Forge\\Core\\Classes\\CollectionItem', 1024));
+        PoolRegistry::instance()->add('collectionitem', new EntityPool('\\Forge\\Core\\Classes\\CollectionItem', 1024));
+
+        \registerModifier('Forge/Core/RelationDirectory/collectRelations', '\Forge\Modules\ForgeTournaments\PhaseCollection::relations');
+        \registerModifier('Forge/Core/RelationDirectory/collectRelations', '\Forge\Modules\ForgeTournaments\NodaDataCollection::relations');
+
+        \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterIPhaseType', '\Forge\Modules\ForgeTournaments\PhaseCollection::registerSubTypes');
+        \registerEvent(FORGE_TOURNAMENT_HOOK_NS . '/RegisterIParticipantType', '\Forge\Modules\ForgeTournaments\ParticipantCollection::registerSubTypes');
+        
+        PhaseRegistry::instance()->prepare();
+        ParticipantRegistry::instance()->prepare();
 
         PhaseBuilder::instance();
     }

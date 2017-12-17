@@ -2,15 +2,23 @@ var forgeTournament = {
     slot_assignements: [],
 
     init : function() {
-        this.loadSlotAssignements();
+        var self = this;
+        var loadFields = function() {
+            self.loadSlotAssignements();
+        };
+        
+        $(document).on("ajaxReload", loadFields);
+        
+        loadFields();
     },
 
     loadSlotAssignements : function() {
         var self = this;
-        $("input[type=\"hidden\"].slots-output").each(function() {
+        $("input[type=\"hidden\"].slots-output:not(.initialized)").each(function() {
             self.slot_assignements.push(
                 new forge_tournaments.SlotAssignment($(this).closest('.sa-base')[0])
             );
+            $(this).addClass('initialized');
         });
     },
 

@@ -46,9 +46,9 @@ class GroupCollection extends NodaDataCollection {
             $html .= "</h5>";
             
             $html .= "<ul>";
-            $participants = $encounter->getParticipantList();
-            for($i = 0; $i < $participants->numSlots(); $i++) {
-                $slot = $participants->getSlot($i);
+            $slot_assignment = $encounter->getSlotAssignment();
+            for($i = 0; $i < $slot_assignment->numSlots(); $i++) {
+                $slot = $slot_assignment->getSlot($i);
 
                 $slot_name = is_null($slot) ? 'EMPTY' : 'USED UP';
 

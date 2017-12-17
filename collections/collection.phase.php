@@ -136,6 +136,39 @@ class PhaseCollection extends NodaDataCollection {
                 'hint' => i('The next phase after this one is completed', 'forge-tournaments')
             ],
             [
+                'key' => 'ft_participant_list_size',
+                'label' => \i('Participant list size', 'forge-tournaments'),
+                'value' => -1,
+                'multilang' => false,
+                'type' => 'number',
+                'order' => 10,
+                'position' => 'right',
+                'hint' => \i('Define how many participants are allowed. Use -1 for no restriction', 'forge-tournaments'),
+                '__last_phase_status' => PhaseState::FRESH
+            ],
+            
+            [
+                'key' => 'ft_participant_list',
+                'label' => \i('Participant list', 'forge-tournaments'),
+                'value' => '',
+                'multilang' => false,
+
+                'type' => 'collection',
+                /*'maxtags'=> 64, SET BY ft_num_winners*/
+                'collection' => ParticipantCollection::COLLECTION_NAME,
+                'data_source_save' => 'relation',
+                'data_source_load' => 'relation',
+                'relation' => [
+                    'identifier' => 'ft_participant_list'
+                ],
+
+                'order' => 20,
+                'position' => 'left',
+                'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
+                '__first_phase_status' => PhaseState::RUNNING,
+                '__last_phase_status' => PhaseState::RUNNING
+            ],
+            [
                 'key' => 'ft_participant_output_list',
                 'label' => \i('Participant output list', 'forge-tournaments'),
                 'value' => '',
@@ -158,12 +191,8 @@ class PhaseCollection extends NodaDataCollection {
         $fields = parent::inheritedFields();
 
         foreach($fields as &$field) {
-            if($field['key'] == 'ft_participant_list_size') {
-                $field['__last_phase_status'] = PhaseState::FRESH;
-            }
-            if($field['key'] == 'ft_participant_list') {
-                $field['__first_phase_status'] = PhaseState::RUNNING;
-                $field['__last_phase_status'] = PhaseState::RUNNING;
+            if($field['key'] == 'ft_slot_assignment') {
+                $field['pool_source_selector'] = 'input[name="ft_participant_list"]';
             }
 
             if($field['key'] == 'ft_data_schema') {
@@ -195,7 +224,7 @@ class PhaseCollection extends NodaDataCollection {
         if(!is_null($phase)) {
             $new_fields = $phase->fields($item);
             $this->addUniqueFields($new_fields);
-            $this->customFields = $phase->modifyFields($this->customFields);
+            $this->customFields = $phase->modifyFields($this->customFields, $item);
         }
 
 

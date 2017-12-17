@@ -7,7 +7,7 @@ use \Forge\Core\Classes\Relations\Enums\Prepares;
 
 abstract class HierarchicalEntity {
     protected $item;
-    protected $participant_list; // ParticipantList
+    protected $slot_assignment; // SlotAssignment
 
     /**
      * @param mixed $item The Related CollectionItem
@@ -24,12 +24,12 @@ abstract class HierarchicalEntity {
         return $this->getItem()->getID();
     }
 
-    public function getParticipantList() {
-        if(!is_null($this->participant_list)) {
-            return $this->participant_list;
+    public function getSlotAssignment() {
+        if(!is_null($this->slot_assignment)) {
+            return $this->slot_assignment;
         }
 
-       return $this->participant_list = $this->loadParticipantList();
+       return $this->slot_assignment = $this->loadSlotAssignment();
     }
 
     protected function getTournament() {
@@ -46,24 +46,27 @@ abstract class HierarchicalEntity {
         throw new \Exception("Can not find root entity");
     }
 
-    protected function saveParticipantList() {    
-        $participant_ids = $this->getParticipantList()->getParticipants();
-        $this->getItem()->setMeta('ft_participant_list', $participant_ids);
+    protected function saveSlotAssignment() {
+        $participant_ids = $this->getSlotAssignment()->getSlots();
+        $this->getItem()->setMeta('ft_slot_assignment', rawurlencode(json_encode($participant_ids)));
     }
     
-    protected function loadParticipantList() {
+    protected function loadSlotAssignment() {
         // Load Participant list form DB
-        $size = $this->getItem()->getMeta('ft_participant_list_size');
-        $size = $size ? $size : 1;
-        
-        $participants = $this->getMeta('ft_participant_list', []);
-        return new ParticipantList($size, $participants);
+        $data = $this->getSlotAssignmentData();
+        return new ParticipantSlotAssignment(count($data), $data);
+    }
+
+    protected function getSlotAssignmentData() {
+        $data = $this->getItem()->getMeta('ft_slot_assignment');
+        $data = json_decode(rawurldecode($data), true);
+        return $data;
     }
 
     public function addParticipant($participant) {
         $participant = is_object($participant) ? $participant->getID() : $participant;
-        $this->getParticipantList()->addParticipant($participant);
-        $this->saveParticipantList();
+        $this->getSlotAssignment()->addParticipant($participant);
+        $this->saveSlotAssignment();
     }
 
     public function setParent(HierarchicalEntity $entity) {

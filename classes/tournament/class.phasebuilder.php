@@ -106,7 +106,7 @@ class PhaseBuilder {
         error_log("BUILD GROUP PHASE {$phase->getID()}");
         $scoring = $phase->getScoringConfig();
         $schema = $phase->getScoringSchemas();
-        $participants = $phase->getParticipantList();
+        $participants = $phase->getSlotAssignment();
         $num_participants = $participants->count();
 
         $group_size = $phase->getGroupSize();
@@ -203,7 +203,7 @@ class PhaseBuilder {
 
             $args['name'] = sprintf( \i('Group %s'), chr(64 + $metas['ft_group_nr']['value']));
             $item = new CollectionItem(CollectionItem::create($args, $metas));
-            PoolRegistry::instance()->getPool('collection')->setInstance($item->getID(), $item);
+            PoolRegistry::instance()->getPool('collectionitem')->setInstance($item->getID(), $item);
             
             $group = PoolRegistry::instance()->getPool('group')->getInstance($item->getID(), $item);
             $groups[] = $group;
@@ -238,7 +238,7 @@ class PhaseBuilder {
             $args['name'] = sprintf(\i('Encounter %d'), $metas['ft_encounter_nr']['value']);
 
             $item = new CollectionItem(CollectionItem::create($args, $metas));
-            PoolRegistry::instance()->getPool('collection')->setInstance($item->getID(), $item);
+            PoolRegistry::instance()->getPool('collectionitem')->setInstance($item->getID(), $item);
             
             $encounter = PoolRegistry::instance()->getPool('encounter')->getInstance($item->getID(), $item);
             $encounters[] = $encounter;

@@ -27,11 +27,24 @@ class GroupPhase extends BasePhase implements IPhaseType {
                 'multilang' => false,
                 'type' => 'number',
                 'order' => 100,
-                'position' => 'left',
+                'position' => 'right',
                 'hint' => i('', 'forge-tournaments'),
                 '__last_phase_status' => PhaseState::OPEN
             ]
         ];
+    }
+
+    public function modifyFields(array $fields, $item = null) : array {
+        foreach($fields as &$field) {
+            if($field['key'] == 'ft_slot_assignment') {
+                $pool = PoolRegistry::instance()->getPool('phase');
+                $phase = $pool->getInstance($item->id, $item);
+                $field['group_count'] = $phase->getGroupCount();
+                $field['sa_tpl'] = FORGE_TOURNAMENTS_DIR . 'templates/slotassignment-groups';
+                $field['prepare_template'] = ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'prepareGroup'];
+            }
+        }
+        return $fields;
     }
 
     public function render(CollectionItem $item) : string {

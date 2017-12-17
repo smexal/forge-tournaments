@@ -51,35 +51,6 @@ class NodaDataCollection extends DataCollection {
                 'readonly' => true
             ],
             [
-                'key' => 'ft_participant_list_size',
-                'label' => \i('Participant list size', 'forge-tournaments'),
-                'value' => -1,
-                'multilang' => false,
-                'type' => 'number',
-                'order' => 10,
-                'position' => 'right',
-                'hint' => \i('Define how many participants are allowed. Use -1 for no restriction', 'forge-tournaments'),
-            ],
-            [
-                'key' => 'ft_participant_list',
-                'label' => \i('Participant list', 'forge-tournaments'),
-                'value' => '',
-                'multilang' => false,
-
-                'type' => 'collection',
-                /*'maxtags'=> 64, SET BY ft_num_winners*/
-                'collection' => ParticipantCollection::COLLECTION_NAME,
-                'data_source_save' => 'relation',
-                'data_source_load' => 'relation',
-                'relation' => [
-                    'identifier' => 'ft_participant_list'
-                ],
-
-                'order' => 20,
-                'position' => 'left',
-                'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
-            ],
-            [
                 'key' => 'ft_slot_assignment',
                 'label' => \i('Slot assignment', 'forge-tournaments'),
                 'multilang' => false,
@@ -87,7 +58,9 @@ class NodaDataCollection extends DataCollection {
                 'type' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'render'],
                 'data_source_save' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'save'],
                 'data_source_load' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'load'],
-                'pool_source_selector' => 'input[name="ft_participant_list"]',
+                'pool_source_selector' => 'input[name="ft_slot_assignment_pool"]',
+                'prepare_template' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'prepareGroup'],
+
                 'order' => 20,
                 'position' => 'left',
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
@@ -162,7 +135,6 @@ class NodaDataCollection extends DataCollection {
         foreach($this->customFields as &$field) {
             if($field['key'] == 'ft_slot_assignment') {
                 $field['slot_count'] = $item->getMeta('ft_participant_list_size');
-                $field['group_count'] = 4;
             }
         }
 
@@ -210,7 +182,7 @@ class NodaDataCollection extends DataCollection {
         return $entity;
     }
 
-    public function saveParticipantList($item, $field, $value, $lang) {
+    public function saveSlotAssignment($item, $field, $value, $lang) {
 
     }
 
@@ -222,7 +194,7 @@ class NodaDataCollection extends DataCollection {
         $data_sets = $storage_node->getStorage()->loadAll();
         
         $entity = $this->getTournamentEntity(new CollectionItem($item_id));
-        $participants = $entity->getParticipantList();
+        $participants = $entity->getSlotAssignment();
 
         $html = '<div class="form-group ft-result-table-wrapper">
                      <table class="ft-result-table">
@@ -230,9 +202,10 @@ class NodaDataCollection extends DataCollection {
                             <tr>
                                 <th>' . \i('Data Key', 'forge-tournaments') . '</th>
                                 <th>' . \i('Source', 'forge-tournaments') . '</th>';
+
         for($i = 0; $i < $participants->numSlots(); $i++) {
             $participant = $participants->getSlot($i);
-            $p_name = !$participant ? \i('Not yet set', 'forge-tournaments') : $participant->getName();
+            $p_name = is_null($participant) ? \i('Not yet set', 'forge-tournaments') : $participant->getName();
             $html .=            '<th>' . $p_name . '</th>';
         }
 
@@ -247,7 +220,7 @@ class NodaDataCollection extends DataCollection {
 
             for($i = 0; $i < $participants->numSlots(); $i++) {
                 $participant = $participants->getSlot($i);
-                if(!$participant) {
+                if(is_null($participant)) {
                     $html .= '<td> - [Add] </td>';
                     continue;
                 }
