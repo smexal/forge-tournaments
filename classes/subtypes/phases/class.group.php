@@ -29,7 +29,7 @@ class GroupPhase extends BasePhase implements IPhaseType {
                 'order' => 100,
                 'position' => 'right',
                 'hint' => i('', 'forge-tournaments'),
-                '__last_phase_status' => PhaseState::OPEN
+                '__last_phase_status' => PhaseState::CONFIG_PHASETYPE
             ]
         ];
     }
@@ -58,7 +58,7 @@ class GroupPhase extends BasePhase implements IPhaseType {
             $html .= "</h5>";
             
             $html .= "<ul>";
-            $participants = $group->getParticipantList();
+            $participants = $group->getSlotAssignment();
             error_log(print_r($participants, 1));
             for($i = 0; $i < $participants->numSlots(); $i++) {
                 $slot = $participants->getSlot($i);

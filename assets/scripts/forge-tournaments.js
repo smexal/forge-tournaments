@@ -5,6 +5,7 @@ var forgeTournament = {
         var self = this;
         var loadFields = function() {
             self.loadSlotAssignements();
+            self.loadPhaseStateField();
         };
         
         $(document).on("ajaxReload", loadFields);
@@ -18,6 +19,19 @@ var forgeTournament = {
             self.slot_assignements.push(
                 new forge_tournaments.SlotAssignment($(this).closest('.sa-base')[0])
             );
+            $(this).addClass('initialized');
+        });
+    },
+
+    loadPhaseStateField : function() {
+        $('.form-group.ps-base:not(.initialized)').each(function() {
+            $(this).find('button').on('click', function() {
+                var real_field = $(this).closest('.form-group').find('input.form-control');
+                real_field.val($(this).val());
+                real_field.trigger('change');
+                debugger;
+                $('.ajax-reload-container').find('.actions .ajax.form.btn-sm').trigger('click');
+            })
             $(this).addClass('initialized');
         });
     },

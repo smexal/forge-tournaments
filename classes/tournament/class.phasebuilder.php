@@ -32,15 +32,21 @@ class PhaseBuilder {
      */
     public function onPhaseStateChange($phase, $new_state, $old_state) {
         error_log("$old_state to -> $new_state");
-        switch ($new_state) {
-            case PhaseState::OPEN:
-                $this->clean($phase);
-                $this->build($phase);
-            break;
+        // Upon entering from previous state. E.G CONFIG_PHASETYPE --to--> REGISTRATION
+        if($old_state < $new_state) {
+            switch ($new_state) {
+                case PhaseState::CONFIG_PHASETYPE:
+                    $this->clean($phase);
+                    $this->build($phase);
+                break;
 
-            default:
-                # code...
-            break;
+                default:
+                    # code...
+                break;
+            }
+        // Upon returning from next state. E.G REGISTRATION --back--> CONFIG_PHASETYPE
+        } else if ($old_state > $new_state) {
+
         }
         return true;
     }

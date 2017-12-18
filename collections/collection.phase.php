@@ -68,14 +68,16 @@ class PhaseCollection extends NodaDataCollection {
         $fields = [
             [
                 'key' => 'ft_phase_status',
-                'type' => 'select',
-                'label' => \i('Lifecycle', 'forge-tournaments'),
+                
+                'type' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\PhaseSteps', 'render'],
+
+                'label' => \i('Phase State', 'forge-tournaments'),
                 'values' => Utils::getPhaseStates(),
-                'value' => PhaseState::FRESH,
+                'value' => PhaseState::CONFIG_BASIC,
                 'multilang' => false,
                 'order' => 3,
                 'position' => 'right',
-                'hint' => i('Select the phase status', 'forge-tournaments'),
+                'hint' => \i('Click above to progress to the next state or to revert back', 'forge-tournaments'),
                 'data_source_save' => [$this, 'savePhaseStatus']
             ],
             [
@@ -88,7 +90,7 @@ class PhaseCollection extends NodaDataCollection {
                 'order' => 4,
                 'position' => 'right',
                 'hint' => i('Select the phase type', 'forge-tournaments'),
-                '__last_phase_status' =>  PhaseState::FRESH,
+                '__last_phase_status' =>  PhaseState::CONFIG_BASIC,
             ],
             [
                 'key' => 'ft_scoring',
@@ -100,8 +102,8 @@ class PhaseCollection extends NodaDataCollection {
                 'order' => 4,
                 'position' => 'right',
                 'hint' => '',
-                '__first_phase_status' =>  PhaseState::OPEN,
-                '__last_phase_status' => PhaseState::OPEN
+                '__first_phase_status' =>  PhaseState::CONFIG_PHASETYPE,
+                '__last_phase_status' => PhaseState::CONFIG_PHASETYPE
             ],
             [
                 'key' => 'ft_num_winners',
@@ -112,7 +114,7 @@ class PhaseCollection extends NodaDataCollection {
                 'order' => 7,
                 'position' => 'right',
                 'hint' => \i('Ensure the following phase has at least as many total slots available', 'forge-tournaments'),
-                '__last_phase_status' => PhaseState::FRESH
+                '__last_phase_status' => PhaseState::CONFIG_BASIC
             ],
             [
                 'key' => 'ft_next_phase',
@@ -144,7 +146,7 @@ class PhaseCollection extends NodaDataCollection {
                 'order' => 10,
                 'position' => 'right',
                 'hint' => \i('Define how many participants are allowed. Use -1 for no restriction', 'forge-tournaments'),
-                '__last_phase_status' => PhaseState::FRESH
+                '__last_phase_status' => PhaseState::CONFIG_BASIC
             ],
             
             [
@@ -175,13 +177,13 @@ class PhaseCollection extends NodaDataCollection {
                 'multilang' => false,
 
                 'type' => 'collection',
+
                 /*'maxtags'=> 64, SET BY ft_num_winners*/
                 'collection' => ParticipantCollection::COLLECTION_NAME,
-                
                 'order' => 20,
                 'position' => 'left',
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
-                '__last_phase_status' => PhaseState::OPEN
+                '__last_phase_status' => PhaseState::CONFIG_PHASETYPE
             ],
         ];
 
@@ -193,6 +195,7 @@ class PhaseCollection extends NodaDataCollection {
         foreach($fields as &$field) {
             if($field['key'] == 'ft_slot_assignment') {
                 $field['pool_source_selector'] = 'input[name="ft_participant_list"]';
+                $field['data_source_save'] = [$this, 'saveSlotAssignment'];
             }
 
             if($field['key'] == 'ft_data_schema') {
@@ -230,29 +233,6 @@ class PhaseCollection extends NodaDataCollection {
 
         $this->customFields = $this->setPhaseStateHandlers($this->customFields);
 
-        /*foreach($this->customFields as &$field) {
-            if(isset($field['__first_phase_status']) || isset($field['__last_phase_status'])) {
-                $field['process:modifyField'] = [$this, 'processModifyPhaseType'];
-            }
-
-            // Lockdown phase switch to only allow inside the group
-            // And forward to the next phase state group
-            if($field['key'] == 'ft_phase_status') {
-                $phase_status = $item->getMeta('ft_phase_status');
-                foreach(PhaseState::STATE_GROUPS as $gkey => $group) {
-                    if(!in_array($phase_status, $group)) {
-                        foreach($group as $gstate) {
-                            if(array_key_exists($gstate, $field['values'])) {
-                                unset($field['values'][$gstate]);
-                            }
-                        }
-                    } else {
-                        // STATE_GROUPS have to be ordered correctly !
-                        break;
-                    }
-                }
-            }
-        }*/
     }
 
     public function processModifyPhaseType($field, $item, $value) {
@@ -273,6 +253,10 @@ class PhaseCollection extends NodaDataCollection {
     public function savePhaseStatus($item, $field, $value, $lang) {
         $phase = PoolRegistry::instance()->getPool('phase')->getInstance($item->id, $item);
         $phase->changeStatus($value);
+    }
+
+    public function saveSlotAssignment($item, $field, $value, $lang) { 
+        \Forge\Modules\ForgeTournaments\Fields\SlotAssignment::save($item, $field, $value, $lang);
     }
 
     public function subviewCreator() {

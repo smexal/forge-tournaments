@@ -8,14 +8,46 @@ use Forge\Modules\ForgeTournaments\Scoring\ScoringProvider;
 abstract class Utils {
 
     public static function getPhaseStates() {
-        return \triggerModifier(FORGE_TOURNAMENT_NS . '/participant_types', [
-            PhaseState::FRESH     => \i('Fresh', 'forge-tournaments'),
-            PhaseState::OPEN      => \i('Open', 'forge-tournaments'),
-            PhaseState::READY     => \i('Ready', 'forge-tournaments'),
-            PhaseState::RUNNING   => \i('Running', 'forge-tournaments'),
-            PhaseState::FINISHED  => \i('Finished', 'forge-tournaments'),
-            PhaseState::COMPLETED => \i('Completed', 'forge-tournaments')
+        return \triggerModifier(FORGE_TOURNAMENT_NS . '/phase_types', [
+            PhaseState::CONFIG_BASIC     => \i('Basic configuration', 'forge-tournaments'),
+            PhaseState::CONFIG_PHASETYPE => \i('Phasetype configuration', 'forge-tournaments'),
+            PhaseState::REGISTRATION     => \i('Registration', 'forge-tournaments'),
+            PhaseState::ASSIGNMENT       => \i('Assignment', 'forge-tournaments'),
+            PhaseState::READY            => \i('Ready', 'forge-tournaments'),
+            PhaseState::RUNNING          => \i('Running', 'forge-tournaments'),
+            PhaseState::FINISHED         => \i('Finished', 'forge-tournaments'),
+            PhaseState::COMPLETED        => \i('Completed', 'forge-tournaments')
         ]);
+    }
+
+    public static function getNextPhaseState($state) {
+        $states = static::getPhaseStates();
+        $keys = array_keys($states);
+        // Jump over all states which are smaller than the searched one
+        // Return if a state is reached which is bigger 
+        for($i = 0; $i < count($keys); $i++) {
+            if($keys[$i] <= $state) {
+                continue;
+            }
+            return $keys[$i];
+        }
+        // No bigger state found
+        return null;
+    }
+
+    public static function getPrevPhaseState($state) {
+        $states = static::getPhaseStates();
+        $keys = array_keys($states);
+        // Jump over all states which are bigger than the searched one
+        // Return if a state is reached which is smaller
+        for($i = count($keys) - 1; $i >= 0; $i--) {
+            if($keys[$i] >= $state) {
+                continue;
+            }
+            return $keys[$i];
+        }
+        // No smaller state found
+        return null;
     }
 
     public static function getStateGroups() {

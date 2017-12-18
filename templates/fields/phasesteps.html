@@ -1,0 +1,18 @@
+<div class="form-group ps-base">
+    <p class="control-label">{$label}</p>
+    <p>Current:<strong>{$current}</strong></p>
+    <input type="hidden"
+           name="{$name}"
+           value="{$value}"
+           class="form-control {if="isset($error) && $error"} has-error{/if}{if="isset($input_class)"} {$input_class}{/if}" />
+    <div class="clearfix">
+      {if="$prev"}
+        <button class="btn btn-secondary pull-left" value="{$prev.value}">{$prev.label}</button>
+      {/if}
+      {if="$next"}
+        <button class="btn btn-primary pull-right" value="{$next.value}">{$next.label}</button>
+      {/if}
+    </div>
+    <br />
+    <p>{$hint}</p>
+</div>

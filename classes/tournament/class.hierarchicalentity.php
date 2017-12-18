@@ -60,6 +60,9 @@ abstract class HierarchicalEntity {
     protected function getSlotAssignmentData() {
         $data = $this->getItem()->getMeta('ft_slot_assignment');
         $data = json_decode(rawurldecode($data), true);
+        if(!$data) {
+            return [];
+        }
         return $data;
     }
 
