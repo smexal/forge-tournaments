@@ -2,24 +2,25 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
-use \Forge\Loader;
+use \Forge\Core\Classes\Utils;
 use \Forge\Core\Abstracts\Module;
 use \Forge\Core\App\API;
-use \Forge\Core\App\Auth;
 use \Forge\Core\App\App;
+use \Forge\Core\App\Auth;
+use \Forge\Core\App\ModifyHandler;
 use \Forge\Core\Classes\Group;
-use \Forge\Core\Classes\Settings;
-use \Forge\Core\Classes\Media;
 use \Forge\Core\Classes\Localization;
-
-use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
+use \Forge\Core\Classes\Media;
+use \Forge\Core\Classes\Settings;
+use \Forge\Loader;
 use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\ParticipantRegistry;
+use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
 use \Forge\Modules\ForgeTournaments\Data\SchemaLoader;
-use \Forge\Modules\ForgeTournaments\Scoring\ScoringLoader;
 use \Forge\Modules\ForgeTournaments\EncounterCollection;
-use \Forge\Modules\ForgeTournaments\MatchCollection;
 use \Forge\Modules\ForgeTournaments\GroupCollection;
+use \Forge\Modules\ForgeTournaments\MatchCollection;
 use \Forge\Modules\ForgeTournaments\PhaseCollection;
+use \Forge\Modules\ForgeTournaments\Scoring\ScoringLoader;
 
 class ForgeTournaments extends Module {
     const FILE_SIZE_LIMIT = 5 * 1024 * 1024; // 5MB
@@ -96,6 +97,51 @@ class ForgeTournaments extends Module {
         ParticipantRegistry::instance()->prepare();
 
         PhaseBuilder::instance();
+
+        // if is admin, reorganize the menu
+        ModifyHandler::instance()->add(
+            'modify_manage_navigation',
+            [$this, 'navigationModification']
+        );
+    }
+
+    public function navigationModification($navigation) {
+
+        $navigation->add(
+            'allocate', 
+            i('Tournament System', 'forge-tournaments'),
+            Utils::getUrl(['manage']),
+            'leftPanel',
+            'whatshot'
+        );
+
+        $navigation->reorder('leftPanel', 'allocate', 1);
+
+        $elementsToMove = [
+            'forge-tournaments',
+            'forge-tournaments-prize',
+            'forge-tournaments-phase',
+            'forge-tournaments-encounter',
+            'forge-tournaments-participant',
+            'forge-tournaments-group',
+            'forge-tournaments-match'
+        ];
+        foreach($elementsToMove as $r) {
+            $navigation->removeFromCollections($r);
+        }
+        foreach($elementsToMove as $a) {
+            $collection = App::instance()->cm->getCollection($a);
+            $navigation->add(
+              $collection->getPref('name'),
+              $collection->getPref('title'),
+              Utils::getUrl(array('manage', 'collections', $collection->getPref('name'))),
+              'leftPanel',
+              false,
+              'allocate'
+            );
+        }
+
+        return $navigation;
     }
 
     public function install() {
@@ -109,7 +155,10 @@ class ForgeTournaments extends Module {
         $admins = Group::getByName('Administratoren');
         foreach($api_collections as $name) {
             Auth::registerPermissions('api.collection.' . $name . '.read');
-            $admins->grant(Auth::getPermissionID('api.collection.' . $name . '.read'));
+            // it is not sure, that this group exists...
+            if(! is_null($admins)) {
+                $admins->grant(Auth::getPermissionID('api.collection.' . $name . '.read'));
+            }
         }
 
 
