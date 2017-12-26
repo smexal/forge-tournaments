@@ -47,28 +47,29 @@ abstract class HierarchicalEntity {
     }
 
     protected function saveSlotAssignment() {
-        $participant_ids = $this->getSlotAssignment()->getSlots();
-        $this->getItem()->setMeta('ft_slot_assignment', rawurlencode(json_encode($participant_ids)));
+        $participant_ids = $this->getSlotAssignment()->getSlotData();
+        $this->getItem()->setMeta('ft_slot_assignment', json_encode($participant_ids));
     }
     
     protected function loadSlotAssignment() {
         // Load Participant list form DB
         $data = $this->getSlotAssignmentData();
-        return new ParticipantSlotAssignment(count($data), $data);
+        $p_data = new ParticipantSlotAssignment(count($data), $data);
+        return $p_data;
     }
 
     protected function getSlotAssignmentData() {
         $data = $this->getItem()->getMeta('ft_slot_assignment');
-        $data = json_decode(rawurldecode($data), true);
         if(!$data) {
             return [];
         }
+        $data = (array) $data;
         return $data;
     }
 
     public function addParticipant($participant) {
         $participant = is_object($participant) ? $participant->getID() : $participant;
-        $this->getSlotAssignment()->addParticipant($participant);
+        $this->getSlotAssignment()->addEntry($participant);
         $this->saveSlotAssignment();
     }
 
@@ -86,7 +87,6 @@ abstract class HierarchicalEntity {
 
     protected function getMeta($key, $default=null, $lang=false) {
         $value = $this->getItem()->getMeta($key, $lang);
-
         if($value === false) {
             return $default;
         }

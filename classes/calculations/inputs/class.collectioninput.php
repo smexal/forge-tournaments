@@ -36,7 +36,7 @@ class CollectionInput implements ICalcNode {
         return parent::getData();
     }
 
-    public function getStatus() {
+    public function getState() {
         
     }
 

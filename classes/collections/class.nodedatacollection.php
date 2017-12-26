@@ -202,14 +202,13 @@ class NodaDataCollection extends DataCollection {
                             <tr>
                                 <th>' . \i('Data Key', 'forge-tournaments') . '</th>
                                 <th>' . \i('Source', 'forge-tournaments') . '</th>';
-
         for($i = 0; $i < $participants->numSlots(); $i++) {
             $participant = $participants->getSlot($i);
             $p_name = is_null($participant) ? \i('Not yet set', 'forge-tournaments') : $participant->getName();
             $html .=            '<th>' . $p_name . '</th>';
         }
 
-        $html .= '              <th>Status</th>
+        $html .= '              <th>Statw</th>
                             </tr>
                         </thead>
                        <tbody>';
@@ -222,9 +221,9 @@ class NodaDataCollection extends DataCollection {
                 $participant = $participants->getSlot($i);
                 if(is_null($participant)) {
                     $html .= '<td> - [Add] </td>';
-                    continue;
+                } else {
+                    $html .= '<td>is open</td>';
                 }
-                $html .= '<td>----</td>';
             }
             $html .=    "<td>OK</td>
                     </tr>";

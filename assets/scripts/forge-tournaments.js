@@ -29,7 +29,6 @@ var forgeTournament = {
                 var real_field = $(this).closest('.form-group').find('input.form-control');
                 real_field.val($(this).val());
                 real_field.trigger('change');
-                debugger;
                 $('.ajax-reload-container').find('.actions .ajax.form.btn-sm').trigger('click');
             })
             $(this).addClass('initialized');

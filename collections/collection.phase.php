@@ -67,7 +67,7 @@ class PhaseCollection extends NodaDataCollection {
     protected function custom_fields() {
         $fields = [
             [
-                'key' => 'ft_phase_status',
+                'key' => 'ft_phase_state',
                 
                 'type' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\PhaseSteps', 'render'],
 
@@ -78,7 +78,7 @@ class PhaseCollection extends NodaDataCollection {
                 'order' => 3,
                 'position' => 'right',
                 'hint' => \i('Click above to progress to the next state or to revert back', 'forge-tournaments'),
-                'data_source_save' => [$this, 'savePhaseStatus']
+                'data_source_save' => [$this, 'savePhaseState']
             ],
             [
                 'key' => 'ft_phase_type',
@@ -90,7 +90,7 @@ class PhaseCollection extends NodaDataCollection {
                 'order' => 4,
                 'position' => 'right',
                 'hint' => i('Select the phase type', 'forge-tournaments'),
-                '__last_phase_status' =>  PhaseState::CONFIG_BASIC,
+                '__last_phase_state' =>  PhaseState::CONFIG_BASIC,
             ],
             [
                 'key' => 'ft_scoring',
@@ -102,8 +102,8 @@ class PhaseCollection extends NodaDataCollection {
                 'order' => 4,
                 'position' => 'right',
                 'hint' => '',
-                '__first_phase_status' =>  PhaseState::CONFIG_PHASETYPE,
-                '__last_phase_status' => PhaseState::CONFIG_PHASETYPE
+                '__first_phase_state' =>  PhaseState::CONFIG_PHASETYPE,
+                '__last_phase_state' => PhaseState::CONFIG_PHASETYPE
             ],
             [
                 'key' => 'ft_num_winners',
@@ -114,7 +114,7 @@ class PhaseCollection extends NodaDataCollection {
                 'order' => 7,
                 'position' => 'right',
                 'hint' => \i('Ensure the following phase has at least as many total slots available', 'forge-tournaments'),
-                '__last_phase_status' => PhaseState::CONFIG_BASIC
+                '__last_phase_state' => PhaseState::CONFIG_BASIC
             ],
             [
                 'key' => 'ft_next_phase',
@@ -140,13 +140,13 @@ class PhaseCollection extends NodaDataCollection {
             [
                 'key' => 'ft_participant_list_size',
                 'label' => \i('Participant list size', 'forge-tournaments'),
-                'value' => -1,
+                'value' => 16,
                 'multilang' => false,
                 'type' => 'number',
                 'order' => 10,
                 'position' => 'right',
                 'hint' => \i('Define how many participants are allowed. Use -1 for no restriction', 'forge-tournaments'),
-                '__last_phase_status' => PhaseState::CONFIG_BASIC
+                '__last_phase_state' => PhaseState::CONFIG_BASIC
             ],
             
             [
@@ -167,8 +167,8 @@ class PhaseCollection extends NodaDataCollection {
                 'order' => 20,
                 'position' => 'left',
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
-                '__first_phase_status' => PhaseState::RUNNING,
-                '__last_phase_status' => PhaseState::RUNNING
+                '__first_phase_state' => PhaseState::RUNNING,
+                '__last_phase_state' => PhaseState::RUNNING
             ],
             [
                 'key' => 'ft_participant_output_list',
@@ -183,19 +183,22 @@ class PhaseCollection extends NodaDataCollection {
                 'order' => 20,
                 'position' => 'left',
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
-                '__last_phase_status' => PhaseState::CONFIG_PHASETYPE
+                '__last_phase_state' => PhaseState::ASSIGNMENT
             ],
         ];
+
 
         $fields = $this->setPhaseStateHandlers($fields);
         $this->addFields($fields);
 
         $fields = parent::inheritedFields();
 
-        foreach($fields as &$field) {
+        foreach($fields as $idx => &$field) {
             if($field['key'] == 'ft_slot_assignment') {
                 $field['pool_source_selector'] = 'input[name="ft_participant_list"]';
                 $field['data_source_save'] = [$this, 'saveSlotAssignment'];
+                // The slot_assignement is not any longer rendered by the field, instead this is done via the subtype-render
+                $field['__last_phase_state_remove'] = PhaseState::ASSIGNMENT;
             }
 
             if($field['key'] == 'ft_data_schema') {
@@ -209,7 +212,10 @@ class PhaseCollection extends NodaDataCollection {
 
     public function setPhaseStateHandlers($fields) {
         foreach($fields as &$field) {
-            if(isset($field['__first_phase_status']) || isset($field['__last_phase_status'])) {
+            if(isset($field['__first_phase_state']) || 
+               isset($field['__last_phase_state'])  ||
+               isset($field['__last_phase_state_remove'])  
+            ) {
                 $field['process:modifyField'] = [$this, 'processModifyPhaseType'];
             }
         }
@@ -223,36 +229,42 @@ class PhaseCollection extends NodaDataCollection {
         $scoring = $scoring ? $scoring : Utils::getDefaultScoringID();
         $scoring = ScoringProvider::instance()->getScoring($scoring);
 
-        $phase = Utils::getSubtype('IPhaseType', $item, 'ft_phase_type');
-        if(!is_null($phase)) {
-            $new_fields = $phase->fields($item);
+        $phase = PoolRegistry::instance()->getPool('phase')->getInstance($item->id, $item);
+        $phase_state = $phase->getState();
+        $subtype = Utils::getSubtype('IPhaseType', $item, 'ft_phase_type');
+
+        if(!is_null($subtype)) {
+            $new_fields = $subtype->fields($item);
             $this->addUniqueFields($new_fields);
-            $this->customFields = $phase->modifyFields($this->customFields, $item);
+            
+            $to_remove = [];
+            foreach($this->customFields as $key => $field) {
+                if(isset($field['__first_phase_state_remove']) 
+                    && $phase_state < $field['__first_phase_state_remove']) {
+                    unset($this->customFields[$key]);
+                } else if(isset($field['__last_phase_state_remove']) && $phase_state > $field['__last_phase_state_remove']) {
+                    unset($this->customFields[$key]);
+                }
+            }
+            $this->customFields = $subtype->modifyFields($this->customFields, $item);
         }
-
-
         $this->customFields = $this->setPhaseStateHandlers($this->customFields);
-
     }
 
     public function processModifyPhaseType($field, $item, $value) {
-        $phase_status = $item->getMeta('ft_phase_status');
-        // error_log($field['key']);
-        if(isset($field['__first_phase_status']) && $phase_status < $field['__first_phase_status']) {
-            // error_log("$phase_status < {$field['__first_phase_status']}");
+        $phase_state = $item->getMeta('ft_phase_state');
+
+        if(isset($field['__first_phase_state']) && $phase_state < $field['__first_phase_state']) {
             $field['readonly'] = true;
-        } else if(isset($field['__last_phase_status']) && $phase_status > $field['__last_phase_status']) {
-            // error_log("$phase_status < {$field['__last_phase_status']}");
+        } else if(isset($field['__last_phase_state']) && $phase_state > $field['__last_phase_state']) {
             $field['readonly'] = true;
-        } else {
-            // error_log("$phase_status -> NONE");
         }
         return $field;
     }
 
-    public function savePhaseStatus($item, $field, $value, $lang) {
+    public function savePhaseState($item, $field, $value, $lang) {
         $phase = PoolRegistry::instance()->getPool('phase')->getInstance($item->id, $item);
-        $phase->changeStatus($value);
+        $phase->changeState($value);
     }
 
     public function saveSlotAssignment($item, $field, $value, $lang) { 

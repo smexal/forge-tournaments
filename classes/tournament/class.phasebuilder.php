@@ -17,7 +17,7 @@ class PhaseBuilder {
 
     protected function __construct() {
         \registerModifier(FORGE_TOURNAMENT_NS . '/phase/canChangeState', [$this, 'canChangeState']);
-        \registerEvent(FORGE_TOURNAMENT_NS . '/phase/changedStatus', [$this, 'onPhaseStateChange']);
+        \registerEvent(FORGE_TOURNAMENT_NS . '/phase/changedState', [$this, 'onPhaseStateChange']);
     }
 
     // TODO: Add validation if enough participants are available
@@ -35,7 +35,8 @@ class PhaseBuilder {
         // Upon entering from previous state. E.G CONFIG_PHASETYPE --to--> REGISTRATION
         if($old_state < $new_state) {
             switch ($new_state) {
-                case PhaseState::CONFIG_PHASETYPE:
+                case PhaseState::READY:
+                    error_log("DO THE BUILDING !");
                     $this->clean($phase);
                     $this->build($phase);
                 break;
@@ -113,6 +114,7 @@ class PhaseBuilder {
         $scoring = $phase->getScoringConfig();
         $schema = $phase->getScoringSchemas();
         $participants = $phase->getSlotAssignment();
+
         $num_participants = $participants->count();
 
         $group_size = $phase->getGroupSize();
@@ -122,6 +124,9 @@ class PhaseBuilder {
 
         $slot_start = 0;
         $slot_end = 0;
+        error_log(print_r($group_size, 1));
+        error_log(print_r($num_groups, 1));
+        error_log(print_r($num_remaining, 1));
         $groups = $this->buildGroups($phase->getID(), $schema['group'], $num_groups, $group_size);
         foreach($groups as $idx => $group) {
             // Distribute missing slots to the remaining groups

@@ -28,7 +28,7 @@ class CalcNode extends Node implements ICalcNode {
 
     public function inputsReady() : bool {
         foreach($this->inputs as $input) {
-            if($input->getStatus() != Input::STATUS_OK) {
+            if($input->getState() != Input::STATE_OK) {
                 return false;
             }
         }

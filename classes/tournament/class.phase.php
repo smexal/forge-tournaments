@@ -17,31 +17,38 @@ class Phase extends HierarchicalEntity {
         $this->item = $item;
     }
 
-    public function changeStatus($new_status) {
-        $new_status = (int) $new_status;
-        $status = (int) $this->getItem()->getMeta('ft_phase_status');
-        if(!array_key_exists($new_status, Utils::getPhaseStates())) {
+    public function changeState($new_state) {
+        $new_state = (int) $new_state;
+        $state = $this->getState();
+        
+        if(!array_key_exists($new_state, Utils::getPhaseStates())) {
             return false;
         }
 
-        $can_change = \triggerModifier(FORGE_TOURNAMENT_NS . '/phase/canChangeState', true, $this, $new_status, $status);
-        error_log("can change: " . $can_change ? 'Y': 'N');
-        if(!$can_change && $status != $new_status) {
+        $can_change = \triggerModifier(FORGE_TOURNAMENT_NS . '/phase/canChangeState', true, $this, $new_state, $state);
+        
+        if(!$can_change && $state != $new_state) {
             return false;
         }
 
-        $this->getItem()->setMeta('ft_phase_status', $new_status);
-        \fireEvent(FORGE_TOURNAMENT_NS . '/phase/changedStatus', $this, $new_status, $status);
+        $this->getItem()->updateMeta('ft_phase_state', $new_state, false);
+        \fireEvent(FORGE_TOURNAMENT_NS . '/phase/changedState', $this, $new_state, $state);
 
         return true;
     }
+
 
     public function getType() {
         return $this->getItem()->getMeta('ft_phase_type');
     }
 
+    public function getState() {
+        return (int) $this->getItem()->getMeta('ft_phase_state');
+    }
+
     public function getGroupSize() {
-        return $this->getMeta('ft_group_size', 4);
+        $data =  $this->getMeta('ft_group_size', 4);
+        return $data;
     }
 
     public function getScoring() {
@@ -72,18 +79,10 @@ class Phase extends HierarchicalEntity {
     }
 
     public function getGroupCount() {
-        return ceil($this->getSlotAssignment()->numSlots() / $this->getGroupSize());
+        $num_slots = $this->getSlotAssignment()->numSlots();
+        $group_size = $this->getGroupSize();
+        $group_count = ceil ($num_slots / $group_size);
+        return $group_count;
     }
-
-  /*
-    fn setPreviousPhase
-    fn setNextPhase
-    fn validate // Check if completed
-    fn shuffleSlotAssignment(Random/BestScore/)
-    fn generateEncounters
-    fn close
-    fn set/get/Members
-    fn render(Admin/User/Preview/SmallAdmin usw.)
-  */
 
 }

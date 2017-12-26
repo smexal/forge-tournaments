@@ -64,7 +64,7 @@ class ParticipantCollection extends DataCollection {
                 'type' => 'select',
                 'order' => 10,
                 'position' => 'right',
-                'hint' => i('Select the participant status', 'forge-tournaments')
+                'hint' => i('Select the participant type', 'forge-tournaments')
             ]
         ]);
     }
@@ -79,8 +79,8 @@ class ParticipantCollection extends DataCollection {
     }
 
     public function processModifyParticipantType($field, $item, $value) {
-        $phase_status = $item->getMeta('ft_phase_status');
-        if($phase_status > PhaseState::CONFIG_PHASETYPE) {
+        $phase_state = $item->getMeta('ft_phase_state');
+        if($phase_state > PhaseState::CONFIG_PHASETYPE) {
             $field['readonly'] = true;
         }
         return $field;

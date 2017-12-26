@@ -8,7 +8,7 @@ use Forge\Modules\ForgeTournaments\Scoring\ScoringProvider;
 abstract class Utils {
 
     public static function getPhaseStates() {
-        return \triggerModifier(FORGE_TOURNAMENT_NS . '/phase_types', [
+        return \triggerModifier(FORGE_TOURNAMENT_NS . '/phase_states', [
             PhaseState::CONFIG_BASIC     => \i('Basic configuration', 'forge-tournaments'),
             PhaseState::CONFIG_PHASETYPE => \i('Phasetype configuration', 'forge-tournaments'),
             PhaseState::REGISTRATION     => \i('Registration', 'forge-tournaments'),

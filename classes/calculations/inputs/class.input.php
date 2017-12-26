@@ -7,9 +7,9 @@ use Forge\Modules\ForgeTournaments\Interfaces\IDataSet;
 use Forge\Modules\ForgeTournaments\Interfaces\INode;
 
 abstract class Input implements IInput {
-    const STATUS_OPEN = 0x0;
-    const STATUS_OK = 0x1;
-    const STATUS_CONFLICT = 0x2;
+    const STATE_OPEN = 0x0;
+    const STATE_OK = 0x1;
+    const STATE_CONFLICT = 0x2;
 
     protected $key = null;
     
@@ -36,8 +36,8 @@ abstract class Input implements IInput {
         return $data->join($this->getDataSet());
     }
 
-    public function getStatus() {
-        return Input::STATUS_OK;
+    public function getState() {
+        return Input::STATE_OK;
     }
 
 }

@@ -10,5 +10,5 @@ interface IInput {
 
     function appendData(IDataSet $data, INode $node) : IDataSet;
 
-    function getStatus();
+    function getState();
 }

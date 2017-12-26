@@ -35,6 +35,14 @@ class SlotAssignment {
         $this->slots = $this->prepareSlots($slots);
     }
 
+    public function getSlotData() {
+         $_slots = [];
+        foreach($this->slots as $key => $slot) {
+            $_slots[$key] = $this->prepareSlotData($slot);
+        }
+        return $_slots;
+    }
+
     protected function getMissingSlotValue() {
         return null;
     }
@@ -49,6 +57,10 @@ class SlotAssignment {
 
     protected function prepareSlot($slot) {
         return $slot;
+    }
+
+    protected function prepareSlotData($slot) {
+        return $slots;
     }
 
     public function getSlot($slot_id) {
