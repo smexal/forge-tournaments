@@ -45,20 +45,7 @@ class GroupCollection extends NodaDataCollection {
             $html .= "<a href=\"" . $encounter_item->url(true) . "\" target=\"_blank\">{$encounter_item->getName()}</a>";
             $html .= "</h5>";
             
-            $html .= "<ul>";
-            $slot_assignment = $encounter->getSlotAssignment();
-            for($i = 0; $i < $slot_assignment->numSlots(); $i++) {
-                $slot = $slot_assignment->getSlot($i);
-
-                $slot_name = is_null($slot) ? 'EMPTY' : 'USED UP';
-
-                $html .= '<li>';
-                $html .= 'Slot ' . ($i + 1) .': ';
-                $html .= '<span>' . $slot_name . '</span>';
-                $html .= '</li>';
-            }
-            $html .= "</ul>";
-            $html .= "<br />";
+            $html .= Output::participantList($encounter->getSlotAssignment());
             $html .= "<br />";
         }
         return $html;

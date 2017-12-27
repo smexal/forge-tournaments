@@ -19,6 +19,11 @@ class SlotAssignment {
         $this->setSlots($slots);
     }
 
+    public function setNumSlots($num_slots) {
+        $this->num_slots = $num_slots;
+        $this->setSlots($this->slots);
+    }
+
     public function getSlots() {
         return $this->slots;
     }

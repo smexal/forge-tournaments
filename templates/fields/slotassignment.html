@@ -1,8 +1,11 @@
-<div class="form-group sa-base" data-label-open="{$data_label_open}" data-source-selector="{$pool_source_selector}">
+<div class="form-group sa-base {if="isset($readonly) && $readonly"}sa-readonly{/if}"
+    data-label-open="{$data_label_open}"
+    data-source-selector="{$pool_source_selector}">
     <input type="hidden"
            name="{$name}"
            value="{$value_json}"
            data-slot-count="{$slot_count}"
+           {if="isset($readonly) && $readonly"}readonly="readonly"{/if}
            class="form-control slots-output {if="isset($error) && $error"} has-error{/if}{if="isset($input_class)"} {$input_class}{/if}" {if="isset($id)"}id="{$id}"{/if}
            {if="isset($data_attrs)"}
                {loop="$data_attrs"}

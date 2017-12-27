@@ -31,10 +31,14 @@ var forge_tournaments = (function() {
         init: function() {
             this.loadConfig();
             this.bindElements();
-            this.bindListeners();
+            if(!this.config.readonly) {
+                this.bindListeners();
+            }
 
             // Register handlers for a range of commonly used input fields
-            this.bindDefaultHandlers();
+            if(!this.config.readonly) {
+                this.bindDefaultHandlers();
+            }
             
             // load previousely saved data from the html
             this.loadDataFromOutput();
@@ -52,6 +56,9 @@ var forge_tournaments = (function() {
             }
             if(typeof this.config.label_open == 'undefined') {
                 this.config.label_open = this.ctx.getAttribute("data-label-open");
+            }
+            if(typeof this.config.readonly == 'undefined') {
+                this.config.readonly = this.ctx.querySelector("input.slots-output").hasAttribute("readonly");
             }
         },
 
@@ -132,6 +139,9 @@ var forge_tournaments = (function() {
             if(typeof key == 'undefined' || key == null) {
                 return;
             }
+            if(typeof this.pool[key] == 'undefined') {
+                return;
+            }
             this.pool[key].used = used;
 
             var pool_entry = this.getPoolEntryDOM(key);
@@ -188,6 +198,9 @@ var forge_tournaments = (function() {
         },
 
         updateFieldOutput: function() {
+            if(this.config.readonly) {
+                return;
+            }
             this.elms.output.value = encodeURIComponent(JSON.stringify(this.slots));
         },
 

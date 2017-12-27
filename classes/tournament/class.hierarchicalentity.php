@@ -48,7 +48,7 @@ abstract class HierarchicalEntity {
 
     protected function saveSlotAssignment() {
         $participant_ids = $this->getSlotAssignment()->getSlotData();
-        $this->getItem()->setMeta('ft_slot_assignment', json_encode($participant_ids));
+        $this->getItem()->updateMeta('ft_slot_assignment', json_encode($participant_ids), false);
     }
     
     protected function loadSlotAssignment() {
@@ -65,6 +65,10 @@ abstract class HierarchicalEntity {
         }
         $data = (array) $data;
         return $data;
+    }
+
+    public function setNumSlots($slot_num=2) {
+        $this->getSlotAssignment()->setNumSlots($slot_num);
     }
 
     public function addParticipant($participant) {

@@ -198,6 +198,7 @@ class PhaseCollection extends NodaDataCollection {
                 $field['pool_source_selector'] = 'input[name="ft_participant_list"]';
                 $field['data_source_save'] = [$this, 'saveSlotAssignment'];
                 // The slot_assignement is not any longer rendered by the field, instead this is done via the subtype-render
+                $field['readonly'] = false;
                 $field['__last_phase_state_remove'] = PhaseState::ASSIGNMENT;
             }
 

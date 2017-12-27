@@ -7,6 +7,7 @@ use Forge\Modules\ForgeTournaments\Interfaces\IPhaseType;
 use  Forge\Modules\ForgeTournaments\PhaseState;
 use Forge\Core\Classes\CollectionItem;
 use Forge\Modules\ForgeTournaments\PoolRegistry;
+use Forge\Modules\ForgeTournaments\Output;
 
 class GroupPhase extends BasePhase implements IPhaseType {
 
@@ -60,19 +61,7 @@ class GroupPhase extends BasePhase implements IPhaseType {
             $html .= "<h5>";
             $html .= "<a href=\"" . $group_item->url(true) . "\" target=\"_blank\">{$group_item->getName()}</a>";
             $html .= "</h5>";
-            
-            $html .= "<ul>";
-            $participants = $group->getSlotAssignment();
-            for($i = 0; $i < $participants->numSlots(); $i++) {
-                $slot = $participants->getSlot($i);
-                $slot_name = is_null($slot) ? 'EMPTY' : 'USED UP';
-
-                $html .= '<li>';
-                $html .= 'Slot ' . ($i + 1) .': ';
-                $html .= '<span>' . $slot_name . '</span>';
-                $html .= '</li>';
-            }
-            $html .= "</ul>";
+            $html .= Output::participantList($group->getSlotAssignment());
             $html .= "<br />";
             $html .= "<br />";
         }

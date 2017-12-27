@@ -60,7 +60,7 @@ class NodaDataCollection extends DataCollection {
                 'data_source_load' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'load'],
                 'pool_source_selector' => 'input[name="ft_slot_assignment_pool"]',
                 'prepare_template' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'prepareGroup'],
-
+                'readonly' => true,
                 'order' => 20,
                 'position' => 'left',
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
@@ -229,7 +229,8 @@ class NodaDataCollection extends DataCollection {
                     </tr>";
 
         }
-        return $html .= '</tbody></table></div>';
+        $html .= '</tbody></table></div>';
+        return $html;
     }
 
 }
