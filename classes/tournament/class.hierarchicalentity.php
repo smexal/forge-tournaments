@@ -72,7 +72,6 @@ abstract class HierarchicalEntity {
     }
 
     public function addParticipant($participant) {
-        $participant = is_object($participant) ? $participant->getID() : $participant;
         $this->getSlotAssignment()->addEntry($participant);
         $this->saveSlotAssignment();
     }

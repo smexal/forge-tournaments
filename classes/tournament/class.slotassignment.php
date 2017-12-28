@@ -34,7 +34,7 @@ class SlotAssignment {
         }
         if($missing < 0) {
             $slots_overflowing = array_splice($slots, $this->num_slots, -$missing);
-            // TODO: Reassing overflowing slots according to the shuffle strategy
+            // TODO: Reassign overflowing slots according to the shuffle strategy
         }
 
         $this->slots = $this->prepareSlots($slots);

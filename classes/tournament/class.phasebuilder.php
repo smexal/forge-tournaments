@@ -124,6 +124,20 @@ class PhaseBuilder {
 
         $slot_start = 0;
         $slot_end = 0;
+        error_log("participants: ");
+        error_log(print_r($participants->getSlotData(), 1));
+        error_log("scoring: ");
+        error_log(print_r($scoring, 1));
+        error_log("schema: ");
+        error_log(print_r($schema, 1));
+        error_log("num_participants: ");
+        error_log(print_r($num_participants, 1));
+        error_log("group_size: ");
+        error_log(print_r($group_size, 1));
+        error_log("num_groups: ");
+        error_log(print_r($num_groups, 1));
+        error_log("num_remaining: ");
+        error_log(print_r($num_remaining, 1));
         $groups = $this->buildGroups($phase->getID(), $schema['group'], $num_groups, $group_size);
 
         foreach($groups as $idx => $group) {
@@ -138,11 +152,10 @@ class PhaseBuilder {
                 $n = $num_group_participants - 1;
                 // Gaussian sum formula
                 $num_encounters = $n * ($n + 1) / 2;
-
                 $encounters = $this->buildEncounters($group->getID(), $schema['encounter'], $num_encounters, 2);
                 $this->recursiveAssign($participants, $encounters, $slot_range);
                 
-                $group->setNumSlots($num_group_participants);
+                $group->setNumSlots($group_size);
                 foreach($slot_range as $slot_idx) {
                     $participant = $participants->getSlot($slot_idx);
                     if(is_null($participant)) {

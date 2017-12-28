@@ -14,6 +14,8 @@ use TestUtilsForgeTournaments as TestUtilsForgeTournaments;
 class TestPhasebuilder extends TestCase {
 
     public function testEntityPool() {
+        UtilsTests::doPurgeDB();
+
         $entity_pool = new ForgeTournaments\EntityPool('\\Forge\\Core\\Classes\\CollectionItem', 4);
 
         $ids = [];
@@ -44,12 +46,14 @@ class TestPhasebuilder extends TestCase {
     }
 
     public function testBuildEncounters() {
+        UtilsTests::doPurgeDB();
         $item = $this->makePhase();
         $phase = ForgeTournaments\PoolRegistry::instance()->getPool('phase')->getInstance($item->getID(), $item);
         $this->assertEquals($phase,  ForgeTournaments\PoolRegistry::instance()->getPool('phase')->getInstance($item->getID()));
-
+        $phase->setNumSlots(32);
         for($i = 0; $i < 30; $i++) {
-            $phase->addParticipant($this->makeParticipant($i));
+            $participant = $this->makeParticipant($i);
+            $phase->addParticipant($participant);
         }
 
         PhaseBuilder::instance()->build($phase);
@@ -60,17 +64,17 @@ class TestPhasebuilder extends TestCase {
         $this->assertCount(8, $groups);
 
         foreach($groups as $idx => $group) {
-            /*var_dump("--- GROUP {$idx} START ---");*/
+            // var_dump("--- GROUP {$idx} START ---");
             $this->assertEquals(4, $group->getGroupSize());
             $encounters = $group->getEncounters();
-            
+            //error_log(print_r("enc_count: " . count($encounters), 1));
             if($idx < 6) {
                 $this->assertEquals(6, count($encounters));
             } else {
                 $this->assertEquals(3, count($encounters));
             }
-          /*  foreach($group->getEncounters() as $encounter) {
-                var_dump(implode(',', $encounter->getSlots()));
+            /*foreach($group->getEncounters() as $encounter) {
+                var_dump(implode(',', $encounter->getSlotAssignment()->getSlotData()));
             }
             var_dump("--- GROUP {$idx} END ---");*/
         }
@@ -118,14 +122,15 @@ class TestPhasebuilder extends TestCase {
     }
 
     public function makeCollectionItem($c_name, $name, $set_metas=[]) {
-        $participant = App::instance()->cm->getCollection($c_name);
+
+        $collection = App::instance()->cm->getCollection($c_name);
         $args = [
             'name' => $name,
             'type' => $c_name
         ];
 
         $metas = [];
-        $fields = $participant->fields();
+        $fields = $collection->fields();
         foreach($fields as $field) {
             if(isset($field['data_source_save'])) {
                 continue;

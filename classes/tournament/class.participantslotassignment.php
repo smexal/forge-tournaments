@@ -6,13 +6,6 @@ use \Forge\Core\App\App;
 
 class ParticipantSlotAssignment extends SlotAssignment {
 
-    protected function prepareSlotData($slot) {
-        if(is_null($slot)) {
-            return null;
-        }
-        return $slot->getID();
-    }
-
     protected function prepareSlot($slot) {
         if($slot instanceof \stdClass) {
             $slot = (array) $slot;
@@ -32,6 +25,13 @@ class ParticipantSlotAssignment extends SlotAssignment {
         
         $instance = PoolRegistry::instance()->getPool('collectionitem')->getInstance($slot);
         return $instance;
+    }
+
+    protected function prepareSlotData($slot) {
+        if(is_null($slot)) {
+            return null;
+        }
+        return $slot->getID();
     }
 
 }
