@@ -80,7 +80,7 @@ class PhaseBuilder {
     public function build($phase) {
         error_log("BUILD PHASE {$phase->getID()}");
         $this->buildPhase($phase);
-        switch ($phase->getType()) {
+        switch ($phase->getPhaseType()) {
 
             case PhaseTypes::REGISTRATION:
                 $this->buildRegistrationPhase($phase);

@@ -83,21 +83,8 @@ class TestDataSegments extends TestCase {
 
     }
 
-
-    public static function setUpBeforeClass() {
-        // TEST CONFIG
-        require_once("utils.php");
-        require_once('mocks/class.app.php');
-        require_once('mocks/class.auth.php');
-        require_once('mocks/class.collection.php');
-        require_once('mocks/class.cmsinterface.php');
-        require_once('mocks/class.collection.php');
-
-        TestUtilsForgeTournaments::setup();
-        \Forge\SuperLoader::instance()->addIgnore('Spyc');
-    }
-
     public static function tearDownAfterClass() {
+        UtilsTests::teardown();
     }
 
 

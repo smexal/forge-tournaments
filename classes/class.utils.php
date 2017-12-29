@@ -2,6 +2,9 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
+use Forge\Core\App\App;
+use Forge\Core\Classes\CollectionItem;
+
 use Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
 use Forge\Modules\ForgeTournaments\Scoring\ScoringProvider;
 
@@ -91,6 +94,39 @@ abstract class Utils {
         $scorings = static::getScoringOptions();
         $option = array_keys($scorings)[0];
         return $option;
+    }
+
+    public function makeCollectionItem($c_name, $name, $parent_id=null, $set_metas=[]) {
+        $collection = App::instance()->cm->getCollection($c_name);
+        $args = [
+            'name' => $name,
+            'type' => $c_name
+        ];
+        if(is_numeric($parent_id)) {
+            $args['parent'] = $parent_id;
+        }
+
+        $metas = [];
+        $fields = $collection->fields();
+        foreach($fields as $field) {
+            if(isset($field['data_source_save'])) {
+                continue;
+            }
+            if(!isset($field['value'])) {
+                continue;
+            }
+            $metas[$field['key']] = [
+                'value' => $field['value']
+            ];
+        }
+
+        foreach($set_metas as $key => $value) {
+            $metas[$key] = [
+                'value' => $value
+            ];
+        }
+        $item = new CollectionItem(CollectionItem::create($args, $metas));
+        return $item;
     }
 
 

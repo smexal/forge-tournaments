@@ -4,7 +4,10 @@
        {loop="$phases"}
         <li class="ft-collapsible__item">
             <input type="checkbox" class="ft-hidden-input" id="collapsible-{$value.content|md5}" {if condition="$value.open"}checked="checked"{/if} />
-            <label for="collapsible-{$value.content|md5}" class="ft-collapsible-toggle ft-collapsible-title">{$value.title}</label>
+            <label for="collapsible-{$value.content|md5}" class="ft-collapsible-toggle ft-collapsible-title">
+            {$value.title}
+            {if condition="isset($value.edit_url)"}&nbsp;<a href="{$value.edit_url}" target="_blank" title="{$value.edit_text}"><i class="material-icons">create</i></a>{/if}
+            </label>
             <div class="ft-collapsible-content">{$value.content}</div>
         </li>
         {/loop}

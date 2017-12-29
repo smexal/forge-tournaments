@@ -2,8 +2,13 @@
 
 use \Forge\SuperLoader as SuperLoader;
 
-use Forge\Modules\ForgeTournaments\Calculations\Node;
+use Forge\Core\App\App as App;
+use Forge\Core\Classes\CollectionItem;
+
+use Forge\Modules\ForgeTournaments;
+use Forge\Modules\ForgeTournaments\Calculations\Nodes\Node;
 use Forge\Modules\ForgeTournaments\Calculations\Tree;
+
 
 abstract class TestUtilsForgeTournaments {
 
@@ -76,6 +81,53 @@ abstract class TestUtilsForgeTournaments {
     }
 
 
+    public function makePhase($name='') {
+        $set_metas = [
+            'ft_data_schema' => 'phase_result_group',
+            'ft_phase_type' => ForgeTournaments\PhaseTypes::GROUP,
+            'ft_group_size' => 4,
+            'ft_participant_list_size' => 32
+        ];
+        $item =  static::makeCollectionItem(ForgeTournaments\PhaseCollection::COLLECTION_NAME, 'Test Phase' . $name, $set_metas);
+
+        return $item;
+    }
+
+    public function makeParticipant($name='') {
+        return static::makeCollectionItem(ForgeTournaments\ParticipantCollection::COLLECTION_NAME, 'Test Participant' . $name);
+    }
+
+    public function makeCollectionItem($c_name, $name, $set_metas=[]) {
+
+        $collection = App::instance()->cm->getCollection($c_name);
+        $args = [
+            'name' => $name,
+            'type' => $c_name
+        ];
+
+        $metas = [];
+        $fields = $collection->fields();
+        foreach($fields as $field) {
+            if(isset($field['data_source_save'])) {
+                continue;
+            }
+            if(!isset($field['value'])) {
+                continue;
+            }
+            $metas[$field['key']] = [
+                'value' => $field['value']
+            ];
+        }
+
+        foreach($set_metas as $key => $value) {
+            $metas[$key] = [
+                'value' => $value
+            ];
+        }
+        $item = new CollectionItem(CollectionItem::create($args, $metas));
+        return $item;
+    }
+
     public static function setup() {
         require_once(dirname(__FILE__) . "/config.php");
 
@@ -116,5 +168,21 @@ abstract class TestUtilsForgeTournaments {
         SuperLoader::$FLUSH = $flush;
         spl_autoload_register(array(SuperLoader::instance(), "autoloadClass"));
     }
+
+    public static function loadForge() {
+        $cwd = getcwd();
+        error_log(print_r(get_class() . "-->" . $cwd, 1));
+        
+        $root_dir = realpath($cwd . '/../../../../');
+        $forge_tests_dir = realpath($root_dir .'/unittests');
+        
+        chdir($forge_tests_dir);
+        require_once($forge_tests_dir . '/class.utils.php');
+        
+        UtilsTests::prepare();
+        chdir($cwd);
+    }
+
+    public static function teardown() {}
 
 }

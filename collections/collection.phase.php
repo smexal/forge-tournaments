@@ -12,6 +12,7 @@ use Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
 use Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
 
 use Forge\Modules\ForgeTournaments\Scoring\ScoringProvider;
+use Forge\Modules\ForgeTournaments\Fields\FieldProvider;
 use Forge\Modules\ForgeTournaments\CollectionSubtypes\Phases\PhaseRegistry;
 
 class PhaseCollection extends NodaDataCollection {
@@ -80,18 +81,9 @@ class PhaseCollection extends NodaDataCollection {
                 'hint' => \i('Click above to progress to the next state or to revert back', 'forge-tournaments'),
                 'data_source_save' => [$this, 'savePhaseState']
             ],
-            [
-                'key' => 'ft_phase_type',
-                'type' => 'select',
-                'label' => \i('Phase type', 'forge-tournaments'),
-                'values' => Utils::getPhaseTypes(),
-                'value' => PhaseTypes::REGISTRATION,
-                'multilang' => false,
-                'order' => 4,
-                'position' => 'right',
-                'hint' => i('Select the phase type', 'forge-tournaments'),
-                '__last_phase_state' =>  PhaseState::CONFIG_BASIC,
-            ],
+            FieldProvider::phaseTypeSelect([
+                '__last_phase_state' =>  PhaseState::CONFIG_BASIC
+            ]),
             [
                 'key' => 'ft_scoring',
                 'label' => \i('Scoring type', 'forge-tournaments'),
@@ -148,7 +140,6 @@ class PhaseCollection extends NodaDataCollection {
                 'hint' => \i('Define how many participants are allowed. Use -1 for no restriction', 'forge-tournaments'),
                 '__last_phase_state' => PhaseState::CONFIG_BASIC
             ],
-            
             [
                 'key' => 'ft_participant_list',
                 'label' => \i('Participant list', 'forge-tournaments'),

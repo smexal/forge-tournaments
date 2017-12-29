@@ -81,10 +81,11 @@ class ForgeTournaments extends Module {
         API::instance()->register('forge-tournaments', [$this, 'apiAdapter']);
 
         // Prevent too many accesses to db by keeping the instances in the Memory
-        PoolRegistry::instance()->add('phase', new EntityPool('\\Forge\\Modules\\ForgeTournaments\\Phase', 64));
-        PoolRegistry::instance()->add('group', new EntityPool('\\Forge\\Modules\\ForgeTournaments\\Group', 128));
-        PoolRegistry::instance()->add('encounter', new EntityPool('\\Forge\\Modules\\ForgeTournaments\\Encounter', 256));
-        PoolRegistry::instance()->add('match', new EntityPool('\\Forge\\Modules\\ForgeTournaments\\Match', 512));
+        PoolRegistry::instance()->add('tournament', new HierarchicalEntityPool('\\Forge\\Modules\\ForgeTournaments\\Tournament', 32));
+        PoolRegistry::instance()->add('phase', new HierarchicalEntityPool('\\Forge\\Modules\\ForgeTournaments\\Phase', 64));
+        PoolRegistry::instance()->add('group', new HierarchicalEntityPool('\\Forge\\Modules\\ForgeTournaments\\Group', 128));
+        PoolRegistry::instance()->add('encounter', new HierarchicalEntityPool('\\Forge\\Modules\\ForgeTournaments\\Encounter', 256));
+        PoolRegistry::instance()->add('match', new HierarchicalEntityPool('\\Forge\\Modules\\ForgeTournaments\\Match', 512));
         PoolRegistry::instance()->add('collectionitem', new EntityPool('\\Forge\\Core\\Classes\\CollectionItem', 1024));
 
         \registerModifier('Forge/Core/RelationDirectory/collectRelations', '\Forge\Modules\ForgeTournaments\PhaseCollection::relations');

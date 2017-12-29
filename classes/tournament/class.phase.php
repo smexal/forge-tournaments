@@ -38,7 +38,7 @@ class Phase extends HierarchicalEntity {
     }
 
 
-    public function getType() {
+    public function getPhaseType() {
         return $this->getItem()->getMeta('ft_phase_type');
     }
 
@@ -61,7 +61,7 @@ class Phase extends HierarchicalEntity {
     }
 
     public function getScoringSchemas() {
-        return $this->getScoringConfig()['phase_types'][$this->getType()]['schemas'];
+        return $this->getScoringConfig()['phase_types'][$this->getPhaseType()]['schemas'];
     }
 
     public function addGroups($groups) {

@@ -7,7 +7,7 @@ use \Forge\SuperLoader as SuperLoader;
 
 use \TestUtilsForgeTournaments as TestUtilsForgeTournaments;
 
-use Forge\Modules\ForgeTournaments\Calculations\Node;
+use Forge\Modules\ForgeTournaments\Calculations\Nodes\Node;
 use Forge\Modules\ForgeTournaments\Calculations\CalcUtils;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\CollectionInput;
 use Forge\Modules\ForgeTournaments\Calculations\Inputs\Input;
@@ -123,20 +123,8 @@ class TestIOData extends TestCase {
         $this->assertEquals($points_b, $expected_b);
     }
 
-    public static function setUpBeforeClass() {
-        // TEST CONFIG
-        require_once("utils.php");
-        require_once('mocks/class.app.php');
-        require_once('mocks/class.auth.php');
-        require_once('mocks/class.collection.php');
-        require_once('mocks/class.cmsinterface.php');
-        require_once('mocks/class.collection.php');
-
-        TestUtilsForgeTournaments::setup();
-        \Forge\SuperLoader::instance()->addIgnore('Spyc');
-    }
-
     public static function tearDownAfterClass() {
+        UtilsTests::teardown();
     }
 
 

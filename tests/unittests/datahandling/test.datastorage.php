@@ -17,7 +17,7 @@ class TestDataStorage extends TestCase {
 
     public function testDataSets() {
         $sh = new MockStorageHandler();
-        $storage = new DatasetStorage('test', 11, $sh);
+        $storage = DatasetStorage::getInstance('test', 11, $sh);
         //$storage->setStorageHandler()
         $ds1_a = new DataSegment('team_a');
         $ds2_a = new DataSegment('team_a');
@@ -98,22 +98,8 @@ class TestDataStorage extends TestCase {
 
     }
 
-
-    public static function setUpBeforeClass() {
-        // TEST CONFIG
-        require_once("utils.php");
-        require_once('mocks/class.mockstoragehandler.php');
-        require_once('mocks/class.app.php');
-        require_once('mocks/class.auth.php');
-        require_once('mocks/class.collection.php');
-        require_once('mocks/class.cmsinterface.php');
-        require_once('mocks/class.collection.php');
-
-        TestUtilsForgeTournaments::setup();
-        \Forge\SuperLoader::instance()->addIgnore('Spyc');
-    }
-
     public static function tearDownAfterClass() {
+        UtilsTests::teardown();
     }
 
 

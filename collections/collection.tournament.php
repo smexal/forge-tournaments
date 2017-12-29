@@ -8,9 +8,14 @@ use Forge\Core\App\Auth;
 use Forge\Core\App\CollectionManager;
 use Forge\Core\Classes\Media;
 use Forge\Core\Classes\User;
+
+use Forge\Core\Classes\CollectionItem as CollectionItem;
 use Forge\Core\Classes\Utils as CoreUtils;
 
-class TournamentCollection extends DataCollection {
+use Forge\Modules\ForgeTournaments\Fields\FieldRenderer;
+use Forge\Modules\ForgeTournaments\Fields\FieldProvider;
+
+class TournamentCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments';
 
     public $permission = 'manage.collection.sites';
@@ -27,6 +32,7 @@ class TournamentCollection extends DataCollection {
         }
 
         $this->custom_fields();
+        parent::setup();
     }
 
     public function customEditContent($id) {
@@ -222,99 +228,102 @@ class TournamentCollection extends DataCollection {
                 'hint' => i('Describe the tournament a little more, please', 'forge-tournaments')
             ],
             [
+                'key' => 'ft_participant_list',
+                'label' => \i('Participant list', 'forge-tournaments'),
+                'value' => '',
+                'multilang' => false,
+
+                'type' => 'collection',
+                /*'maxtags'=> 64, SET BY ft_num_winners*/
+                'collection' => ParticipantCollection::COLLECTION_NAME,
+                'data_source_save' => 'relation',
+                'data_source_load' => 'relation',
+                'relation' => [
+                    'identifier' => 'ft_participant_list'
+                ],
+
+                'order' => 20,
+                'position' => 'left',
+                'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments')
+            ],
+            [
                 'key' => 'ft_phase_list', 
                 'label' => \i('Phase List', 'forge-quests'),
-                'type' => 'hidden',
+                'type' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\PhaseList', 'render'],
                 'value' => '',
                 'order' => 20,
                 'position' => 'left',
-                'process:save' => '\Forge\Modules\ForgeTournaments\TournamentCollection::processSavePhases',
-                'process:load' => '\Forge\Modules\ForgeTournaments\TournamentCollection::processBuildPhases',
-                'process:afterRender' => '\Forge\Modules\ForgeTournaments\TournamentCollection::processRenderPhases'
+                'data_source_save' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\PhaseList', 'save'],
+                'data_source_load' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\PhaseList', 'load'],
             ]
-            // [
-            //     'key' => 'encounters',
-            //     'label' => i('Manage bracket', 'forge-tournaments'),
-            //     'value' => '',
-            //     'multilang' => false,
-            //     'type' => '\Forge\Modules\ForgeTournaments\EncounterField::field',
-            //     'process:load' =>
-            //     'order' => 20,
-            //     'position' => 'left'
-            // ]
         ]);
-    }
 
-    public static function processRenderPhases($value, $item) {
+        $fields = parent::inheritedFields();
 
-        $phases = [
-            [
-                'title' => 'Phase 1 [done]',
-                'content' => 'PHASE CONTENT',
-                'open' => false
-            ],
-            [
-                'title' => 'Phase 2 [running]',
-                'content' => 'PHASE CONTENT 2',
-                'open' => false
-            ],
-            [
-                'title' => 'Phase 3 [fresh]',
-                'content' => 'PHASE CONTENT 3',
-                'open' => true
-            ]
-        ];
-
-        $add_phase_content = App::instance()->render(CORE_TEMPLATE_DIR . "assets/", "overlay-button", array(
-            'url' => CoreUtils::getUrl(array('manage', 'collections', 'forge-tournaments', 'edit', $item->id, 'addPhase')),
-            'label' => \i('Add Phase', 'forge-tournaments')
-        ));
-
-        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
-            'tournament_phases',
-            [
-                'title' => \i('Phases', 'forge-tournaments'),
-                'phases' => $phases,
-                'add_phase' => $add_phase_content
-            ]
-        );
-    }
-
-    public static function processSavePhases($value) {
-        return $value;
-
-        if(is_string($value))
-            return $value;
-        return htmlspecialchars(json_encode($value), ENT_QUOTES);
-    }
-
-    public static function processBuildPhases($value) {
-        return $value;
-
-
-        if(is_object($value)) {
-            return htmlspecialchars(json_encode($value), ENT_QUOTES);
+        foreach($fields as $idx => &$field) {
+            if($field['key'] == 'ft_slot_assignment') {
+               unset($fields[$idx]);
+            }
         }
+    }
 
-        try {
-            $value = json_decode($value, true);
-        } catch (Exception $e) {
-            return [];
+    public function itemDependentFields($item) {
+        parent::itemDependentFields($item);
+        foreach($this->customFields as $key => $field) {
+            if(in_array($field['key'], ['node_fields', 'node_data_gathered'])) {
+                unset($this->customFields[$key]);
+                unset($this->customFields[$key]);
+            }
         }
-
-        if(!$value)
-            return [];
-        
-        return $value;
     }
 
 
-    public function subviewAddPhase() {
+    public function subviewAddPhase($item_id) {
         if (!Auth::allowed("manage.collection.sites")) {
             return;
         }
-        return "TEST";
-    }
 
+        if (isset($_REQUEST['ft_submitted']) && $_REQUEST['ft_submitted'] == '1') {
+             $collection_id = Utils::makeCollectionItem(
+                PhaseCollection::COLLECTION_NAME, 
+                App::instance()->db->escape($_REQUEST['ft_phase_title']),
+                $item_id,
+                [
+                    'ft_phase_type' => $_REQUEST['ft_phase_type'],
+                    'ft_group_size' => 4,
+                    'ft_participant_list_size' => 16
+                ]
+            );
+            App::instance()->redirect(CoreUtils::getUrl(array('manage', 'collections', 'forge-tournaments', 'edit', $item_id)));
+            return;
+        }
+
+        $item = PoolRegistry::instance()->getPool('tournament')->getInstance($item_id);
+        $args = [
+            'item_id' => $item,
+            'title' => sprintf(\i('New phase for tournament %s', 'forge-tournaments'), $item->getName()),
+            'add_phase_text' => \i('Add phase', 'forge-tournaments'),
+            'action' => CoreUtils::getUrl(array('manage', 'collections', 'forge-tournaments', 'edit', $item_id, 'addPhase')),
+            'fields' => FieldRenderer::renderFields([
+                [
+                    'type' => 'text',
+                    'key' => 'ft_phase_title',
+                    'label' => \i('Phase title', 'forge-tournaments')
+                ],
+                [
+                    'type' => 'hidden',
+                    'key' => 'ft_submitted',
+                    'value'=> '1'
+                ],
+                FieldProvider::phaseTypeSelect()
+            ]),
+        ];
+
+        return App::instance()->render(
+            MOD_ROOT.'forge-tournaments/templates/views/',
+            'tournament_add_phase',
+            $args
+        );
+    }
 
 }

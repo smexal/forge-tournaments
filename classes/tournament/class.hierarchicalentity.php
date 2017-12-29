@@ -24,6 +24,14 @@ abstract class HierarchicalEntity {
         return $this->getItem()->getID();
     }
 
+    public function getName() {
+        return $this->getItem()->getName();
+    }
+
+    public function getType() {
+        return $this->getItem()->getType();
+    }
+
     public function getSlotAssignment() {
         if(!is_null($this->slot_assignment)) {
             return $this->slot_assignment;

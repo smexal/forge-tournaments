@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit colors="true" bootstrap="">
+<phpunit colors="always" bootstrap="./bootstrap.php">
     <testsuites>
-        <testsuite name="Forge Tournaments - Phase Building">
+        <testsuite name="Phase Building">
             <file>phasegeneration/test.phasebuilder.php</file>
+            <file>phasegeneration/test.tournamentfacade.php</file>
         </testsuite>
-        <!-- <testsuite name="Forge Tournaments - Data Handling">
+        <testsuite name="Data Handling">
             <file>datahandling/test.datasegments.php</file>
             <file>datahandling/test.datastorage.php</file>
         </testsuite>
-        <testsuite name="Forge Tournaments - Calculations">
+        <testsuite name="Calculations">
             <file>calculations/test.nodes.php</file>
             <file>calculations/test.iterators.php</file>
             <file>calculations/test.datasegments.php</file>
             <file>calculations/test.iodata.php</file>
-        </testsuite> -->
+        </testsuite>
     </testsuites>
 </phpunit>
