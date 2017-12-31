@@ -15,7 +15,7 @@ class ListComponent extends Component {
         $this->settings = [
             [
                 'label' => i('Choose an event', 'forge-tournaments'),
-                'hint' => i('All tournaments of this event will be displayed') ,
+                'hint' => i('All tournaments of this event will be displayed', 'forge-tournaments') ,
                 'key' => $this->prefix.'tournament_list',
                 'type' => 'select',
                 'callable' => true,
@@ -23,7 +23,7 @@ class ListComponent extends Component {
             ]
         ];
         return [
-            'name' => i('Tournament List'),
+            'name' => i('Complete Tournament List', 'forge-tournaments'),
             'description' => i('Add a list of tournaments', 'forge-tournaments'),
             'id' => 'forge_tournament_list',
             'image' => '',

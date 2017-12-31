@@ -10,19 +10,19 @@ abstract class Tournament {
     /**
      * Simple getters
      */
-    public function getTournament($item_ref) {
+    public static function getTournament($item_ref) {
         return static::getPoolInstance('tournament', $item_ref);
     }
 
-    public function getPhase($item_ref) {
+    public static function getPhase($item_ref) {
         return static::getPoolInstance('phase', $item_ref);
     }
 
-    public function getGroup($item_ref) {
+    public static function getGroup($item_ref) {
         return static::getPoolInstance('group', $item_ref);
     }
 
-    public function getEncounter($item_ref) {
+    public static function getEncounter($item_ref) {
         return static::getPoolInstance('encoounter', $item_ref);
     }
 
