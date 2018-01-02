@@ -59,6 +59,8 @@ var forge_tournaments = (function() {
             }
             if(typeof this.config.readonly == 'undefined') {
                 this.config.readonly = this.ctx.querySelector("input.slots-output").hasAttribute("readonly");
+            } else {
+                this.config.readonly = false;
             }
         },
 

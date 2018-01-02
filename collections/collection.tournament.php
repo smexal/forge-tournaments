@@ -270,7 +270,7 @@ class TournamentCollection extends NodaDataCollection {
     public function itemDependentFields($item) {
         parent::itemDependentFields($item);
         foreach($this->customFields as $key => $field) {
-            if(in_array($field['key'], ['node_fields', 'node_data_gathered'])) {
+            if(in_array($field['key'], ['node_fields', 'node_data_gathered', 'parent_node'])) {
                 unset($this->customFields[$key]);
                 unset($this->customFields[$key]);
             }

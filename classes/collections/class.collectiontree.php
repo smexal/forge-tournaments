@@ -22,6 +22,7 @@ class CollectionTree {
         $children = $this->buildChildren($node);
         $node->setChildren($children);
         foreach($children as $child) {
+            error_log(print_r($child->getItem()->getID(), 1));
             $this->build($child);
         }
         return $node;

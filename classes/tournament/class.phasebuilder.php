@@ -177,12 +177,63 @@ class PhaseBuilder {
             }
         }
     }
-    
-   public function buildBracketPhase($phase) {
+
+    // Check out: https://www.printyourbrackets.com/double-elimination-tournament-brackets.html
+    public function buildBracketPhase($phase) {
+        error_log("BUILD BRACKET PHASE {$phase->getID()}");
+        $scoring = $phase->getScoringConfig();
+        $schema = $phase->getScoringSchemas();
+        $participants = $phase->getSlotAssignment();
+
+        $num_participants = $participants->count();
+
+        $bracket_capacity = $this->getNextPowerOf2($participants->getSlotNum());
+        $winner_bracket_depth = $this->getDepthOfNNodes($bracket_capacity);
+        $loser_bracket_depth = $winner_bracket_depth - 1;
+        $lb_start_node_count = pow(2, $loser_bracket_depth - 1);
+
+        // Those are the lucky ones which have one match less
+        $num_remaining = $bracket_capacity - $participants->getSlotNum();
+
+        $slot_start = 0;
+        $slot_end = $participants->getSlotNum() - 1;
+
+        $group = $this->buildGroups($phase->getID(), $schema['group'], 1, $participants->getSlotNum())[0];
+
+        $slot_end = $slot_start + $num_group_participants - 1;
+        // The looser bracket has twice the amount of encounters because on
+        // each odd encounter section the loosers from the winner bracket enter
+        // the fray
+        $num_encounters = 
+                $this->getNumNodesOfBtree($winner_bracket_depth) 
+                + 2 * $this->getNumNodesOfBtree($loser_bracket_depth) 
+                - $lb_start_node_count 
+                - $num_remaining;
+
+        $encounters = $this->buildEncounters($group->getID(), $schema['encounter'], $num_encounters, 2);
+        
+        $this->assignDERelations($phase->getID(), $encounters, $participants);
+
+        $this->buildBTree($winner_encounters);
+        $this->buildBTree($loser_encounters);
 
     }
     
-   public function buildPerformancePhase($phase) {
+    public function getNextPowerOf2($number) {
+        $exp = log($number, 2);
+        $exp = ceil($exp);
+        return pow(2, $exp);
+    }
+
+    public function getNumNodesOfBtree($depth) {
+        return pow($depth, 2) - 1;
+    }
+
+    public function getDepthOfNNodes($number) {
+        return log($number + 1, 2);
+    }
+
+    public function buildPerformancePhase($phase) {
 
     }
 
@@ -278,6 +329,27 @@ class PhaseBuilder {
         }
 
         return $encounters;
+    }
+
+    public function buildBTree($current, $encounters, $participants, $depth, $max_depth, $is_looser_bracket=false) {
+        if(is_null($current)) {
+            return;
+        }
+        $node = [
+            'node' => $current,
+            'children' => []
+        ];
+        $current_id = $current->getID();
+        if(!is_null($left = array_pop($encounters))) {
+            $left->updateMeta('ft_winner_encounter', $current_id);
+            $node['children'][] = $this->buildBTree($left, $encounters);
+
+        }
+        if(!is_null($right = array_pop($encounters))) {
+            $right->updateMeta('ft_winner_encounter', $current_id);
+            $node['children'][] = $this->buildBTree($right, $encounters);
+        }
+        return $node;
     }
 
 }
