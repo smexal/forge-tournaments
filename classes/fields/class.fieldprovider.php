@@ -9,7 +9,7 @@ use Forge\Modules\ForgeTournaments\PhaseState;
 
 abstract class FieldProvider {
 
-    public function phaseTypeSelect($overrides=[]) {
+    public static function phaseTypeSelect($overrides=[]) {
        return array_merge([
             'key' => 'ft_phase_type',
             'type' => 'select',
