@@ -127,10 +127,22 @@ class ForgeTournaments extends Module {
             'forge-tournaments-group',
             'forge-tournaments-match'
         ];
+
+        $dontAdd = [
+            'forge-tournaments-phase',
+            'forge-tournaments-encounter',
+            'forge-tournaments-group',
+            'forge-tournaments-match',
+            'forge-tournaments-participant'
+        ];
+
         foreach($elementsToMove as $r) {
             $navigation->removeFromCollections($r);
         }
         foreach($elementsToMove as $a) {
+            if(in_array($a, $dontAdd)) {
+                continue;
+            }
             $collection = App::instance()->cm->getCollection($a);
             $navigation->add(
               $collection->getPref('name'),
