@@ -39,7 +39,7 @@ class NodaDataCollection extends DataCollection {
                 'type' => 'collection',
                 'maxtags'=> 1,
                 'collection' => static::$PARENT_COLLECTION,
-                'data_source_save' => 'relation',
+                'data_source_save' => [$this, 'noSave'],
                 'data_source_load' => 'relation',
                 'relation' => [
                     'direction' => \Forge\Core\Classes\Relations\Enums\Directions::REVERSED,
@@ -231,6 +231,10 @@ class NodaDataCollection extends DataCollection {
         }
         $html .= '</tbody></table></div>';
         return $html;
+    }
+
+    public function noSave($item, $field, $value, $lang) {
+        return;
     }
 
 }
