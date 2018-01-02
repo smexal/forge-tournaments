@@ -13,7 +13,7 @@ class DatasetStorage implements IDatasetStorage {
     private $ref_id;
     private $storage_handler;
 
-    public function getInstance($ref_type, $ref_id, $storage_handler=null) {
+    public static function getInstance($ref_type, $ref_id, $storage_handler=null) {
         if(is_null($storage_handler)) {
             $storage_handler = App::instance()->db;
         }

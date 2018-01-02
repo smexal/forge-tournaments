@@ -96,7 +96,7 @@ abstract class Utils {
         return $option;
     }
 
-    public function makeCollectionItem($c_name, $name, $parent_id=null, $set_metas=[]) {
+    public static function makeCollectionItem($c_name, $name, $parent_id=null, $set_metas=[]) {
         $collection = App::instance()->cm->getCollection($c_name);
         $args = [
             'name' => $name,

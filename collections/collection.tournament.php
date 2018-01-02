@@ -18,6 +18,7 @@ use Forge\Modules\ForgeTournaments\Fields\FieldProvider;
 class TournamentCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments';
 
+    private $item = null;
     public $permission = 'manage.collection.sites';
 
     protected function setup() {
@@ -52,43 +53,43 @@ class TournamentCollection extends NodaDataCollection {
     }
 
     public function render($item) {
+        $this->item = $item;
 
-        $thumb = new Media($item->getMeta('image_thumbnail'));
-        $background = new Media($item->getMeta('image_background'));
-        $big = new Media($item->getMeta('image_big'));
+        $headerImage = new Media($item->getMeta('image_background'));
 
-        $db = App::instance()->db;
-        $db->where('tournament_id', $item->id);
-        $subscribedParticipants = count($db->get('forge_tournaments_tournament_participant'));
+        $subnavigation = $this->renderSubnavigation();
 
-        $enrollmentActive = false;
-        if($item->getMeta('allow_signup') === 'on') {
-            $enrollmentActive = true;
-        }
+        $teamSizeText = $item->getMeta('team_size').i(' vs ', 'forge-tournaments').$item->getMeta('team_size');
 
-        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
+        return $subnavigation.App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
             'tournament',
             [
-                'enrollment_active' => $enrollmentActive,
-                'enrollment_cta_label' => i('Enroll now', 'forge-tournaments'),
-                'start_label' => i('Start', 'forge-tournaments'),
-                'status_label' => i('Status', 'forge-tournaments'),
                 'title' => $item->getMeta('title'),
-                'thumbnail' => $thumb->getUrl(),
-                'background' => $background->getUrl(),
-                'start_date' => $item->getMeta('start_time'),
-                'current_participants' => $subscribedParticipants,
-                'max_participants' => $item->getMeta('max_participants'),
-                'big' => $big->getUrl(),
-                'url_enrollment' => CoreUtils::getUrl(['enrollment', $item->slug()]),
-                'enrollment_label' => i('Enrollments', 'forge-tournaments'),
-                'short' => $item->getMeta('description'),
-                'long' => $item->getMeta('additional_description'),
-                'prices' => [],
-                'additional' => [],
+                'header_image' => $headerImage->getSizedImage(2100, 600),
+                'intro' => $item->getMeta('additional_description'),
+                'teamsize_label' => i('Teamsize', 'forge-tournaments'),
+                'teamsize_value' => $teamSizeText,
+                'starttime_label' => i('Start', 'forge-tournaments'),
+                'starttime_value' => $item->getMeta('start_time')
             ]
         );
     }
+
+    private function renderSubnavigation($view = 'default') {
+        
+        $items = [
+            [
+                'url' => $this->item->url(),
+                'title' => i('General', 'forge-tournaments'),
+                'active' => $view == 'default' ? 'active' : ''
+            ]
+        ];
+
+        return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/parts', 'tournament-detail-navigation', [
+            'items' => $items
+        ]);
+
+    } 
 
     private function custom_fields() {
         $userList = [];
@@ -133,15 +134,6 @@ class TournamentCollection extends NodaDataCollection {
                 'order' => 30,
                 'position' => 'right',
                 'hint' => i('How many competitors can participate?', 'forge-tournaments')
-            ],
-            [
-                'key' => 'team_competition',
-                'label' => i('Team competition', 'forge-tournaments'),
-                'multilang' => false,
-                'type' => 'checkbox',
-                'order' => 40,
-                'position' => 'right',
-                'hint' => i('Sign-up only for teams?', 'forge-tournaments')
             ],
             [
                 'key' => 'allow_signup',
@@ -222,7 +214,7 @@ class TournamentCollection extends NodaDataCollection {
                 'label' => i('Additional description', 'forge-tournaments'),
                 'value' => '',
                 'multilang' => true,
-                'type' => 'text',
+                'type' => 'wysiwyg',
                 'order' => 10,
                 'position' => 'left',
                 'hint' => i('Describe the tournament a little more, please', 'forge-tournaments')

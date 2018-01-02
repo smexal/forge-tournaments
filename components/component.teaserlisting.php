@@ -56,6 +56,7 @@ class TeaserlistingComponent extends ListingComponent {
         return App::instance()->render(DOC_ROOT.'modules/forge-tournaments/templates/components/',
             'teaser-listing-item',
             [
+                'url' => $item->url(),
                 'title' => $item->getMeta('title'),
                 'image' => $image,
                 'subtitle' => $item->getMeta('description')

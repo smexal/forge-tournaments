@@ -6,7 +6,7 @@ use Forge\Core\Classes\Fields;
 
 abstract class FieldRenderer {
 
-    public function renderFields($fields) {
+    public static function renderFields($fields) {
         $html = '';
         foreach($fields as $field) {
             $value = isset($field['value']) ? $field['value'] : '';
