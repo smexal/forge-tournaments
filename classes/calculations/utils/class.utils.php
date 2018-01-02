@@ -41,6 +41,15 @@ abstract class CalcUtils {
         return $formula;
     }
 
+    /**
+     * Ensure the Formula contains only variables of length 1.
+     * So for the formula
+     * players * time -remap-> x * y
+     * players -remap-> a
+     * time -remap-> b
+     * ect.
+     * 
+     */
     private static function remapVariableNames($orig_variable_values) {
         static $abc = ['a', 'b', 'c', 'd', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
         $new_variable_values = [];
