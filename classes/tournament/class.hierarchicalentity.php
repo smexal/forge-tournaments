@@ -96,7 +96,7 @@ abstract class HierarchicalEntity {
         return $this->getItem()->getChildren();
     }
 
-    protected function getMeta($key, $default=null, $lang=false) {
+    public function getMeta($key, $default=null, $lang=false) {
         $value = $this->getItem()->getMeta($key, $lang);
         if($value === false) {
             return $default;

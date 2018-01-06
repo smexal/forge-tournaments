@@ -28,9 +28,61 @@
                             <h3>{$starttime_value}</h3>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <p class="discreet">{$participants_label}</p>
+                            <h3>
+                                {if="$participants_value"}{$participants_value}{else}0{/if}
+                                {if="$participants_max"} / {$participants_max}{/if}
+                            </h3>
+                        </div>
+                        <div class="col-lg-6">
+                            <p class="discreet">{$checkin_label}</p>
+                            <h3>{$checkin_value}</h3>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="price-phases wrapped">
+        <div class="row">
+            <div class="col-lg-4">
+                <h3>{$prices_title}</h3>
+                {loop="$prices"}
+                    <div class="price-entry compact-infobox reveal">
+                        <div class="icon-container"><div class="icon {$value.icon} {$value.add_class}"></div></div>
+                        <div class="data">
+                            <h4>{$value.title}</h4>
+                            <p class="discreet">{$value.description}</p>
+                        </div>
+                    </div>
+                {/loop}
+            </div>
+            <div class="col-lg-2">
+            </div>            
+            <div class="col-lg-6">
+                <h3>{$structure_title}</h3>
+                <ul class="phases">
+                    {loop="$phases"}
+                    <li class="phase">
+                        <div class="left">
+                            <div class="icon {$value.icon}"></div>
+                            <div class="text">
+                                <h3>{$value.title}</h3>
+                                <p class="discreet">{$value.description}</p>
+                            </div>
+                        </div>
+                        <div class="status">
+                            {$value.state}
+                        </div>
+                    </li>
+                    {/loop}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {$builder_content}
 
 </div>

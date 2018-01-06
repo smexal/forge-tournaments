@@ -6,14 +6,16 @@ use Forge\Core\Abstracts\DataCollection;
 use Forge\Core\App\App;
 use Forge\Core\App\Auth;
 use Forge\Core\App\CollectionManager;
+use Forge\Core\Classes\Builder;
+use Forge\Core\Classes\CollectionItem as CollectionItem;
+use Forge\Core\Classes\Localization;
 use Forge\Core\Classes\Media;
 use Forge\Core\Classes\User;
-
-use Forge\Core\Classes\CollectionItem as CollectionItem;
 use Forge\Core\Classes\Utils as CoreUtils;
-
-use Forge\Modules\ForgeTournaments\Fields\FieldRenderer;
+use Forge\Modules\ForgeTournaments\Facade\Tournament as TournamentFacade;
 use Forge\Modules\ForgeTournaments\Fields\FieldProvider;
+use Forge\Modules\ForgeTournaments\Fields\FieldRenderer;
+use Forge\Modules\ForgeTournaments\Fields\PhaseList;
 
 class TournamentCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments';
@@ -37,19 +39,8 @@ class TournamentCollection extends NodaDataCollection {
     }
 
     public function customEditContent($id) {
-        $collection = App::instance()->cm->getCollection('forge-tournaments');
-        $tournament = $collection->getItem($id);
-
-        $bracket = new Bracket($tournament);
-
-        $html = App::instance()->render(
-            MOD_ROOT.'forge-tournaments/templates/fields',
-            'encounter',
-            [
-                'encounterRounds' => $bracket->getEncounters(),
-            ]
-        );
-        return $html;
+        $builder = new Builder('collection', $id, 'defaultTournamentBuilder');
+        return $builder->render();        
     }
 
     public function render($item) {
@@ -61,6 +52,47 @@ class TournamentCollection extends NodaDataCollection {
 
         $teamSizeText = $item->getMeta('team_size').i(' vs ', 'forge-tournaments').$item->getMeta('team_size');
 
+        $tournament = TournamentFacade::getTournament($item->getID());
+        
+
+        $priceAmount = $item->getMeta('tournament_prices');
+        $prices = [];
+        if($priceAmount > 0) {
+            for($index = 0; $index < $priceAmount; $index++) {
+                $prices[] = [
+                    'icon' => $index == 0 ? 'ion-trophy' : 'ion-ios-star',
+                    'add_class' => $index == 0 ? 'highlight' : '',
+                    'title' => $item->getMeta('tournament_prices_'.$index.'_title'),
+                    'description' => $item->getMeta('tournament_prices_'.$index.'_description'),
+                ];
+            }
+        }
+
+        $builder = new Builder('collection', $item->id, 'defaultTournamentBuilder');
+        $elements = $builder->getBuilderElements(Localization::getCurrentLanguage());
+
+        $builderContent = '';
+        foreach($elements as $element) {
+            $builderContent.=$element->content();
+        }
+
+        $phases = $tournament->getPhases();
+        $phaseOverview = [];
+        $phaseStates = Utils::getPhaseStates();
+        foreach($phases as $phase) {
+            $icon = 'ion-arrow-graph-down-right';
+            if($phase->getMeta('ft_scoring') == 'team_standard') {
+                $icon = 'ion-ios-people-outline';
+            }
+            $phaseOverview[] = [
+                'title' => $phase->getMeta('title'),
+                'description' => $phase->getMeta('description'),
+                'state' => $phaseStates[$phase->getMeta('ft_phase_state')],
+                'icon' => $icon
+            ];
+        }
+
+
         return $subnavigation.App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
             'tournament',
             [
@@ -70,7 +102,17 @@ class TournamentCollection extends NodaDataCollection {
                 'teamsize_label' => i('Teamsize', 'forge-tournaments'),
                 'teamsize_value' => $teamSizeText,
                 'starttime_label' => i('Start', 'forge-tournaments'),
-                'starttime_value' => $item->getMeta('start_time')
+                'starttime_value' => $item->getMeta('start_time'),
+                'participants_label' => i('Participants', 'forge-tournaments'),
+                'participants_value' => $item->getMeta('ft_participant_list'),
+                'participants_max' => $item->getMeta('max_participants'),
+                'checkin_label' => i('Checkin Time', 'forge-tournaments'),
+                'checkin_value' => $item->getMeta('checkin_time') ? $item->getMeta('checkin_time') : i('Undefined', 'forge-tournaments'),
+                'prices_title' => i('Prices', 'forge-tournaments'),
+                'structure_title' => i('Structure', 'forge-tournaments'),
+                'prices' => $prices,
+                'phases' => $phaseOverview,
+                'builder_content' => $builderContent
             ]
         );
     }
@@ -210,6 +252,15 @@ class TournamentCollection extends NodaDataCollection {
                 'position' => 'right',
             ],
             [
+                'key' => 'checkin_time',
+                'label' => i('Checkin time', 'forge-tournaments'),
+                'value' => '',
+                'multilang' => false,
+                'type' => 'datetime',
+                'order' => 121,
+                'position' => 'right',
+            ],
+            [
                 'key' => 'additional_description',
                 'label' => i('Additional description', 'forge-tournaments'),
                 'value' => '',
@@ -247,6 +298,29 @@ class TournamentCollection extends NodaDataCollection {
                 'position' => 'left',
                 'data_source_save' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\PhaseList', 'save'],
                 'data_source_load' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\PhaseList', 'load'],
+            ],
+            [
+                'key' => 'tournament_prices',
+                'label' => i('Tournament Prices', 'forge-tournaments'),
+                'repeater_title' => i('Tournament Price', 'forge-tournaments'),
+                'multilang' => true,
+                'type' => 'repeater',
+                'order' => 30,
+                'position' => 'left',
+                'subfields' => [
+                    [
+                        'key' => 'title',
+                        'label' => i('Titel', 'forge-tournaments'),
+                        'type' => 'text',
+                        'multilang' => true
+                    ],
+                    [
+                        'key' => 'description',
+                        'label' => i('Description', 'forge-tournaments'),
+                        'type' => 'text',
+                        'multilang' => true
+                    ]
+                ]
             ]
         ]);
 

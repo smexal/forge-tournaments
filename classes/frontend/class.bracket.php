@@ -15,103 +15,11 @@ class Bracket {
     private $encounters     = [];
 
     /**
-     * Prepares the bracket for further configuration.
-     * Requires the size of the bracket.
-     * The size is measured in initial encounters and not participants.
-     * @param int size
-     */
+     * Placeholder Class
+     **/
+
     public function __construct($tournament) {
-        $db = App::instance()->db;
 
-        $this->size = $tournament->getMeta('max_participants')/2;
-        $this->rounds = log($this->size*2,2);
-        $this->prepareEncounters();
-
-        for ($round = 0; $round < $this->rounds; $round++) {
-            $db->where('tournament_id', $tournament->id);
-            $db->where('round', $round);
-            $roundEncounters = $db->get('forge_tournaments_tournament_encounter');
-            foreach ($roundEncounters as $roundEncounter) {
-                $db->where('id', $roundEncounter['participant_id']);
-                $participant = $db->getOne('forge_tournaments_tournament_participant');
-                $name = '[' . $participant['key'] . '] ' . $participant['name'];
-
-                $this->setTeam(
-                    $round,
-                    $roundEncounter['encounter'],
-                    [
-                        'id' => 0,
-                        'name' => $name,
-                        'score' => '',
-                        'classes' => ''
-                    ]
-                );
-            }
-        }
-    }
-
-    /**
-     * Prepares the encounters and sets all empty ready for filling.
-     * @return null
-     */
-    private function prepareEncounters() {
-        for ($round=1; $round <= $this->rounds; $round++) {
-            $this->encounters[$round-1] = [
-                'round' => $round,
-                'encounters' => []
-            ];
-            $encountersInRound = $this->size/pow(2, $round-1);
-
-            for ($encounterCounter=0; $encounterCounter < $encountersInRound; $encounterCounter++) {
-                $this->encounters[$round-1]['encounters'][] = [
-                    'team_1' => [
-                        'name' => '',
-                        'id' => null,
-                        'score' => '',
-                        'classes' => ''
-                    ],
-                    'team_2' => [
-                        'name' => '',
-                        'id' => null,
-                        'score' => '',
-                        'classes' => ''
-                    ],
-                    'result' => ''
-                ];
-            }
-        }
-    }
-
-    /**
-     * Sets a team in a bracket for an encounter in a round.
-     * @param int $round         Round in number (0 for the first round.).
-     * @param int $encounter     Number of encounter in the round.
-     * @param array $team        Array with team information, name, id, the score, classes like "winner" or "my-team"
-     */
-    public function setTeam($round, $encounter, $team) {
-        // check the delivered team if it has the required values.
-        if (! array_key_exists('name', $team)) {
-            Logger::debug('No Team "name" defined for bracket encounter.');
-            return '';
-        }
-        if (! array_key_exists('score', $team)) {
-            Logger::debug('No Team "score" defined for bracket encounter, default 0 assumed.');
-            $team['score'] = 0;
-        }
-        if (! array_key_exists('classes', $team)) {
-            $team['classes'] = '';
-        }
-        if (! array_key_exists('id', $team)) {
-            Logger::debug('No Team id defined for bracket encounter, default null assumed.');
-            $team['id'] = null;
-        }
-
-        $teamNo = empty($this->encounters[$round]['encounters'][$encounter]['team_1']['name']) ? 'team_1' : 'team_2';
-        $this->encounters[$round]['encounters'][$encounter][$teamNo] = $team;
-    }
-
-    public function getEncounters() {
-        return $this->encounters;
     }
 
 }
