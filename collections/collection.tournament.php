@@ -46,6 +46,13 @@ class TournamentCollection extends NodaDataCollection {
     public function render($item) {
         $this->item = $item;
 
+        $parts = CoreUtils::getUriComponents();
+        if(count($parts) > 3 && $parts[3] == 'signup') {
+            $signup = new Signup($item);
+            return $signup->render();
+        } 
+
+
         $headerImage = new Media($item->getMeta('image_background'));
 
         $subnavigation = $this->renderSubnavigation();
@@ -110,9 +117,14 @@ class TournamentCollection extends NodaDataCollection {
                 'checkin_value' => $item->getMeta('checkin_time') ? $item->getMeta('checkin_time') : i('Undefined', 'forge-tournaments'),
                 'prices_title' => i('Prices', 'forge-tournaments'),
                 'structure_title' => i('Structure', 'forge-tournaments'),
+                'responsible_label' => i('Responsible', 'forge-tournaments'),
+                'responsible_value' => 'Vaargo',
                 'prices' => $prices,
                 'phases' => $phaseOverview,
-                'builder_content' => $builderContent
+                'builder_content' => $builderContent,
+                'signup' => $item->getMeta('allow_signup'),
+                'signup_text' => i('Signup now', 'forge-tournaments'),
+                'signup_url' => $item->url(false, ['signup'])
             ]
         );
     }

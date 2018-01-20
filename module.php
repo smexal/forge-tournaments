@@ -122,7 +122,7 @@ class ForgeTournaments extends Module {
             'forge-tournaments',
             'forge-tournaments-phase',
             'forge-tournaments-encounter',
-            'forge-tournaments-participant',
+            /*'forge-tournaments-participant',*/
             'forge-tournaments-group',
             'forge-tournaments-match'
         ];

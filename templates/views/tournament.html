@@ -4,6 +4,11 @@
             <div class="row">
                 <div class="col-lg-12">
                     <h1>{$title}</h1>
+                    {if="$signup"}
+                    <div class="signup">
+                        <a href="{$signup_url}" class="to-overlay btn btn-primary">{$signup_text}</a>
+                    </div>
+                    {/if}
                 </div>
             </div>
         </div>
@@ -24,8 +29,8 @@
                             <h3>{$teamsize_value}</h3>
                         </div>
                         <div class="col-lg-6">
-                            <p class="discreet">{$starttime_label}</p>
-                            <h3>{$starttime_value}</h3>
+                            <p class="discreet">{$checkin_label}</p>
+                            <h3>{$checkin_value}</h3>
                         </div>
                     </div>
                     <div class="row">
@@ -37,8 +42,16 @@
                             </h3>
                         </div>
                         <div class="col-lg-6">
-                            <p class="discreet">{$checkin_label}</p>
-                            <h3>{$checkin_value}</h3>
+                            <p class="discreet">{$starttime_label}</p>
+                            <h3>{$starttime_value}</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <p class="discreet">{$responsible_label}</p>
+                            <h3>
+                                {$responsible_value}
+                            </h3>
                         </div>
                     </div>
                 </div>
