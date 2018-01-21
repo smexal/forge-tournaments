@@ -2,15 +2,19 @@
 
 namespace Forge\Modules\ForgeTournaments;
 
+use Forge\Core\Abstracts\CollectionQuery;
+use Forge\Core\Classes\CollectionItem;
+use Forge\Core\Classes\Relations\Enums\Prepares;
+use Forge\Core\Classes\User;
+use Forge\Modules\TournamentsTeams\OrganizationsCollection;
+use Forge\Modules\TournamentsTeams\TeamsCollection;
 use \Forge\Core\Abstracts\DataCollection;
 use \Forge\Core\App\App;
-use \Forge\Core\Classes\User;
 use \Forge\Core\Classes\FieldUtils as FieldUtils;
-use \Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
 use \Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
-
-use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\UserParticipant;
+use \Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
 use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\TeamParticipant;
+use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\UserParticipant;
 
 class ParticipantCollection extends DataCollection {
     const COLLECTION_NAME = 'forge-tournaments-participant';
@@ -99,19 +103,24 @@ class ParticipantCollection extends DataCollection {
      */
     public static function createIfNotExists($team = null, $user = null) {
 
-        if(is_null($team)) {
+        if(! is_null($user)) {
             return self::createUserParticipantIfNotExists($user);
         }
-        if(is_null($user)) {
-            return self::createTeamParticipantIfNotExists($user);
+        if(! is_null($team)) {
+            return self::createTeamParticipantIfNotExists($team);
         }
 
     }
 
     public static function createUserParticipantIfNotExists($user) {
+        if(! is_object($user)) {
+            $user = new User($user);
+        }
         $found = CollectionQuery::items([
-            'author' => $user->get('id'),
-            'name' => 'forge-tournaments-participant'
+            'name' => 'forge-tournaments-participant',
+            'meta_query' => [
+                'user' => $user->get('id')
+            ]
         ]);
 
         // "member" item from this user already exists.
@@ -122,7 +131,7 @@ class ParticipantCollection extends DataCollection {
         $args = [
             'author' => $user->get('id'),
             'name' => $user->get('username'),
-            'type' => 'forge-members'
+            'type' => 'forge-tournaments-participant'
         ];
 
         $meta = [
@@ -136,9 +145,49 @@ class ParticipantCollection extends DataCollection {
         return CollectionItem::create($args, $meta);
     }
 
+    public static function getTeam($participant) {
+        if(! is_object($participant)) {
+            $participant = new CollectionItem($participant);
+        }
+
+        $relation = App::instance()->rd->getRelation('ftt_participant_teams');
+        $results = $relation->getOfLeft($participant->id, Prepares::AS_IDS_RIGHT);
+
+        return $results[0];        
+    }
+
     public static function createTeamParticipantIfNotExists($team) {
+        if(! is_object($team)) {
+            $team = new CollectionItem($team);
+        }
+
+        $relation = App::instance()->rd->getRelation('ftt_participant_teams');
+        $results = $relation->getOfRight($team->id, Prepares::AS_IDS_LEFT);
+
+        if(count($results) == 0) {
+            // create new participant
+            
+            $organization = TeamsCollection::getOrganization($team);
+            $name = TeamsCollection::getName($team);
+            $orgaName = OrganizationsCollection::getShortName($organization);
+
+            $args = [
+                'author' => App::instance()->user->get('id'),
+                'name' => '['.$orgaName.'] '.$name,
+                'type' => 'forge-tournaments-participant'
+            ];
+            $meta = [];
+
+            $participantID = CollectionItem::create($args, $meta);
+
+            $relation = App::instance()->rd->getRelation('ftt_participant_teams');
+            $relation->add($participantID, $team->id);
+
+            return $participantID;
+        }
+        return $results[0];
         
-    } 
+    }
 
     public static function registerSubTypes() {
         BaseRegistry::registerTypes('IParticipantType', FORGE_TOURNAMENTS_COLLECTION_SUBTYPES['IParticipantType']);

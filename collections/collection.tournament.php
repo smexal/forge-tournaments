@@ -10,12 +10,14 @@ use Forge\Core\Classes\Builder;
 use Forge\Core\Classes\CollectionItem as CollectionItem;
 use Forge\Core\Classes\Localization;
 use Forge\Core\Classes\Media;
+use Forge\Core\Classes\Relations\Enums\Prepares;
 use Forge\Core\Classes\User;
 use Forge\Core\Classes\Utils as CoreUtils;
 use Forge\Modules\ForgeTournaments\Facade\Tournament as TournamentFacade;
 use Forge\Modules\ForgeTournaments\Fields\FieldProvider;
 use Forge\Modules\ForgeTournaments\Fields\FieldRenderer;
 use Forge\Modules\ForgeTournaments\Fields\PhaseList;
+use Forge\Modules\TournamentsTeams\TeamsCollection;
 
 class TournamentCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments';
@@ -91,6 +93,9 @@ class TournamentCollection extends NodaDataCollection {
             if($phase->getMeta('ft_scoring') == 'team_standard') {
                 $icon = 'ion-ios-people-outline';
             }
+            if(is_null($phase->getMeta('ft_phase_state'))) {
+                continue;
+            }
             $phaseOverview[] = [
                 'title' => $phase->getMeta('title'),
                 'description' => $phase->getMeta('description'),
@@ -139,11 +144,60 @@ class TournamentCollection extends NodaDataCollection {
             ]
         ];
 
+        if($this->item->getMeta('allow_signup')) {
+            $items = array_merge($items, [
+               [
+                    'url' => $this->item->url().'/participants',
+                    'title' => i('Participants', 'forge-tournaments'),
+                    'active' => $view == 'participants' ? 'active' : ''
+               ] 
+            ]);
+        }
+
         return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/parts', 'tournament-detail-navigation', [
             'items' => $items
         ]);
 
     } 
+
+    public function participants($item) {
+        $this->item = $item;
+
+        $participants = '';
+        foreach(self::getParticipants($this->item->id) as $participantID) {
+            $participant = new CollectionItem($participantID);
+            if($this->item->getMeta('team_size') == 1) {
+                $user = new User($participant->getMeta('user'));
+                $args = [
+                    'username' => $participant->getName(),
+                    'avatar' => $user->getAvatar() !== null ? $user->getAvatar() : false
+                ];
+            } else {
+                $team = ParticipantCollection::getTeam($participant);
+                $orga = new CollectionItem(TeamsCollection::getOrganization($team));
+                $img = new Media($orga->getMeta('logo'));
+                $args = [
+                    'username' => $participant->getName(),
+                    'avatar' => $img ? $img->getUrl() : false
+                ];
+            }
+            $participants.= App::instance()->render(
+                MOD_ROOT.'forge-tournaments-teams/templates/parts',
+                'memberbox', 
+                $args
+            );
+        }
+
+        return $this->renderSubnavigation('participants').App::instance()->render(
+            MOD_ROOT.'forge-tournaments/templates/parts', 'participant-list', 
+            [
+                'title' => i('Participants'),
+                'participants' => $participants
+            ]
+        );
+
+        return $return;
+    }
 
     private function custom_fields() {
         $userList = [];
@@ -353,6 +407,20 @@ class TournamentCollection extends NodaDataCollection {
                 unset($this->customFields[$key]);
             }
         }
+    }
+
+    public static function addParticipant($tournament, $participantID) {
+        if(in_array($participantID, self::getParticipants($tournament))) {
+            return false;
+        } else {
+            $relation->add($tournament, $participantID);
+            return true;
+        }
+    }
+
+    public static function getParticipants($tournament) {
+        $relation = App::instance()->rd->getRelation('ft_participant_list');
+        return $relation->getOfLeft($tournament, Prepares::AS_IDS_RIGHT); 
     }
 
 
