@@ -42,7 +42,7 @@ class TournamentCollection extends NodaDataCollection {
 
     public function customEditContent($id) {
         $builder = new Builder('collection', $id, 'defaultTournamentBuilder');
-        return $builder->render();        
+        return $builder->render();
     }
 
     public function render($item) {
@@ -52,7 +52,7 @@ class TournamentCollection extends NodaDataCollection {
         if(count($parts) > 3 && $parts[3] == 'signup') {
             $signup = new Signup($item);
             return $signup->render();
-        } 
+        }
 
 
         $headerImage = new Media($item->getMeta('image_background'));
@@ -62,7 +62,7 @@ class TournamentCollection extends NodaDataCollection {
         $teamSizeText = $item->getMeta('team_size').i(' vs ', 'forge-tournaments').$item->getMeta('team_size');
 
         $tournament = TournamentFacade::getTournament($item->getID());
-        
+
 
         $priceAmount = $item->getMeta('tournament_prices');
         $prices = [];
@@ -135,7 +135,7 @@ class TournamentCollection extends NodaDataCollection {
     }
 
     private function renderSubnavigation($view = 'default') {
-        
+
         $items = [
             [
                 'url' => $this->item->url(),
@@ -150,7 +150,7 @@ class TournamentCollection extends NodaDataCollection {
                     'url' => $this->item->url().'/participants',
                     'title' => i('Participants', 'forge-tournaments'),
                     'active' => $view == 'participants' ? 'active' : ''
-               ] 
+               ]
             ]);
         }
 
@@ -158,7 +158,7 @@ class TournamentCollection extends NodaDataCollection {
             'items' => $items
         ]);
 
-    } 
+    }
 
     public function participants($item) {
         $this->item = $item;
@@ -183,13 +183,13 @@ class TournamentCollection extends NodaDataCollection {
             }
             $participants.= App::instance()->render(
                 MOD_ROOT.'forge-tournaments-teams/templates/parts',
-                'memberbox', 
+                'memberbox',
                 $args
             );
         }
 
         return $this->renderSubnavigation('participants').App::instance()->render(
-            MOD_ROOT.'forge-tournaments/templates/parts', 'participant-list', 
+            MOD_ROOT.'forge-tournaments/templates/parts', 'participant-list',
             [
                 'title' => i('Participants'),
                 'participants' => $participants
@@ -356,7 +356,7 @@ class TournamentCollection extends NodaDataCollection {
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments')
             ],
             [
-                'key' => 'ft_phase_list', 
+                'key' => 'ft_phase_list',
                 'label' => \i('Phase List', 'forge-quests'),
                 'type' => ['\\Forge\\Modules\\ForgeTournaments\\Fields\\PhaseList', 'render'],
                 'value' => '',
@@ -410,17 +410,17 @@ class TournamentCollection extends NodaDataCollection {
     }
 
     public static function addParticipant($tournament, $participantID) {
-        if(in_array($participantID, self::getParticipants($tournament))) {
-            return false;
-        } else {
+        if (!in_array($participantID, self::getParticipants($tournament))) {
+            $relation = App::instance()->rd->getRelation('ft_participant_list');
             $relation->add($tournament, $participantID);
             return true;
         }
+        return false;
     }
 
     public static function getParticipants($tournament) {
         $relation = App::instance()->rd->getRelation('ft_participant_list');
-        return $relation->getOfLeft($tournament, Prepares::AS_IDS_RIGHT); 
+        return $relation->getOfLeft($tournament, Prepares::AS_IDS_RIGHT);
     }
 
 
@@ -431,7 +431,7 @@ class TournamentCollection extends NodaDataCollection {
 
         if (isset($_REQUEST['ft_submitted']) && $_REQUEST['ft_submitted'] == '1') {
              $collection_id = Utils::makeCollectionItem(
-                PhaseCollection::COLLECTION_NAME, 
+                PhaseCollection::COLLECTION_NAME,
                 App::instance()->db->escape($_REQUEST['ft_phase_title']),
                 $item_id,
                 [
