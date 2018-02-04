@@ -47,12 +47,12 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-6">
+                        <!-- <div class="col-lg-6">
                             <p class="discreet">{$responsible_label}</p>
                             <h3>
                                 {$responsible_value}
                             </h3>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -60,13 +60,17 @@
     </div>
     <div class="price-phases wrapped">
         <div class="row">
-            <div class="col-lg-4">
+            <div class="col-lg-6">
                 <h3>{$prices_title}</h3>
                 {loop="$prices"}
                     <div class="price-entry compact-infobox reveal">
                         <div class="icon-container"><div class="icon {$value.icon} {$value.add_class}"></div></div>
                         <div class="data">
-                            <h4>{$value.title}</h4>
+                            <h4>
+                                {if="isset($value.link) && strlen($value.link)"}<a href="{$value.link}" target="_blank">{/if}
+                                {$value.title}
+                                {if="isset($value.link) && strlen($value.link)"}</a>{/if}
+                            </h4>
                             <p class="discreet">{$value.description}</p>
                         </div>
                     </div>
@@ -74,7 +78,8 @@
             </div>
             <div class="col-lg-2">
             </div>            
-            <div class="col-lg-6">
+            <div class="col-lg-4">
+                {if="count($phases) > 0"}
                 <h3>{$structure_title}</h3>
                 <ul class="phases">
                     {loop="$phases"}
@@ -92,6 +97,7 @@
                     </li>
                     {/loop}
                 </ul>
+                {/if}
             </div>
         </div>
     </div>

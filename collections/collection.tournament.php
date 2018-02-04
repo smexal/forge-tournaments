@@ -73,6 +73,7 @@ class TournamentCollection extends NodaDataCollection {
                     'add_class' => $index == 0 ? 'highlight' : '',
                     'title' => $item->getMeta('tournament_prices_'.$index.'_title'),
                     'description' => $item->getMeta('tournament_prices_'.$index.'_description'),
+                    'link' => $item->getMeta('tournament_prices_'.$index.'_link'),
                 ];
             }
         }
@@ -223,6 +224,15 @@ class TournamentCollection extends NodaDataCollection {
                 'order' => 10,
                 'position' => 'right',
                 'hint' => i('Select the corresponding event', 'forge-tournaments')
+            ],
+            [
+                'key' => 'ticket_required',
+                'label' => i('Ticket required', 'forge-tournaments'),
+                'multilang' => false,
+                'type' => 'checkbox',
+                'order' => 11,
+                'position' => 'right',
+                'hint' => i('Has to be event participant to signup.', 'forge-tournaments')
             ],
             [
                 'key' => 'responsibles',
@@ -384,6 +394,12 @@ class TournamentCollection extends NodaDataCollection {
                         'key' => 'description',
                         'label' => i('Description', 'forge-tournaments'),
                         'type' => 'text',
+                        'multilang' => true
+                    ],
+                    [
+                        'key' => 'link',
+                        'label' => i('Link', 'forge-tournaments'),
+                        'type' => 'url',
                         'multilang' => true
                     ]
                 ]
