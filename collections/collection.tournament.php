@@ -18,6 +18,7 @@ use Forge\Modules\ForgeTournaments\Fields\FieldProvider;
 use Forge\Modules\ForgeTournaments\Fields\FieldRenderer;
 use Forge\Modules\ForgeTournaments\Fields\PhaseList;
 use Forge\Modules\TournamentsTeams\TeamsCollection;
+use Forge\Modules\TournamentsTeams\MembersCollection;
 
 class TournamentCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments';
@@ -106,6 +107,9 @@ class TournamentCollection extends NodaDataCollection {
         }
 
 
+        $signupText = i('Signup now', 'forge-tournaments');
+        $signupUrl = $item->url(false, ['signup']);
+
         return $subnavigation.App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
             'tournament',
             [
@@ -117,7 +121,7 @@ class TournamentCollection extends NodaDataCollection {
                 'starttime_label' => i('Start', 'forge-tournaments'),
                 'starttime_value' => $item->getMeta('start_time'),
                 'participants_label' => i('Participants', 'forge-tournaments'),
-                'participants_value' => $item->getMeta('ft_participant_list'),
+                'participants_value' => count(self::getParticipants($this->item->id)),
                 'participants_max' => $item->getMeta('max_participants'),
                 'checkin_label' => i('Checkin Time', 'forge-tournaments'),
                 'checkin_value' => $item->getMeta('checkin_time') ? $item->getMeta('checkin_time') : i('Undefined', 'forge-tournaments'),
@@ -129,8 +133,8 @@ class TournamentCollection extends NodaDataCollection {
                 'phases' => $phaseOverview,
                 'builder_content' => $builderContent,
                 'signup' => $item->getMeta('allow_signup'),
-                'signup_text' => i('Signup now', 'forge-tournaments'),
-                'signup_url' => $item->url(false, ['signup'])
+                'signup_text' => $signupText,
+                'signup_url' => $signupUrl
             ]
         );
     }
