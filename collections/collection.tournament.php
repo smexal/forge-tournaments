@@ -109,6 +109,8 @@ class TournamentCollection extends NodaDataCollection {
 
         $signupText = i('Signup now', 'forge-tournaments');
         $signupUrl = $item->url(false, ['signup']);
+        $responsibles = $item->getMeta('responsibles');
+        $responsible = new User($responsibles[0]);
 
         return $subnavigation.App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
             'tournament',
@@ -128,7 +130,7 @@ class TournamentCollection extends NodaDataCollection {
                 'prices_title' => i('Prices', 'forge-tournaments'),
                 'structure_title' => i('Structure', 'forge-tournaments'),
                 'responsible_label' => i('Responsible', 'forge-tournaments'),
-                'responsible_value' => 'Vaargo',
+                'responsible_value' => $responsible->get('username'),
                 'prices' => $prices,
                 'phases' => $phaseOverview,
                 'builder_content' => $builderContent,
@@ -435,6 +437,13 @@ class TournamentCollection extends NodaDataCollection {
             $relation->add($tournament, $participantID);
             return true;
         }
+        return false;
+    }
+
+    public static function alreadySignedUp($tournament, $participant) {
+        if (in_array($participantID, self::getParticipants($tournament))) {
+            return true;
+        } 
         return false;
     }
 

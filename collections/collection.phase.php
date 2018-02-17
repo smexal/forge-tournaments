@@ -6,6 +6,7 @@ use Forge\Core\Abstracts\DataCollection;
 use Forge\Core\App\App;
 use Forge\Core\App\Auth;
 use Forge\Core\Classes\User;
+use Forge\Core\Classes\Utils as CoreUtils;
 use Forge\Core\Classes\CollectionItem;
 use Forge\Core\Classes\FieldUtils as FieldUtils;
 use Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
@@ -35,6 +36,10 @@ class PhaseCollection extends NodaDataCollection {
     }
 
     public function customEditContent($item_id) {
+        if(array_key_exists('set_participants', $_GET) && $_GET['set_participants'] == 'fromTournament') {
+            $this->setParticipantsFromTournament($item_id);
+            App::instance()->redirect(CoreUtils::getUriComponents());
+        }
         $html = '';
         $item = new CollectionItem($item_id);
         $phase = Utils::getSubtype('IPhaseType', $item, 'ft_phase_type');
@@ -42,6 +47,14 @@ class PhaseCollection extends NodaDataCollection {
             $html .= $phase->render($item);
         }
         return $html;
+    }
+
+    private function setParticipantsFromTournament($item) {
+        $itemObj = new CollectionItem($item);
+        $tournament = $itemObj->getParent();
+        $participants = TournamentCollection::getParticipants($tournament->getID());
+        $relation = App::instance()->rd->getRelation('ft_participant_list');
+        $relation->setRightItems($item, $participants);
     }
 
     public static function relations($existing) {
@@ -63,6 +76,31 @@ class PhaseCollection extends NodaDataCollection {
 
     public static function registerSubTypes() {
         BaseRegistry::registerTypes('IPhaseType', FORGE_TOURNAMENTS_COLLECTION_SUBTYPES['IPhaseType']);
+    }
+
+    public function subviewImportParticipants() {
+        $return = '';
+        $options = [];
+        $url = CoreUtils::getUriComponents();
+        array_pop($url);
+        $url = CoreUtils::getUrl($url, true, ['set_participants' => 'fromTournament']);
+        $options = App::instance()->render(CORE_TEMPLATE_DIR.'assets/',
+            'list-item',
+            [
+                'link' => [
+                    'url' => $url
+                ],
+                'value' => i('Import participants from Tournament list', 'forge-tournaments')
+            ]
+        );
+
+
+        return App::instance()->render(CORE_TEMPLATE_DIR.'assets/',
+            'list',
+            [
+                'items' => $options
+            ]
+        );
     }
 
     protected function custom_fields() {
@@ -124,10 +162,19 @@ class PhaseCollection extends NodaDataCollection {
                     'identifier' => 'ft_next_phase'
                 ],
 
-                'order' => 10,
+                'order' => 50,
                 'position' => 'left',
                 'readonly' => true,
                 'hint' => i('The next phase after this one is completed', 'forge-tournaments')
+            ],
+            [
+                'key' => 'import-participant-link',
+                'href' => CoreUtils::getUrl(array_merge(CoreUtils::getUriComponents(), ['importParticipants'])),
+                'type' => 'link',
+                'name' => i('Import participants', 'forge-tournaments'),
+                'classes' => 'btn btn-primary ajax confirm',
+                'order' => 21,
+                'position' => 'left'
             ],
             [
                 'key' => 'ft_participant_list_size',
@@ -171,7 +218,7 @@ class PhaseCollection extends NodaDataCollection {
 
                 /*'maxtags'=> 64, SET BY ft_num_winners*/
                 'collection' => ParticipantCollection::COLLECTION_NAME,
-                'order' => 20,
+                'order' => 30,
                 'position' => 'left',
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
                 '__last_phase_state' => PhaseState::ASSIGNMENT

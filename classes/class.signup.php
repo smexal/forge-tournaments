@@ -21,6 +21,49 @@ class Signup {
         $this->item = $item;
     }
 
+    public function allowedForSignup($type, $participant = null) {
+        $allowedForSignup = false;
+        if($type == 'team') {
+            $participantID = ParticipantCollection::createIfNotExists($participant);
+            if($this->item->getMeta('ticket_required') === 'on') {
+                $eventCollection = App::instance()->cm->getCollection('forge-events');
+                $team = ParticipantCollection::getTeam($participantID);
+                $teamMembers = TeamsCollection::getMembers($team);
+                foreach($teamMembers as $member) {
+                    $mObj = new CollectionItem($member);
+                    $ticketAvailable = $eventCollection->userTicketAvailable(
+                        $this->item->getMeta('event'), 
+                        $mObj->getMeta('user')
+                    );
+                    if($ticketAvailable) {
+                        $failedMembers[] = $mObj->getMeta('user');
+                    }
+                }
+                if(count($failedMembers) == 0) {
+                    $allowedForSignup = true;
+                }
+            } else {
+                $allowedForSignup = true;
+            }
+        }
+        if($type == 'user') {
+            $participantID = ParticipantCollection::createIfNotExists(null, App::instance()->user->get('id'));
+            if($this->item->getMeta('ticket_required') === 'on') {
+                $eventCollection = App::instance()->cm->getCollection('forge-events');
+                $ticketAvailable = $eventCollection->userTicketAvailable($this->item->getMeta('event'), App::instance()->user->get('id'));
+                if( ! $ticketAvailable) {
+                    $allowedForSignup = true;
+                }
+            } else {
+                $allowedForSignup = true;
+            }
+        }
+        return [
+            'allowed' => $allowedForSignup,
+            'participant' => $participantID
+        ];
+    }
+
     public function render() {
         $message = null;
 
@@ -34,45 +77,12 @@ class Signup {
             App::instance()->redirect('denied', false, true);
         }
 
-        if(array_key_exists('selected_participant', $_POST)) {
-            $allowedForSignup = false;
+        if(array_key_exists('selected_participant', $_POST) &&
+            ($_POST['selected_participant'] != 0 || $_POST['selected_participant'] == 'user')) {
+            $allowed = $this->allowedForSignup($_POST['participant_type'], $_POST['selected_participant']);
+            $allowedForSignup = $allowed['allowed'];
+            $participantID = $allowed['participant'];
             $failedMembers = [];
-
-            if($_POST['participant_type'] == 'team') {
-                $participantID = ParticipantCollection::createIfNotExists($_POST['selected_participant']);
-                if($this->item->getMeta('ticket_required') === 'on') {
-                    $eventCollection = App::instance()->cm->getCollection('forge-events');
-                    $team = ParticipantCollection::getTeam($participantID);
-                    $teamMembers = TeamsCollection::getMembers($team);
-                    foreach($teamMembers as $member) {
-                        $mObj = new CollectionItem($member);
-                        $ticketAvailable = $eventCollection->userTicketAvailable(
-                            $this->item->getMeta('event'), 
-                            $mObj->getMeta('user')
-                        );
-                        if($ticketAvailable) {
-                            $failedMembers[] = $mObj->getMeta('user');
-                        }
-                    }
-                    if(count($failedMembers) == 0) {
-                        $allowedForSignup = true;
-                    }
-                } else {
-                    $allowedForSignup = true;
-                }
-            }
-            if($_POST['participant_type'] == 'user') {
-                $participantID = ParticipantCollection::createIfNotExists(null, App::instance()->user->get('id'));
-                if($this->item->getMeta('ticket_required') === 'on') {
-                    $eventCollection = App::instance()->cm->getCollection('forge-events');
-                    $ticketAvailable = $eventCollection->userTicketAvailable($this->item->getMeta('event'), App::instance()->user->get('id'));
-                    if( ! $ticketAvailable) {
-                        $allowedForSignup = true;
-                    }
-                } else {
-                    $allowedForSignup = true;
-                }
-            }
 
             $success = false;
             if($allowedForSignup) {
@@ -105,6 +115,13 @@ class Signup {
                         'type' => 'warning'
                     ];
                 }
+            }
+        } else {
+            if(array_key_exists('selected_participant', $_POST) && $_POST['participant_type'] == 'team') {
+                $message = [
+                    'value'=> i('You have to select a viable team.', 'forge-tournaments'),
+                    'type' => 'warning'
+                ];
             }
         }
 

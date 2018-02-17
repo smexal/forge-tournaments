@@ -9,7 +9,6 @@ define('FORGE_TOURNAMENTS_COLLECTION_SUBTYPES', [
     'IPhaseType' => [
         '\\Forge\\Modules\\ForgeTournaments\\CollectionSubtypes\\Phases\\KOPhase',
         '\\Forge\\Modules\\ForgeTournaments\\CollectionSubtypes\\Phases\\GroupPhase',
-        '\\Forge\\Modules\\ForgeTournaments\\CollectionSubtypes\\Phases\\RegistrationPhase',
         '\\Forge\\Modules\\ForgeTournaments\\CollectionSubtypes\\Phases\\PerformancePhase'
     ],
    'IParticipantType' => [

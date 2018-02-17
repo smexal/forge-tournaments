@@ -15,7 +15,6 @@ abstract class FieldProvider {
             'type' => 'select',
             'label' => \i('Phase type', 'forge-tournaments'),
             'values' => Utils::getPhaseTypes(),
-            'value' => PhaseTypes::REGISTRATION,
             'multilang' => false,
             'order' => 4,
             'position' => 'right',
