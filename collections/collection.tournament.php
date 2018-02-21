@@ -17,8 +17,9 @@ use Forge\Modules\ForgeTournaments\Facade\Tournament as TournamentFacade;
 use Forge\Modules\ForgeTournaments\Fields\FieldProvider;
 use Forge\Modules\ForgeTournaments\Fields\FieldRenderer;
 use Forge\Modules\ForgeTournaments\Fields\PhaseList;
-use Forge\Modules\TournamentsTeams\TeamsCollection;
+use Forge\Modules\ForgeTournaments\PhaseRenderer;
 use Forge\Modules\TournamentsTeams\MembersCollection;
+use Forge\Modules\TournamentsTeams\TeamsCollection;
 
 class TournamentCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments';
@@ -55,14 +56,11 @@ class TournamentCollection extends NodaDataCollection {
             return $signup->render();
         }
 
-
-        $headerImage = new Media($item->getMeta('image_background'));
-
         $subnavigation = $this->renderSubnavigation();
 
         $teamSizeText = $item->getMeta('team_size').i(' vs ', 'forge-tournaments').$item->getMeta('team_size');
-
         $tournament = TournamentFacade::getTournament($item->getID());
+        $headerImage = new Media($item->getMeta('image_background'));
 
 
         $priceAmount = $item->getMeta('tournament_prices');
@@ -142,7 +140,6 @@ class TournamentCollection extends NodaDataCollection {
     }
 
     private function renderSubnavigation($view = 'default') {
-
         $items = [
             [
                 'url' => $this->item->url(),
@@ -161,10 +158,35 @@ class TournamentCollection extends NodaDataCollection {
             ]);
         }
 
+        $tournament = TournamentFacade::getTournament($this->item->getID());
+        $phases = $tournament->getPhases();
+        foreach($phases as $phase) {
+            if($phase->getState() >= PhaseState::READY) {
+                $items = array_merge($items, [
+                    [
+                        'url' => $this->item->url().'/phase/'.$phase->getID(),
+                        'title' => $phase->getMeta('title'),
+                        'active' => $view == 'phase-'.$phase->getID() ? 'active' : ''
+                    ]
+                ]);
+            }
+        }
+
         return App::instance()->render(MOD_ROOT.'forge-tournaments/templates/parts', 'tournament-detail-navigation', [
             'items' => $items
         ]);
 
+    }
+
+    public function phase($item) {
+        $this->item = $item;
+        $parts = CoreUtils::getUriComponents();
+        if(! is_numeric($parts[4])) {
+            return 'no Phase';
+        }
+        $phaseRenderer = new PhaseRenderer($item, $parts[4]);
+
+        return $this->renderSubnavigation('phase-'.$parts[4]).$phaseRenderer->render();
     }
 
     public function participants($item) {
@@ -202,8 +224,6 @@ class TournamentCollection extends NodaDataCollection {
                 'participants' => $participants
             ]
         );
-
-        return $return;
     }
 
     private function custom_fields() {

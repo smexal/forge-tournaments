@@ -35,9 +35,13 @@ class GroupCollection extends NodaDataCollection {
         return $this->render(new CollectionItem($item_id));
     }
 
+    public function getStandings() {
+        return;
+    }
+
     public function render($item) : string {
         $html = '';
-        $group = PoolRegistry::instance()->getPool('group')->getInstance($item->id, $item);
+        $group = PoolRegistry::instance()->getPool('group')->getInstance($item->getID(), $item);
         $encounters = $group->getEncounters();
         foreach($encounters as $encounter) {
             $encounter_item = $encounter->getItem();

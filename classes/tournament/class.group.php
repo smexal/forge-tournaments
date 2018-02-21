@@ -31,6 +31,11 @@ class Group extends HierarchicalEntity {
         return $children;
     }
 
+    public function getStandings() {
+        //var_dump($this->getSlotAssignment());
+        return $this->getSlotAssignment();
+    }
+
     public function getGroupSize() {
         return $this->getSlotAssignment()->numSlots();
     }
