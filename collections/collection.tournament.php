@@ -184,9 +184,21 @@ class TournamentCollection extends NodaDataCollection {
         if(! is_numeric($parts[4])) {
             return 'no Phase';
         }
+
         $phaseRenderer = new PhaseRenderer($item, $parts[4]);
 
-        return $this->renderSubnavigation('phase-'.$parts[4]).$phaseRenderer->render();
+        if(count($parts) == 7 && ($parts[5] == 'set-result' && is_numeric($parts[6]))) {
+            if(isset($_POST['encounter'])) {
+                return $phaseRenderer->insertResult($_POST);
+            }
+            return $phaseRenderer->setResultView($parts[6]);
+        }
+
+        $navigation = '';
+        if(! CoreUtils::isAjax()) {
+            $navigation = $this->renderSubnavigation('phase-'.$parts[4]);
+        }
+        return $navigation.$phaseRenderer->render();
     }
 
     public function participants($item) {

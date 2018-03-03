@@ -56,7 +56,9 @@ class DatasetStorage implements IDatasetStorage {
                 }
             }
         }
-        $db->insertMultiple("ft_datastorage", $insert_list);
+        foreach($insert_list as $i) {
+            $db->insert("ft_datastorage", $i);
+        }
     }
 
     public function deleteAll() {

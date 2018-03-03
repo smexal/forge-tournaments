@@ -11,11 +11,71 @@
             </div>
         </div>
     </div>
+
     <div class="wrapper">
+        <div class="row schedule">
+            <div class="col-md-12"><h2>{$schedule_title}</h2></div>
+        </div>
+        <div class="row">
+            {loop="$schedule_entries"}
+            <div class="col-md-6">
+                <div class="encounter-entry{if="$value.is_own"} is-own{/if}">
+                    <div class="left">
+                        {if="$value.participant_left_image"}
+                        <img src="{$value.participant_left_image}" />
+                        {/if}
+                        <h3>{$value.participant_left_title}</h3>
+                    </div>
+                    <small>{$vs}</small>
+                    <div class="right">
+                        <h3>{$value.participant_right_title}</h3>
+                        {if="$value.participant_right_image"}
+                        <img src="{$value.participant_right_image}" />
+                        {/if}
+                    </div>
+                    {if="$value.set_result_link"}
+                        <a href="{$value.set_result_href}" 
+                            class="btn to-overlay" 
+                            refresh-on-close="{$value.set_result_refresh_href}" 
+                            refresh-target="{$value.set_result_refresh_target}">{$set_result_label}</a>
+                    {/if}
+                </div>
+            </div>
+            {if="$value.index % 2 == 0"}
+            </div>
+            <div class="row">
+            {/if}
+            {/loop}
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <div class="row standings">
+            <div class="col-md-12"><h2>{$standings_title}</h2></div>
+        </div>
         <div class="row">
         {loop="$standings"}
             <div class="col-md-6">
-                <h2>{$value.title}</h2>
+                <table class="default">
+                    <tr>
+                        <th colspan="3"><h3>{$value.title}</h3></th>
+                        <th>{$games}</th>
+                        <th>{$wins}</th>
+                        <th>{$losses}</th>
+                        <th>{$points}</th>
+                    </tr>
+                    {loop="$value.values"}
+                    <tr>
+                        <td style="max-width: 50px">{$value.position}</td>
+                        <td>{if="$value.logo"}<img src="{$value.logo}" width="24" />{/if}</td>
+                        <td>{$value.name}</td>
+                        <td>{$value.games}</td>
+                        <td>{$value.wins}</td>
+                        <td>{$value.losses}</td>
+                        <td>{$value.points}</td>
+                    </tr>
+                    {/loop}
+                </table>
             </div>
             {if="$value.no % 2 == 0"}
             </div>
