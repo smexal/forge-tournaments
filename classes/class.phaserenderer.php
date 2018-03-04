@@ -3,6 +3,7 @@
 namespace Forge\Modules\ForgeTournaments;
 
 use Forge\Core\App\App;
+use Forge\Core\App\Auth;
 use Forge\Core\Classes\CollectionItem;
 use Forge\Core\Classes\Fields;
 use Forge\Core\Classes\Media;
@@ -214,6 +215,12 @@ class PhaseRenderer {
     }
 
     private function getAB($participant_a, $participant_b) {
+        if(! Auth::any() ) {
+            return;
+        }
+        if($this->isAdmin()) {
+            return 'admin';
+        }
         $participants = [$participant_a, $participant_b];
         $team = 'a';
         foreach($participants as $part) {
@@ -230,6 +237,12 @@ class PhaseRenderer {
     }
 
     private function isOwnMatch($participant_1, $participant_2) {
+        if(! Auth::any() ) {
+            return;
+        }
+        if($this->isAdmin()) {
+            return true;
+        }
         $participants = [$participant_1, $participant_2];
         foreach($participants as $part) {
             if(is_numeric($part->getMeta('user'))) {
@@ -239,6 +252,12 @@ class PhaseRenderer {
             } else {
                 var_dump('!!!Check if user is in Team!!!');
             }
+        }
+    }
+
+    public function isAdmin() {
+        if(in_array(App::instance()->user->get('id'), $this->tournament->getMeta('responsibles'))) {
+            return true;
         }
     }
 
