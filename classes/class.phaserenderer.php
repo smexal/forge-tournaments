@@ -336,6 +336,9 @@ class PhaseRenderer {
     }
 
     public function isAdmin() {
+        if(!is_array( $this->tournament->getMeta('responsibles') )) {
+            return false;
+        }
         if(in_array(App::instance()->user->get('id'), $this->tournament->getMeta('responsibles'))) {
             return true;
         }
