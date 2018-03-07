@@ -77,6 +77,25 @@ class PhaseRenderer {
                     array_merge(CoreUtils::getUriComponents(), ['set-result', $encounter->getID()])
                 );
             }
+            $has_result = false;
+            $result_a = 0;
+            $result_b = 0;
+
+            $storage = DatasetStorage::getInstance('encounter_result', $encounter->getID());
+            $dataset = $storage->loadAll();
+            $systemSet = $dataset->getDataSegment('system');
+            if(! is_null($systemSet)) {
+                $has_result = true;
+                $result_a = $dataset->getDataSegment('system')->getValue('points_a', 'system');
+                $result_b = $dataset->getDataSegment('system')->getValue('points_b', 'system');
+            }
+            $adminSet = $dataset->getDataSegment('admin');
+            if(! is_null($adminSet)) {
+                $has_result = true;
+                $result_a = $dataset->getDataSegment('admin')->getValue('points_a', 'admin');
+                $result_b = $dataset->getDataSegment('admin')->getValue('points_b', 'admin');
+            }
+
             $schedule_entries[] = [
                 'index' => $index,
                 'participant_left_title' => $slots[0]->getName(),
@@ -87,7 +106,10 @@ class PhaseRenderer {
                 'set_result_link' => $setResultLink,
                 'set_result_href' => $setResultHref,
                 'set_result_refresh_href' => CoreUtils::getUrl(CoreUtils::getUriComponents()),
-                'set_result_refresh_target' => '#tournament-detail'
+                'set_result_refresh_target' => '#tournament-detail',
+                'has_result' => $has_result,
+                'result_a' => $result_a,
+                'result_b' => $result_b
             ];
             $index++;
         }
@@ -107,7 +129,7 @@ class PhaseRenderer {
                 'standings' => $standings,
                 'schedule_title' => i('Schedule & Results', 'forge-tournaments'),
                 'schedule_entries' => $schedule_entries,
-                'set_result_label' => i('Set Result', 'forge-tournaments')
+                'set_result_label' => i('Set Result', 'forge-tournaments'),
             ]
         );
     }
@@ -127,7 +149,36 @@ class PhaseRenderer {
         }
 
         $heading = '<h3>'.i('Set Result for this match.', 'forge-tournaments').'</h3>';
+
         $content = [];
+
+        // add results set by team for the admin.
+        if($this->isAdmin()) {
+            $storage = DatasetStorage::getInstance('encounter_result', $encounterId);
+            $dataset = $storage->loadAll();
+            if(! is_null($dataset->getDataSegment('team_a'))) {
+                $content[] = '
+                    <p>'.sprintf(i('Result by %1$s', 'forge-tournaments'), $encounter_slots[0]->getName()).' > '
+                    .$dataset->getDataSegment('team_a')->getValue('points_a', 'team_a').' : '
+                    .$dataset->getDataSegment('team_a')->getValue('points_b', 'team_a').'</p>
+                ';
+            }
+            if(! is_null($dataset->getDataSegment('team_b'))) {
+                $content[] = '
+                    <p>'.sprintf(i('Result by %1$s', 'forge-tournaments'), $encounter_slots[1]->getName()).' > '
+                    .$dataset->getDataSegment('team_b')->getValue('points_a', 'team_b').' : '
+                    .$dataset->getDataSegment('team_b')->getValue('points_b', 'team_b').'</p>
+                ';
+            }
+            if(! is_null($dataset->getDataSegment('admin'))) {
+                $content[] = '
+                    <p>'.sprintf(i('Result by Admin', 'forge-tournaments'), $encounter_slots[1]->getName()).' > '
+                    .$dataset->getDataSegment('admin')->getValue('points_a', 'admin').' : '
+                    .$dataset->getDataSegment('admin')->getValue('points_b', 'admin').'</p>
+                ';
+            }
+        }
+
         $content[] = Fields::text([
             'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), $encounter_slots[0]->getName()),
             'key' => 'result_team_1',
@@ -158,27 +209,56 @@ class PhaseRenderer {
         $encounter_slots = $encounter->getSlotAssignment();
         $encounter_slots = $encounter_slots->getSlots();
 
-        if(! $this->isOwnMatch($encounter_slots[0], $encounter_slots[1]) ) {
+        if(! $this->isOwnMatch($encounter_slots[0], $encounter_slots[1]) && ! $this->isAdmin() ) {
             return 'nope dope';
         }
         $a_or_b = $this->getAB($encounter_slots[0], $encounter_slots[1]);
-        if($encounter->getItem()->getMeta('result_set_'.$a_or_b) == 'yes') {
+        if($encounter->getItem()->getMeta('result_set_'.$a_or_b) == 'yes' && ! $this->isAdmin() ) {
             return 'already set';
         }
-        $encounter->getItem()->updateMeta('result_set_'.$a_or_b, 'yes', false);
+        if(! $this->isAdmin() ) {
+            $encounter->getItem()->updateMeta('result_set_'.$a_or_b, 'yes', false);
+        }
         
         $storage = DatasetStorage::getInstance('encounter_result', $encounterId);
 
-        $segment = new DataSegment('team_'.$a_or_b);
+        $dataSource = $a_or_b == 'admin' ? 'admin' : 'team_'.$a_or_b;
+        $segment = new DataSegment($dataSource);
         // Data recorded by team A for team A
         $segment->addData([
           'points_a' => $data['result_team_1'],
           'points_b' => $data['result_team_2']
-        ], 'team_'.$a_or_b);
+        ], $dataSource);
 
         $set = new DataSet();
         $set->addDataSegment($segment);
         $storage->save($set);
+
+        // check if other team has set result and is the same
+        // then set the system result automatically
+        if($this->isAdmin()) {
+            return;
+        }
+
+        $dataset = $storage->loadAll();
+        $otherTeam = $a_or_b == 'a' ? 'b' : 'a';
+        if(! is_null($dataset->getDataSegment('team_'.$otherTeam))) {
+            $valueForA = $dataset->getDataSegment('team_'.$otherTeam)->getValue('points_a', 'team_'.$otherTeam);
+            $valueForB = $dataset->getDataSegment('team_'.$otherTeam)->getValue('points_b', 'team_'.$otherTeam);
+
+            if($valueForA == $data['result_team_1'] && $valueForB == $data['result_team_2']) {
+                // matches / save system result
+                $segment = new DataSegment('system');
+                $segment->addData([
+                  'points_a' => $data['result_team_1'],
+                  'points_b' => $data['result_team_2']
+                ], 'system');
+
+                $set = new DataSet();
+                $set->addDataSegment($segment);
+                $storage->save($set);
+            }
+        }
     }
 
     private function getStandingValues($group) {

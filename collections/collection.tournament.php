@@ -110,6 +110,7 @@ class TournamentCollection extends NodaDataCollection {
         $responsibles = $item->getMeta('responsibles');
         $responsible = new User($responsibles[0]);
 
+
         return $subnavigation.App::instance()->render(MOD_ROOT.'forge-tournaments/templates/views/',
             'tournament',
             [
@@ -119,12 +120,12 @@ class TournamentCollection extends NodaDataCollection {
                 'teamsize_label' => i('Teamsize', 'forge-tournaments'),
                 'teamsize_value' => $teamSizeText,
                 'starttime_label' => i('Start', 'forge-tournaments'),
-                'starttime_value' => $item->getMeta('start_time'),
+                'starttime_value' => $item->getMeta('start_time') ? CoreUtils::dateFormat($item->getMeta('start_time'), true) : i('Undefined', 'forge-tournaments'),
                 'participants_label' => i('Participants', 'forge-tournaments'),
                 'participants_value' => count(self::getParticipants($this->item->id)),
                 'participants_max' => $item->getMeta('max_participants'),
                 'checkin_label' => i('Checkin Time', 'forge-tournaments'),
-                'checkin_value' => $item->getMeta('checkin_time') ? $item->getMeta('checkin_time') : i('Undefined', 'forge-tournaments'),
+                'checkin_value' => $item->getMeta('checkin_time') ? CoreUtils::dateFormat($item->getMeta('checkin_time'), true) : i('Undefined', 'forge-tournaments'),
                 'prices_title' => i('Prices', 'forge-tournaments'),
                 'structure_title' => i('Structure', 'forge-tournaments'),
                 'responsible_label' => i('Responsible', 'forge-tournaments'),

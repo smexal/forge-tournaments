@@ -25,9 +25,15 @@
                         <img src="{$value.participant_left_image}" />
                         {/if}
                         <h3>{$value.participant_left_title}</h3>
+                        {if="$value.has_result"}
+                        <p class="highlight">{$value.result_a}</p>
+                        {/if}
                     </div>
                     <small>{$vs}</small>
                     <div class="right">
+                        {if="$value.has_result"}
+                        <p class="highlight">{$value.result_b}</p>
+                        {/if}
                         <h3>{$value.participant_right_title}</h3>
                         {if="$value.participant_right_image"}
                         <img src="{$value.participant_right_image}" />
