@@ -24,17 +24,21 @@
                         {if="$value.participant_left_image"}
                         <img src="{$value.participant_left_image}" />
                         {/if}
-                        <h3>{$value.participant_left_title}</h3>
-                        {if="$value.has_result"}
-                        <p class="highlight">{$value.result_a}</p>
-                        {/if}
+                        <p>{$value.participant_left_title}</p>
                     </div>
+                    {if="$value.has_result"}
+                    <div class="res-left">
+                        <p class="highlight">{$value.result_a}</p>
+                    </div>
+                    {/if}
                     <small>{$vs}</small>
-                    <div class="right">
-                        {if="$value.has_result"}
+                    {if="$value.has_result"}
+                    <div class="res-right">
                         <p class="highlight">{$value.result_b}</p>
-                        {/if}
-                        <h3>{$value.participant_right_title}</h3>
+                    </div>
+                    {/if}
+                    <div class="right">
+                        <p>{$value.participant_right_title}</p>
                         {if="$value.participant_right_image"}
                         <img src="{$value.participant_right_image}" />
                         {/if}

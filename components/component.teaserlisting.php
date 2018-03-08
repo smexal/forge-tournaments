@@ -11,7 +11,7 @@ use \Forge\Core\Components\ListingComponent;
 
 class TeaserlistingComponent extends ListingComponent {
     protected $collection = 'forge-tournaments';
-    protected $cssClasses = ['wrapper', 'reveal', 'teaser-listing'];
+    protected $cssClasses = ['wrapper', 'teaser-listing'];
 
     public function prefs() {
         $this->settings = array_merge([
