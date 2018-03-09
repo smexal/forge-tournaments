@@ -103,7 +103,7 @@ class NodaDataCollection extends DataCollection {
     public function itemDependentFields($item) {
         $this->addUniqueFields([
             // THOSE ARE DEPENDENT ON data_schema
-            [
+            /*[
                 'key' => 'node_fields',
                 'label' => \i('Which fields are defined', 'forge-tournaments'),
                 'values' => '',
@@ -115,9 +115,9 @@ class NodaDataCollection extends DataCollection {
                 'position' => 'left',
                 'hint' => i('This is automatically defined by the system', 'forge-tournaments'),
                 '__item_id' => $item->getID()
-            ],
+            ],*/
             // THIS IS LOADED BY THE STORAGE HANDLER
-            [
+            /*[
                 'key' => 'node_data_gathered',
                 'label' => \i('List of data gathered for the different participants', 'forge-tournaments'),
                 'values' => '',
@@ -129,7 +129,7 @@ class NodaDataCollection extends DataCollection {
                 'position' => 'left',
                 'hint' => i('...', 'forge-tournaments'),
                 '__item_id' => $item->getID()
-            ]
+            ]*/
         ]);
 
         foreach($this->customFields as &$field) {

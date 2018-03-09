@@ -86,14 +86,14 @@ class PhaseRenderer {
             $systemSet = $dataset->getDataSegment('system');
             if(! is_null($systemSet)) {
                 $has_result = true;
-                $result_a = $dataset->getDataSegment('system')->getValue('points_a', 'system');
-                $result_b = $dataset->getDataSegment('system')->getValue('points_b', 'system');
+                $result_a = $systemSet->getValue('points_a', 'system');
+                $result_b = $systemSet->getValue('points_b', 'system');
             }
             $adminSet = $dataset->getDataSegment('admin');
             if(! is_null($adminSet)) {
                 $has_result = true;
-                $result_a = $dataset->getDataSegment('admin')->getValue('points_a', 'admin');
-                $result_b = $dataset->getDataSegment('admin')->getValue('points_b', 'admin');
+                $result_a = $adminSet->getValue('points_a', 'admin');
+                $result_b = $adminSet->getValue('points_b', 'admin');
             }
 
             $schedule_entries[] = [
@@ -103,6 +103,7 @@ class PhaseRenderer {
                 'participant_right_title' => $slots[1]->getName(),
                 'participant_right_image' => $this->getAvatarImage($slots[1]),
                 'is_own' => $isOwnMatch,
+                'is_admin' => $this->isAdmin(),
                 'set_result_link' => $setResultLink,
                 'set_result_href' => $setResultHref,
                 'set_result_refresh_href' => CoreUtils::getUrl(CoreUtils::getUriComponents()),
@@ -123,7 +124,11 @@ class PhaseRenderer {
                 'standings_title' => i('Standings', 'forge-tournaments'),
                 'games' => i('Games', 'forge-tournaments'),
                 'wins' => i('W', 'forge-tournaments'),
+                'wins_tooltip' => i('Wins', 'forge-tournaments'),
                 'losses' => i('L', 'forge-tournaments'),
+                'losses_tooltip' => i('Losses', 'forge-tournaments'),
+                'draws' => i('D', 'forge-tournaments'),
+                'draws_tooltip' => i('Draws', 'forge-tournaments'),
                 'points' => i('Points', 'forge-tournaments'),
                 'vs' => i('vs', 'forge-tournaments'),
                 'standings' => $standings,
@@ -266,18 +271,102 @@ class PhaseRenderer {
         $values = [];
         foreach($group->getStandings() as $standingEntry) {
             $image = $this->getAvatarImage($standingEntry);
+            $participantData = $this->getParticipantResults($group, $standingEntry);
             $values[] = [
                 'position' => $position,
                 'logo' => $image,
                 'name' => $standingEntry->getName(),
-                'games' => 0,
-                'wins' => 0,
-                'losses' => 0,
-                'points' => 0
+                'games' => $participantData['games'],
+                'wins' => $participantData['wins'],
+                'draws' => $participantData['draws'],
+                'losses' => $participantData['losses'],
+                'points' => $participantData['points']
             ];
             $position++;
         }
+
+        usort($values, function ($item1, $item2) {
+            return $item2['points'] <=> $item1['points'];
+        });
+
+        $rank = 1;
+        foreach($values as $key => $standing_entry) {
+            $values[$key]['position'] = $rank;
+            $rank++;
+        }
+
         return $values;
+    }
+
+    private function getParticipantResults($group, $participant) {
+        $encounters = $group->getEncounters();
+        $data = [
+            'games' => 0,
+            'wins' => 0,
+            'losses' => 0,
+            'draws' => 0,
+            'points' => 0,
+        ];
+        foreach($encounters as $encounter) {
+            $encounter_slots = $encounter->getSlotAssignment();
+            $encounter_slots = $encounter_slots->getSlots();
+            if($encounter_slots[0]->getID() == $participant->getID() || $encounter_slots[1]->getID() == $participant->getID()) {
+                // is encounter of this participant;
+                $storage = DatasetStorage::getInstance('encounter_result', $encounter->getItem()->getID());
+                $dataset = $storage->loadAll();
+
+                // participant is encounter a or b?
+                if($encounter_slots[0]->getID() == $participant->getID()) {
+                    $a_or_b = 'a';
+                } else {
+                    $a_or_b = 'b';
+                }
+
+                $systemSet = $dataset->getDataSegment('system');
+                $adminSet = $dataset->getDataSegment('admin');
+                if(! is_null($systemSet) || ! is_null($adminSet)) {
+                    $data['games']++;
+                }
+
+                if(! is_null($systemSet) && is_null($adminSet)) {
+                    $result_a = $systemSet->getValue('points_a', 'system');
+                    $result_b = $systemSet->getValue('points_b', 'system');
+                    $data = $this->calculatePointsWinsAndLosses($result_a, $result_b, $a_or_b, $data);
+                }
+                
+                if(! is_null($adminSet)) {
+                    $result_a = $adminSet->getValue('points_a', 'admin');
+                    $result_b = $adminSet->getValue('points_b', 'admin');
+                    $data = $this->calculatePointsWinsAndLosses($result_a, $result_b, $a_or_b, $data);
+                }
+            }
+        }
+        return $data;
+    }
+
+    private function calculatePointsWinsAndLosses($result_a, $result_b, $a_or_b, $data) {
+        if($a_or_b == 'a' && $result_a > $result_b) {
+            $data['points']+=3;
+            $data['wins']++;
+        }
+        if($a_or_b == 'a' && $result_a < $result_b) {
+            $data['losses']++;
+        }
+
+        if($a_or_b == 'b' && $result_b > $result_a) {
+            $data['points'] = $data['points']+3;
+            $data['wins']++;
+        }
+        if($a_or_b == 'b' && $result_b < $result_a) {
+            $data['losses']++;
+        }
+
+        // game was a draw...
+        if($result_a == $result_b) {
+            $data['draws']++;
+            $data['points']++;
+        }
+        return $data;
     }
 
     private function getAvatarImage($participant) {
