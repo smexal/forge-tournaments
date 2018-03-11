@@ -50,7 +50,7 @@ class TournamentCollection extends NodaDataCollection {
     public function render($item) {
         $this->item = $item;
 
-        $parts = CoreUtils::getUriComponents();
+        $parts = CoreUtils::PUriComponents();
         if(count($parts) > 3 && $parts[3] == 'signup') {
             $signup = new Signup($item);
             return $signup->render();

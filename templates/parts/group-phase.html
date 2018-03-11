@@ -22,7 +22,7 @@
                 <div class="encounter-entry{if="$value.is_own && ! $value.is_admin"} is-own{/if}">
                     <div class="left">
                         {if="$value.participant_left_image"}
-                        <img src="{$value.participant_left_image}" />
+                        <img src="{$value.participant_left_image}"  width="24" />
                         {/if}
                         <p>{$value.participant_left_title}</p>
                     </div>
@@ -40,7 +40,7 @@
                     <div class="right">
                         <p>{$value.participant_right_title}</p>
                         {if="$value.participant_right_image"}
-                        <img src="{$value.participant_right_image}" />
+                        <img src="{$value.participant_right_image}"  width="24" />
                         {/if}
                     </div>
                     {if="$value.set_result_link && ! $value.has_result"}
@@ -63,7 +63,7 @@
         <div class="row standings">
             <div class="col-md-12"><h2>{$standings_title}</h2></div>
         </div>
-        <div class="row">
+        <div class="row standing-table">
         {loop="$standings"}
             <div class="col-md-6">
                 <table class="default">
@@ -91,7 +91,7 @@
             </div>
             {if="$value.no % 2 == 0"}
             </div>
-            <div class="row">
+            <div class="row standing-table">
             {/if}
         {/loop}
         </div>

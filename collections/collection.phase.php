@@ -11,6 +11,7 @@ use Forge\Core\Classes\CollectionItem;
 use Forge\Core\Classes\FieldUtils as FieldUtils;
 use Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
 use Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
+use Forge\Modules\ForgeTournaments\Facade\Tournament as TournamentFacade;
 
 use Forge\Modules\ForgeTournaments\Scoring\ScoringProvider;
 use Forge\Modules\ForgeTournaments\Fields\FieldProvider;
@@ -40,12 +41,21 @@ class PhaseCollection extends NodaDataCollection {
             $this->setParticipantsFromTournament($item_id);
             App::instance()->redirect(CoreUtils::getUriComponents());
         }
+
         $html = '';
         $item = new CollectionItem($item_id);
         $phase = Utils::getSubtype('IPhaseType', $item, 'ft_phase_type');
         if($phase) {
             $html .= $phase->render($item);
         }
+
+        if(array_key_exists('calculate_output', $_GET) && $_GET['calculate_output']) {
+            $hiraPhase = new Phase($item);
+            $phase->setPhase($hiraPhase);
+            $phase->populateOutput();
+            App::instance()->redirect(CoreUtils::getUriComponents());
+        }
+
         return $html;
     }
 
@@ -81,18 +91,30 @@ class PhaseCollection extends NodaDataCollection {
     public function subviewImportParticipants() {
         $return = '';
         $options = [];
-        $url = CoreUtils::getUriComponents();
-        array_pop($url);
-        $url = CoreUtils::getUrl($url, true, ['set_participants' => 'fromTournament']);
-        $options = App::instance()->render(CORE_TEMPLATE_DIR.'assets/',
-            'list-item',
-            [
-                'link' => [
-                    'url' => $url
-                ],
-                'value' => i('Import participants from Tournament list', 'forge-tournaments')
-            ]
-        );
+        $components = CoreUtils::getUriComponents();
+        array_pop($components);
+        $url = CoreUtils::getUrl($components, true, ['set_participants' => 'fromTournament']);
+
+        $item = new CollectionItem($components[count($components)-1]);
+        $parentItem = $item->getParent();
+        $tournament = TournamentFacade::getTournament($parentItem->getID());
+        $phases = $tournament->getPhases();
+
+        $options = App::instance()->render(CORE_TEMPLATE_DIR.'assets/', 'list-item', [
+            'link' => [ 'url' => $url ],
+            'value' => i('Import participants from Tournament list', 'forge-tournaments')
+        ]);
+
+        foreach($phases as $phase) {
+            // hide own phase...
+            if($phase->getID() == $item->getID()) {
+                continue;
+            }
+            $options.= App::instance()->render(CORE_TEMPLATE_DIR.'assets/', 'list-item', [
+                'link' => [ 'url' => CoreUtils::getUrl($components, true, ['set_participants' => 'fromOtherPhase', 'phase' => $phase->getID()]) ],
+                'value' => sprintf(i('Import Winners from "%1$s"', 'forge-tournaments'), $phase->getMeta('title'))
+            ]);
+        }
 
 
         return App::instance()->render(CORE_TEMPLATE_DIR.'assets/',
@@ -146,13 +168,12 @@ class PhaseCollection extends NodaDataCollection {
                 'hint' => \i('Ensure the following phase has at least as many total slots available', 'forge-tournaments'),
                 '__last_phase_state' => PhaseState::CONFIG_BASIC
             ],
-            [
+            /*[
                 'key' => 'ft_next_phase',
                 'label' => \i('Next Phase', 'forge-tournaments'),
                 'values' => [],
                 'value' => NULL,
                 'multilang' => false,
-
                 'type' => 'collection',
                 'maxtags'=> 1,
                 'collection' => PhaseCollection::COLLECTION_NAME,
@@ -166,7 +187,7 @@ class PhaseCollection extends NodaDataCollection {
                 'position' => 'left',
                 'readonly' => true,
                 'hint' => i('The next phase after this one is completed', 'forge-tournaments')
-            ],
+            ],*/
             [
                 'key' => 'import-participant-link',
                 'href' => CoreUtils::getUrl(array_merge(CoreUtils::getUriComponents(), ['importParticipants'])),
@@ -174,7 +195,8 @@ class PhaseCollection extends NodaDataCollection {
                 'name' => i('Import participants', 'forge-tournaments'),
                 'classes' => 'btn btn-primary ajax confirm',
                 'order' => 21,
-                'position' => 'left'
+                'position' => 'left',
+                '__last_phase_state' => PhaseState::READY
             ],
             [
                 'key' => 'ft_participant_list_size',
@@ -223,6 +245,16 @@ class PhaseCollection extends NodaDataCollection {
                 'hint' => \i('You can only add participants when the phase did not already start', 'forge-tournaments'),
                 '__last_phase_state' => PhaseState::ASSIGNMENT
             ],
+            [
+                'key' => 'calculate-output-list',
+                'href' => CoreUtils::getUrl(CoreUtils::getUriComponents(), true, ['calculate_output' => 'true']),
+                'type' => 'link',
+                'name' => i('Calculate Output List', 'forge-tournaments'),
+                'classes' => 'btn btn-primary',
+                'order' => 31,
+                'position' => 'left',
+                '__first_phase_state' =>  PhaseState::FINISHED
+            ]
         ];
 
 

@@ -14,7 +14,8 @@ class KOPhase extends BasePhase implements IPhaseType {
     }
 
     public function fields($item=null) : array {
-        return [
+        return [];
+        /*return [
             [
                 'key' => 'custom_ko_field',
                 'label' => \i('Custom KO Field', 'forge-tournaments'),
@@ -25,7 +26,7 @@ class KOPhase extends BasePhase implements IPhaseType {
                 'position' => 'left',
                 'hint' => i('My Field only appears when i am a KO phase', 'forge-tournaments')
             ]
-        ];
+        ];*/
     }
 
     public function modifyFields(array $fields, $item = null) : array {
