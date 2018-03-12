@@ -43,7 +43,7 @@
                         <img src="{$value.participant_right_image}"  width="24" />
                         {/if}
                     </div>
-                    {if="$value.set_result_link && ! $value.has_result"}
+                    {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}
                         <a href="{$value.set_result_href}" 
                             class="btn to-overlay" 
                             refresh-on-close="{$value.set_result_refresh_href}" 

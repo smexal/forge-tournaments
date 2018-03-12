@@ -51,6 +51,7 @@ abstract class Output {
     }
 
     public static function renderPhase($type, $phase) {
+        return;
         switch ($phase->getPhaseType()) {
             case \Forge\Modules\ForgeTournaments\PhaseTypes::REGISTRATION:
                 return "RENDER RENDER REGISTRATION PHASE COLLECTION SENDER>";

@@ -177,6 +177,13 @@ class PhaseRenderer {
                     .$dataset->getDataSegment('team_b')->getValue('points_b', 'team_b').'</p>
                 ';
             }
+            if(! is_null($dataset->getDataSegment('system'))) {
+                $content[] = '
+                    <p>'.sprintf(i('Result by system', 'forge-tournaments'), $encounter_slots[1]->getName()).' > '
+                    .$dataset->getDataSegment('system')->getValue('points_a', 'system').' : '
+                    .$dataset->getDataSegment('system')->getValue('points_b', 'system').'</p>
+                ';
+            }
             if(! is_null($dataset->getDataSegment('admin'))) {
                 $content[] = '
                     <p>'.sprintf(i('Result by Admin', 'forge-tournaments'), $encounter_slots[1]->getName()).' > '
@@ -338,6 +345,9 @@ class PhaseRenderer {
     }
 
     public function isAdmin() {
+        if(! Auth::any()) {
+            return false;
+        }
         if(!is_array( $this->tournament->getMeta('responsibles') )) {
             return false;
         }

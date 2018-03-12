@@ -1,14 +1,14 @@
 <section class="tournament-phases">
     <h3>{$title}</h3>
-    <ul class="phases-list ft-collapsible-list">
+    <ul class="phases-list">
        {loop="$phases"}
-        <li class="ft-collapsible__item">
-            <input type="checkbox" class="ft-hidden-input" id="collapsible-{$value.content|md5}" {if condition="$value.open"}checked="checked"{/if} />
-            <label for="collapsible-{$value.content|md5}" class="ft-collapsible-toggle ft-collapsible-title">
-            {$value.title}
-            {if condition="isset($value.edit_url)"}&nbsp;<a href="{$value.edit_url}" target="_blank" title="{$value.edit_text}"><i class="material-icons">create</i></a>{/if}
-            </label>
-            <div class="ft-collapsible-content">{$value.content}</div>
+        <li class="card">
+            <h4>
+            <a href="{$value.edit_url}" target="_blank" title="{$value.edit_text}">
+                {$value.title}
+            </a>
+            <small>{if condition="isset($value.edit_url)"}<a href="{$value.edit_url}" target="_blank" title="{$value.edit_text}"><i class="material-icons">create</i></a>{/if}</small>
+            </h4>
         </li>
         {/loop}
         {if condition="$add_phase"}
