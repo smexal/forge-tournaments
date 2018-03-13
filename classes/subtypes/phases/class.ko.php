@@ -34,6 +34,7 @@ class KOPhase extends BasePhase implements IPhaseType {
             if($field['key'] == 'ft_slot_assignment') {
                 $field['prepare_template'] = ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'prepareKO'];
                 $field['sa_tpl'] = FORGE_TOURNAMENTS_DIR . 'templates/slotassignment-ko';
+                $field['order'] = 40;
             }
         }
         return $fields;

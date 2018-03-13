@@ -36,15 +36,52 @@ class PhaseRenderer {
         }
 
         if($this->phase->getPhaseType() == 'group') {
-            return $this->renderGroupPhase($this->phase);
+            return $this->renderGroupPhase();
+        }
+
+        if($this->phase->getPhaseType() == 'ko') {
+            return $this->renderKoPhase();
         }
 
     }
 
-    private function renderGroupPhase() {
+    private function renderKoPhase() {
         $headerImage = new Media($this->tournament->getMeta('image_background'));
 
-        $groupCollection = App::instance()->cm->getCollection('forge-tournaments-group');
+        $encounters = [];
+
+        $children = $this->phase->getChildren();
+        var_dump($children);
+        foreach($children as $key => $child) {
+            $children[$key] = PoolRegistry::instance()->getPool('encounter')->getInstance($child->getID(), $child);
+        }
+        return $children;
+
+        return App::instance()->render(
+            MOD_ROOT.'forge-tournaments/templates/parts', 'ko-phase',
+            [
+                'title' => $this->phase->getMeta('title'),
+                'header_image' => $headerImage->getSizedImage(2100, 600),
+                'tournament_title' => $this->tournament->getMeta('title'),
+                'standings_title' => i('Standings', 'forge-tournaments'),
+                'games' => i('Games', 'forge-tournaments'),
+                'wins' => i('W', 'forge-tournaments'),
+                'wins_tooltip' => i('Wins', 'forge-tournaments'),
+                'losses' => i('L', 'forge-tournaments'),
+                'losses_tooltip' => i('Losses', 'forge-tournaments'),
+                'draws' => i('D', 'forge-tournaments'),
+                'draws_tooltip' => i('Draws', 'forge-tournaments'),
+                'points' => i('Points', 'forge-tournaments'),
+                'vs' => i('vs', 'forge-tournaments'),
+                'schedule_title' => i('Schedule & Results', 'forge-tournaments'),
+                'schedule_entries' => $this->getScheduleEntries($encounters),
+                'set_result_label' => i('Set Result', 'forge-tournaments'),
+            ]
+        );
+    }
+
+    private function renderGroupPhase() {
+        $headerImage = new Media($this->tournament->getMeta('image_background'));
 
         $groupId = 'A';
         $groupNo = '1';
@@ -63,8 +100,35 @@ class PhaseRenderer {
             $groupId++;
         }
 
-        $schedule_entries = [];
+        $schedule_entries = $this->getScheduleEntries($encounters);
+
+        return App::instance()->render(
+            MOD_ROOT.'forge-tournaments/templates/parts', 'group-phase',
+            [
+                'title' => $this->phase->getMeta('title'),
+                'header_image' => $headerImage->getSizedImage(2100, 600),
+                'tournament_title' => $this->tournament->getMeta('title'),
+                'standings_title' => i('Standings', 'forge-tournaments'),
+                'games' => i('Games', 'forge-tournaments'),
+                'wins' => i('W', 'forge-tournaments'),
+                'wins_tooltip' => i('Wins', 'forge-tournaments'),
+                'losses' => i('L', 'forge-tournaments'),
+                'losses_tooltip' => i('Losses', 'forge-tournaments'),
+                'draws' => i('D', 'forge-tournaments'),
+                'draws_tooltip' => i('Draws', 'forge-tournaments'),
+                'points' => i('Points', 'forge-tournaments'),
+                'vs' => i('vs', 'forge-tournaments'),
+                'standings' => $standings,
+                'schedule_title' => i('Schedule & Results', 'forge-tournaments'),
+                'schedule_entries' => $schedule_entries,
+                'set_result_label' => i('Set Result', 'forge-tournaments'),
+            ]
+        );
+    }
+
+    private function getScheduleEntries($encounters) {
         $index = 1;
+        $schedule_entries = [];
         foreach($encounters as $encounter) {
             $slots = $encounter->getSlotAssignment();
             $slots = $slots->getSlots();
@@ -116,29 +180,7 @@ class PhaseRenderer {
             ];
             $index++;
         }
-
-        return App::instance()->render(
-            MOD_ROOT.'forge-tournaments/templates/parts', 'group-phase',
-            [
-                'title' => $this->phase->getMeta('title'),
-                'header_image' => $headerImage->getSizedImage(2100, 600),
-                'tournament_title' => $this->tournament->getMeta('title'),
-                'standings_title' => i('Standings', 'forge-tournaments'),
-                'games' => i('Games', 'forge-tournaments'),
-                'wins' => i('W', 'forge-tournaments'),
-                'wins_tooltip' => i('Wins', 'forge-tournaments'),
-                'losses' => i('L', 'forge-tournaments'),
-                'losses_tooltip' => i('Losses', 'forge-tournaments'),
-                'draws' => i('D', 'forge-tournaments'),
-                'draws_tooltip' => i('Draws', 'forge-tournaments'),
-                'points' => i('Points', 'forge-tournaments'),
-                'vs' => i('vs', 'forge-tournaments'),
-                'standings' => $standings,
-                'schedule_title' => i('Schedule & Results', 'forge-tournaments'),
-                'schedule_entries' => $schedule_entries,
-                'set_result_label' => i('Set Result', 'forge-tournaments'),
-            ]
-        );
+        return $schedule_entries;
     }
 
     public function setResultView($encounter) {

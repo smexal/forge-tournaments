@@ -37,9 +37,15 @@ class PhaseCollection extends NodaDataCollection {
     }
 
     public function customEditContent($item_id) {
-        if(array_key_exists('set_participants', $_GET) && $_GET['set_participants'] == 'fromTournament') {
-            $this->setParticipantsFromTournament($item_id);
-            App::instance()->redirect(CoreUtils::getUriComponents());
+        if(array_key_exists('set_participants', $_GET)) {
+            if($_GET['set_participants'] == 'fromTournament') {
+                $this->setParticipantsFromTournament($item_id);
+                App::instance()->redirect(CoreUtils::getUriComponents());
+            }
+            if($_GET['set_participants'] == 'fromOtherPhase' && is_numeric($_GET['phase'])) {
+                $this->setParticipantsFromOtherPhase($item_id, $_GET['phase']);
+                App::instance()->redirect(CoreUtils::getUriComponents());
+            }
         }
 
         $html = '';
@@ -65,6 +71,15 @@ class PhaseCollection extends NodaDataCollection {
         $participants = TournamentCollection::getParticipants($tournament->getID());
         $relation = App::instance()->rd->getRelation('ft_participant_list');
         $relation->setRightItems($item, $participants);
+    }
+
+    private function setParticipantsFromOtherPhase($item_id, $otherPhase) {
+        $otherPhaseItem = new CollectionItem($otherPhase);
+        $participants = $otherPhaseItem->getMeta('ft_participant_output_list', 0);
+        $participants = explode(",", $participants);
+
+        $relation = App::instance()->rd->getRelation('ft_participant_list');
+        $relation->setRightItems($item_id, $participants);
     }
 
     public static function relations($existing) {

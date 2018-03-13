@@ -50,6 +50,7 @@ class GroupPhase extends BasePhase implements IPhaseType {
                 $field['group_size'] = $phase->getGroupSize();
                 $field['sa_tpl'] = FORGE_TOURNAMENTS_DIR . 'templates/slotassignment-groups';
                 $field['prepare_template'] = ['\\Forge\\Modules\\ForgeTournaments\\Fields\\SlotAssignment', 'prepareGroup'];
+                $field['order'] = 40;
             }
         }
         return $fields;
