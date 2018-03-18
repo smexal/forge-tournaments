@@ -21,7 +21,7 @@ class PhaseCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments-phase';
     protected static $PARENT_COLLECTION = TournamentCollection::COLLECTION_NAME;
     
-    public $permission = "manage.collection.sites";
+    public $permission = "manage.collection.forge-tournaments-phase";
 
 
     protected function setup() {
@@ -30,6 +30,8 @@ class PhaseCollection extends NodaDataCollection {
         $this->preferences['all-title'] = i('Manage phase', 'forge-tournaments');
         $this->preferences['add-label'] = i('Add phase', 'forge-tournaments');
         $this->preferences['single-item'] = i('Phase', 'forge-tournaments');
+
+        Auth::registerPermissions('api.collection.forge-tournaments-phase.read');
 
         $this->custom_fields();
         parent::setup();
@@ -231,7 +233,6 @@ class PhaseCollection extends NodaDataCollection {
                 'multilang' => false,
 
                 'type' => 'collection',
-                /*'maxtags'=> 64, SET BY ft_num_winners*/
                 'collection' => ParticipantCollection::COLLECTION_NAME,
                 'data_source_save' => 'relation',
                 'data_source_load' => 'relation',

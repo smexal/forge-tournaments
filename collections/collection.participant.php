@@ -8,17 +8,18 @@ use Forge\Core\Classes\Relations\Enums\Prepares;
 use Forge\Core\Classes\User;
 use Forge\Modules\TournamentsTeams\OrganizationsCollection;
 use Forge\Modules\TournamentsTeams\TeamsCollection;
-use \Forge\Core\Abstracts\DataCollection;
-use \Forge\Core\App\App;
-use \Forge\Core\Classes\FieldUtils as FieldUtils;
-use \Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
-use \Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
-use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\TeamParticipant;
-use \Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\UserParticipant;
+use Forge\Core\Abstracts\DataCollection;
+use Forge\Core\App\App;
+use Forge\Core\App\Auth;
+use Forge\Core\Classes\FieldUtils as FieldUtils;
+use Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
+use Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
+use Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\TeamParticipant;
+use Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\UserParticipant;
 
 class ParticipantCollection extends DataCollection {
     const COLLECTION_NAME = 'forge-tournaments-participant';
-    public $permission = "manage.collection.sites";
+    public $permission = "manage.collection.forge-tournaments-participant";
 
 
     protected function setup() {
@@ -27,6 +28,8 @@ class ParticipantCollection extends DataCollection {
         $this->preferences['all-title'] = i('Manage participant', 'forge-tournaments');
         $this->preferences['add-label'] = i('Add participant', 'forge-tournaments');
         $this->preferences['single-item'] = i('Participant', 'forge-tournaments');
+
+        Auth::registerPermissions('api.collection.forge-tournaments-participant.read');
 
         $this->custom_fields();
 

@@ -49,13 +49,13 @@ class PhaseRenderer {
         $headerImage = new Media($this->tournament->getMeta('image_background'));
 
         $encounters = [];
-
-        $children = $this->phase->getChildren();
-        var_dump($children);
-        foreach($children as $key => $child) {
-            $children[$key] = PoolRegistry::instance()->getPool('encounter')->getInstance($child->getID(), $child);
+        foreach($this->phase->getGroups() as $group) {
+            $encounters = array_merge($encounters, $group->getEncounters());
         }
-        return $children;
+
+        $entries = $this->getScheduleEntries($encounters);
+        $entries = $this->shardByRounds($entries);
+        $entries = $this->correctAssignment($entries);
 
         return App::instance()->render(
             MOD_ROOT.'forge-tournaments/templates/parts', 'ko-phase',
@@ -74,10 +74,121 @@ class PhaseRenderer {
                 'points' => i('Points', 'forge-tournaments'),
                 'vs' => i('vs', 'forge-tournaments'),
                 'schedule_title' => i('Schedule & Results', 'forge-tournaments'),
-                'schedule_entries' => $this->getScheduleEntries($encounters),
+                'schedule_entries' => $entries,
                 'set_result_label' => i('Set Result', 'forge-tournaments'),
             ]
         );
+    }
+
+    /**
+     * this is where the bracket magic happens... :o
+     * @param  [type] $schedule_entries [description]
+     * @return [type]                   [description]
+     */
+    private function shardByRounds($schedule_entries) {
+        $round_encounters = [];
+        $participants = $this->phase->getSlotAssignment();
+        $num_participants = $participants->count();
+
+        $partForRounds = $num_participants;
+        while($partForRounds % 4 != 0) {
+            $partForRounds++;
+        }
+        $rounds = ceil($partForRounds / 2);
+        $amountOfEncounters = $rounds;
+        $index_range = range(1, $rounds);
+
+        // first round is to make sure the amount of encounters works with / 4
+        $amountOfEncountersBeforeRealStart = 0;
+        
+        while(($num_participants-$amountOfEncountersBeforeRealStart) % 4 != 0) {
+            $amountOfEncountersBeforeRealStart++;
+        }
+        $amountOfEncounters = $amountOfEncounters - $amountOfEncountersBeforeRealStart;
+
+        /**
+         * We need a Preround, that the amount of participant % 4 results in 0.
+         * Otherwise the bracket is not working.
+         */
+        $round_no = 1;
+        $encounter_index = 0;
+        if($amountOfEncountersBeforeRealStart > 0) {
+            $preRound = range(1, $amountOfEncountersBeforeRealStart);
+            foreach($preRound as $preRound_index) {
+                // take the first encounter for this.
+                $round_encounters['pre']['winner_bracket'][] = $schedule_entries[$preRound_index-1];
+                $encounter_index++;
+            }
+
+            // add same amount again for loser bracket.
+            foreach($preRound as $preRound_index) {
+                // start with the last encounters for this; they should be empty;
+                $round_encounters['pre']['loser_bracket'][] = $schedule_entries[count($schedule_entries)-$preRound_index];
+            }
+
+            $round_no++;
+            $index_range = range(1, $rounds-1);
+        }
+
+        /**
+         * Since the preround is now done, we can create the rest of the rounds
+         */
+        $first = true;
+        foreach($index_range as $index) {
+
+            // winner bracket
+            for($index_in_round = 0; $index_in_round < $amountOfEncounters; $index_in_round++) {
+                $round_encounters[$index-1]['winner_bracket'][] = $schedule_entries[$encounter_index];
+                $encounter_index++;
+            }
+            
+            
+            // loser bracket
+            $loserAmount = $amountOfEncounters;
+            if($first) {
+                $first = false;
+                $loserAmount = $amountOfEncounters/2;
+            }
+            // loser bracket has one round less than winner bracket
+            if($index != $index_range[count($index_range)-1]) {
+                for($index_in_round = 0; $index_in_round < $loserAmount; $index_in_round++) {
+                    $round_encounters[$index-1]['loser_bracket'][] = $schedule_entries[$encounter_index];
+                    $encounter_index++;
+                }
+            }
+
+            // add encounters according to half of the num of participants to the first round
+            // + again half of that for double elimination;
+            $amountOfEncounters = ceil($amountOfEncounters / 2);
+            $round_no++;
+        }
+        return $round_encounters;
+    }
+
+    private function correctAssignment($entries) {
+        // make spot for the pre round
+        $amountOfPre = count($entries['pre']['winner_bracket']);
+        // the amount of pre has to be free slots
+        //var_dump($entries);
+        var_dump('----');
+        $toCheckSet = [];
+        for ($index=$amountOfPre; $index >= 1; $index--) { 
+            $toChange = $entries[0]['winner_bracket'][count($entries[0]['winner_bracket'])-$index];
+            $encounter = new CollectionItem($toChange['encounter_id']);
+            $encounter = PoolRegistry::instance()->getPool('encounter')->getInstance($encounter->getID(), $encounter);
+            // check if has slot 2 set;
+            // if yes, remove
+            // save for next encounter to add as potential first.
+            $slots = $encounter->getSlotAssignment();
+            $slots = $slots->getSlots();
+            var_dump($slots);
+            if(is_object($slots['slots'][1])) {
+                var_dump($slots['slots'][1]);
+            }
+            //var_dump($encounter);
+        }
+
+        return $entries;
     }
 
     private function renderGroupPhase() {
@@ -132,8 +243,13 @@ class PhaseRenderer {
         foreach($encounters as $encounter) {
             $slots = $encounter->getSlotAssignment();
             $slots = $slots->getSlots();
-            $isOwnMatch = $this->isOwnMatch($slots[0], $slots[1]);
-            $a_or_b = $this->getAB($slots[0], $slots[1]);
+            if(count($slots) == 0) {
+                $isOwnMatch = false;
+                $a_or_b = false;
+            } else {
+                $isOwnMatch = $this->isOwnMatch($slots[0], $slots[1]);
+                $a_or_b = $this->getAB($slots[0], $slots[1]);
+            }
             $setResultLink = false;
             $setResultHref = '';
             if($isOwnMatch && $this->phase->getState() == PhaseState::RUNNING
@@ -164,10 +280,11 @@ class PhaseRenderer {
 
             $schedule_entries[] = [
                 'index' => $index,
-                'participant_left_title' => $slots[0]->getName(),
-                'participant_left_image' => $this->getAvatarImage($slots[0]),
-                'participant_right_title' => $slots[1]->getName(),
-                'participant_right_image' => $this->getAvatarImage($slots[1]),
+                'encounter_id' => $encounter->getID(),
+                'participant_left_title' => ! is_null($slots[0]) ? $slots[0]->getName() : 'tbd',
+                'participant_left_image' => ! is_null($slots[0]) ? $this->getAvatarImage($slots[0]) : '',
+                'participant_right_title' => ! is_null($slots[1]) ? $slots[1]->getName() : 'tbd',
+                'participant_right_image' => ! is_null($slots[1]) ? $this->getAvatarImage($slots[1]) : '',
                 'is_own' => $isOwnMatch,
                 'is_admin' => $this->isAdmin(),
                 'set_result_link' => $setResultLink,

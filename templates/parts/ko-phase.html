@@ -16,45 +16,39 @@
         <div class="row schedule">
             <div class="col-md-12"><h2>{$schedule_title}</h2></div>
         </div>
-        <div class="row">
+        <div class="row bracket">
             {loop="$schedule_entries"}
-            <div class="col-md-6">
-                <div class="encounter-entry{if="$value.is_own && ! $value.is_admin"} is-own{/if}">
-                    <div class="left">
-                        {if="$value.participant_left_image"}
-                        <img src="{$value.participant_left_image}"  width="24" />
-                        {/if}
-                        <p>{$value.participant_left_title}</p>
+                <div class="round round-{$key}">
+                    <div class="winner">
+                        {loop="$value.winner_bracket"}
+                        <div class="encounter encounter-{$value.index}">
+                            <div class="team_1">
+                                <span class="name">{$value.participant_left_title}</span>
+                                <span class="score">{$value.result_a}</span>
+                            </div>
+                            <div class="team_2">
+                                <span class="name">{$value.participant_right_title}</span>
+                                <span class="score">{$value.result_b}</span>
+                            </div>
+                        </div>
+                        {/loop}
                     </div>
-                    {if="$value.has_result"}
-                    <div class="res-left">
-                        <p class="highlight">{$value.result_a}</p>
+
+                    <div class="lower">
+                        {loop="$value.loser_bracket"}
+                        <div class="encounter encounter-{$value.index}">
+                            <div class="team_1">
+                                <span class="name">{$value.participant_left_title}</span>
+                                <span class="score">{$value.result_a}</span>
+                            </div>
+                            <div class="team_2">
+                                <span class="name">{$value.participant_right_title}</span>
+                                <span class="score">{$value.result_b}</span>
+                            </div>
+                        </div>
+                        {/loop}
                     </div>
-                    {/if}
-                    <small>{$vs}</small>
-                    {if="$value.has_result"}
-                    <div class="res-right">
-                        <p class="highlight">{$value.result_b}</p>
-                    </div>
-                    {/if}
-                    <div class="right">
-                        <p>{$value.participant_right_title}</p>
-                        {if="$value.participant_right_image"}
-                        <img src="{$value.participant_right_image}"  width="24" />
-                        {/if}
-                    </div>
-                    {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}
-                        <a href="{$value.set_result_href}" 
-                            class="btn to-overlay" 
-                            refresh-on-close="{$value.set_result_refresh_href}" 
-                            refresh-target="{$value.set_result_refresh_target}">{$set_result_label}</a>
-                    {/if}
                 </div>
-            </div>
-            {if="$value.index % 2 == 0"}
-            </div>
-            <div class="row">
-            {/if}
             {/loop}
         </div>
     </div>

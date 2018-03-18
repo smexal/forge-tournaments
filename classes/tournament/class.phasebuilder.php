@@ -82,10 +82,6 @@ class PhaseBuilder {
         $this->buildPhase($phase);
         switch ($phase->getPhaseType()) {
 
-            case PhaseTypes::REGISTRATION:
-                $this->buildRegistrationPhase($phase);
-            break;
-
             case PhaseTypes::GROUP:
                 $this->buildGroupPhase($phase);
             break;
@@ -103,10 +99,6 @@ class PhaseBuilder {
    public function buildPhase($phase) {
         $scoring = $phase->getScoringSchemas();
         $phase->getItem()->setMeta('ft_data_schema', $scoring['phase']);
-    }
-    
-   public function buildRegistrationPhase($phase) {
-
     }
     
    public function buildGroupPhase($phase) {
@@ -184,23 +176,23 @@ class PhaseBuilder {
         $scoring = $phase->getScoringConfig();
         $schema = $phase->getScoringSchemas();
         $participants = $phase->getSlotAssignment();
-
         $num_participants = $participants->count();
+        //$participants = $participants->getSlotData();
 
-        $bracket_capacity = $this->getNextPowerOf2($participants->getSlotNum());
+        $bracket_capacity = $this->getNextPowerOf2($num_participants);
         $winner_bracket_depth = $this->getDepthOfNNodes($bracket_capacity);
         $loser_bracket_depth = $winner_bracket_depth - 1;
         $lb_start_node_count = pow(2, $loser_bracket_depth - 1);
 
         // Those are the lucky ones which have one match less
-        $num_remaining = $bracket_capacity - $participants->getSlotNum();
+        $num_remaining = $bracket_capacity - $num_participants;
 
         $slot_start = 0;
-        $slot_end = $participants->getSlotNum() - 1;
+        $slot_end = $num_participants - 1;
 
-        $group = $this->buildGroups($phase->getID(), $schema['group'], 1, $participants->getSlotNum())[0];
+        $group = $this->buildGroups($phase->getID(), $schema['group'], 1, $num_participants)[0];
 
-        $slot_end = $slot_start + $num_group_participants - 1;
+        $slot_end = $slot_start + $num_participants - 1;
         // The looser bracket has twice the amount of encounters because on
         // each odd encounter section the loosers from the winner bracket enter
         // the fray
@@ -212,11 +204,30 @@ class PhaseBuilder {
 
         $encounters = $this->buildEncounters($group->getID(), $schema['encounter'], $num_encounters, 2);
         
-        $this->assignDERelations($phase->getID(), $encounters, $participants);
+        $this->simpleAssign($participants, $encounters);
+    }
 
-        $this->buildBTree($winner_encounters);
-        $this->buildBTree($loser_encounters);
+    private function simpleAssign($participants, &$encounters) {
+        $encounter_no = 0;
 
+        // first round is to make sure the amount of encounters works with / 4
+        // for this amount it has to be made sure, that only one participant is set.
+        // winners will fight against those.
+        $amountOfEncountersBeforeRealStart = 0;
+        while(($num_participants-$amountOfEncountersBeforeRealStart) % 4 != 0) {
+            $amountOfEncountersBeforeRealStart++;
+        }
+
+        foreach($encounters as $encounter) {
+            // encounter
+            // 0, 1, 2, 3, ...
+            // amount of encounters = 10
+            // amount of before => 2
+            $encounter->setNumSlots(2);
+            $encounter->addParticipant($participants->getSlot($encounter_no));
+            $encounter->addParticipant($participants->getSlot(++$encounter_no));
+            $encounter_no++;
+        }
     }
     
     public function getNextPowerOf2($number) {
@@ -331,7 +342,7 @@ class PhaseBuilder {
         return $encounters;
     }
 
-    public function buildBTree($current, $encounters, $participants, $depth, $max_depth, $is_looser_bracket=false) {
+    public function buildBTree($current, $encounters, $participants=[], $depth=0, $max_depth=0, $is_looser_bracket=false) {
         if(is_null($current)) {
             return;
         }

@@ -190,6 +190,7 @@ var forge_tournaments = (function() {
 
         fillNextEmptySlot: function(data) {
             for(var i in this.slots) {
+                console.log(i);
                 if(this.slots.hasOwnProperty(i)) {
                     if(this.slots[i].value == null) {
                         this.setSlot(i, data);

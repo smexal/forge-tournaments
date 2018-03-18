@@ -129,7 +129,7 @@ class ForgeTournaments extends Module {
 
         $dontAdd = [
             'forge-tournaments-phase',
-            'forge-tournaments-encounter',
+            /*'forge-tournaments-encounter',*/
             'forge-tournaments-group',
             'forge-tournaments-match',
             'forge-tournaments-participant'
