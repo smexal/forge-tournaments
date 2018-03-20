@@ -177,57 +177,63 @@ class PhaseBuilder {
         $schema = $phase->getScoringSchemas();
         $participants = $phase->getSlotAssignment();
         $num_participants = $participants->count();
-        //$participants = $participants->getSlotData();
 
-        $bracket_capacity = $this->getNextPowerOf2($num_participants);
-        $winner_bracket_depth = $this->getDepthOfNNodes($bracket_capacity);
-        $loser_bracket_depth = $winner_bracket_depth - 1;
-        $lb_start_node_count = pow(2, $loser_bracket_depth - 1);
-
-        // Those are the lucky ones which have one match less
-        $num_remaining = $bracket_capacity - $num_participants;
-
-        $slot_start = 0;
-        $slot_end = $num_participants - 1;
+        $bracketSize = $this->getNextPowerOf2($num_participants) / 2;
 
         $group = $this->buildGroups($phase->getID(), $schema['group'], 1, $num_participants)[0];
 
-        $slot_end = $slot_start + $num_participants - 1;
         // The looser bracket has twice the amount of encounters because on
         // each odd encounter section the loosers from the winner bracket enter
         // the fray
-        $num_encounters = 
-                $this->getNumNodesOfBtree($winner_bracket_depth) 
-                + 2 * $this->getNumNodesOfBtree($loser_bracket_depth) 
-                - $lb_start_node_count 
-                - $num_remaining;
+        // single elimination
+        $num_encounters = 0;
+        $bracketSizeForCalc = $bracketSize;
+        while($bracketSizeForCalc > 0) {
+            $num_encounters += $bracketSizeForCalc;
+            $bracketSizeForCalc = $bracketSizeForCalc / 2;
+        }
+        error_log("SINGLE >>> " . $num_encounters);
+        
+
+        // double eliminnation
+        $bracketSizeForCalc = $bracketSize;
+        $doubleSwitch = true;
+        while($bracketSizeForCalc > 0) {
+            if($doubleSwitch) {
+                $bracketSizeForCalc = $bracketSizeForCalc / 2;
+            }
+            $doubleSwitch = ! $doubleSwitch;
+            $num_encounters += $bracketSizeForCalc;
+        }
+        error_log("DOUBLE >>> " . $num_encounters);
 
         $encounters = $this->buildEncounters($group->getID(), $schema['encounter'], $num_encounters, 2);
         
-        $this->simpleAssign($participants, $encounters);
+        $this->bracketAssign($participants, $encounters, $bracketSize);
     }
 
-    private function simpleAssign($participants, &$encounters) {
+    private function bracketAssign($participants, &$encounters, $bracketSize) {
+
         $encounter_no = 0;
-
-        // first round is to make sure the amount of encounters works with / 4
-        // for this amount it has to be made sure, that only one participant is set.
-        // winners will fight against those.
-        $amountOfEncountersBeforeRealStart = 0;
-        while(($num_participants-$amountOfEncountersBeforeRealStart) % 4 != 0) {
-            $amountOfEncountersBeforeRealStart++;
-        }
-
+        $bracketCounter = 0;
+        // set the first encounter participant
         foreach($encounters as $encounter) {
-            // encounter
-            // 0, 1, 2, 3, ...
-            // amount of encounters = 10
-            // amount of before => 2
             $encounter->setNumSlots(2);
             $encounter->addParticipant($participants->getSlot($encounter_no));
-            $encounter->addParticipant($participants->getSlot(++$encounter_no));
+            $encounter_no++;
+            $bracketCounter++;
+            if($bracketCounter == $bracketSize) {
+                break;
+            }
+        }
+
+        // loop a second time to set second participants to encounter
+        foreach($encounters as $encounter) {
+            $participantToAdd = $participants->getSlot($encounter_no);
+            $encounter->addParticipant($participantToAdd);
             $encounter_no++;
         }
+
     }
     
     public function getNextPowerOf2($number) {
