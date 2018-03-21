@@ -42,6 +42,25 @@ class TournamentCollection extends NodaDataCollection {
         parent::setup();
     }
 
+    public function subviewRules($itemId) {
+        $builder = new Builder('collection', $itemId, 'rulesTournamentsBuilder');
+        return $builder->render();
+    }
+
+    public function subviewRulesActions() {
+        return;
+    }
+
+    public function getSubnavigation() {
+        $base = [
+            [
+                'url' => 'rules',
+                'title' => i('Rules', 'forge-events')
+            ]
+        ];
+        return $base;
+    }
+
     public function customEditContent($id) {
         $builder = new Builder('collection', $id, 'defaultTournamentBuilder');
         return $builder->render();
@@ -149,6 +168,19 @@ class TournamentCollection extends NodaDataCollection {
             ]
         ];
 
+        $builder = new Builder('collection', $this->item->id, 'rulesTournamentsBuilder');
+        $ruleElements = $builder->getBuilderElements(Localization::getCurrentLanguage());
+
+        if(count($ruleElements) > 0) {
+            $items = array_merge($items, [
+               [
+                    'url' => $this->item->url().'/rules',
+                    'title' => i('Rules', 'forge-tournaments'),
+                    'active' => $view == 'rules' ? 'active' : ''
+               ]
+            ]);
+        }
+
         if($this->item->getMeta('allow_signup')) {
             $items = array_merge($items, [
                [
@@ -177,6 +209,25 @@ class TournamentCollection extends NodaDataCollection {
             'items' => $items
         ]);
 
+    }
+
+    public function rules($item) {
+        $this->item = $item;
+        $return = '';
+
+        $return.= $this->renderSubnavigation('rules');
+
+        $builder = new Builder('collection', $this->item->id, 'rulesTournamentsBuilder');
+        $elements = $builder->getBuilderElements(Localization::getCurrentLanguage());
+
+        $builderContent = '';
+        foreach($elements as $element) {
+            $builderContent.=$element->content();
+        }
+
+        $return.= $builderContent;
+
+        return $return;
     }
 
     public function phase($item) {

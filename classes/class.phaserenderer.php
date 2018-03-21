@@ -106,19 +106,26 @@ class PhaseRenderer {
          */
         $first = true;
         $bracketAmount = $amountOfEncounters;
+
+        /**
+         * Winner Bracket
+         */
         foreach($index_range as $index) {
-            // winner bracket
             for($index_in_round = 0; $index_in_round < $bracketAmount; $index_in_round++) {
                 $round_encounters[$index-1]['winner_bracket'][] = $schedule_entries[$encounter_index];
                 $encounter_index++;
             }
             $bracketAmount = ceil($bracketAmount / 2);
         }
+        // double elimination winner
+        $round_encounters[count($index_range)-1]['winner_bracket'][] = $schedule_entries[$encounter_index++];
 
+        /**
+         * Loser Bracket
+         */
         $bracketAmount = $amountOfEncounters / 2;
         $index_range = range(0, $rounds+1);
         foreach($index_range as $index) {
-            // loser bracket
             for($index_in_round = 0; $index_in_round < $bracketAmount; $index_in_round++) {
                 $round_encounters[$index-1]['loser_bracket'][] = $schedule_entries[$encounter_index];
                 $encounter_index++;
