@@ -73,6 +73,7 @@ class ForgeTournaments extends Module {
         App::instance()->tm->theme->addScript(CORE_WWW_ROOT."ressources/scripts/externals/jquery.js", true, 0);
         App::instance()->tm->theme->addScript(CORE_WWW_ROOT.'ressources/scripts/externals/tooltipster.bundle.min.js', true);
         App::instance()->tm->theme->addScript(CORE_WWW_ROOT."ressources/scripts/forms.js", true);
+        App::instance()->tm->theme->addScript(WWW_ROOT."modules/forge-tournaments/assets/scripts/tournament-helpers.js", true);
 
         App::instance()->tm->theme->addStyle(MOD_ROOT.'forge-tournaments/assets/css/forge-tournaments.less');
         App::instance()->tm->theme->addStyle(MOD_ROOT.'forge-tournaments/assets/css/bracket.less');

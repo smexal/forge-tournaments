@@ -116,20 +116,6 @@ class PhaseBuilder {
 
         $slot_start = 0;
         $slot_end = 0;
-        error_log("participants: ");
-        error_log(print_r($participants->getSlotData(), 1));
-        error_log("scoring: ");
-        error_log(print_r($scoring, 1));
-        error_log("schema: ");
-        error_log(print_r($schema, 1));
-        error_log("num_participants: ");
-        error_log(print_r($num_participants, 1));
-        error_log("group_size: ");
-        error_log(print_r($group_size, 1));
-        error_log("num_groups: ");
-        error_log(print_r($num_groups, 1));
-        error_log("num_remaining: ");
-        error_log(print_r($num_remaining, 1));
         $groups = $this->buildGroups($phase->getID(), $schema['group'], $num_groups, $group_size);
 
         foreach($groups as $idx => $group) {
@@ -180,8 +166,6 @@ class PhaseBuilder {
 
         $bracketSize = $this->getNextPowerOf2($num_participants) / 2;
 
-        $group = $this->buildGroups($phase->getID(), $schema['group'], 1, $num_participants)[0];
-
         // The looser bracket has twice the amount of encounters because on
         // each odd encounter section the loosers from the winner bracket enter
         // the fray
@@ -207,13 +191,13 @@ class PhaseBuilder {
         }
         error_log("DOUBLE >>> " . $num_encounters);
 
+        $group = $this->buildGroups($phase->getID(), $schema['group'], 1, $num_encounters)[0];
         $encounters = $this->buildEncounters($group->getID(), $schema['encounter'], $num_encounters, 2);
         
         $this->bracketAssign($participants, $encounters, $bracketSize);
     }
 
     private function bracketAssign($participants, &$encounters, $bracketSize) {
-
         $encounter_no = 0;
         $bracketCounter = 0;
         // set the first encounter participant
@@ -233,7 +217,6 @@ class PhaseBuilder {
             $encounter->addParticipant($participantToAdd);
             $encounter_no++;
         }
-
     }
     
     public function getNextPowerOf2($number) {

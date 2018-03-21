@@ -12,14 +12,14 @@ abstract class Utils {
 
     public static function getPhaseStates() {
         return \triggerModifier(FORGE_TOURNAMENT_NS . '/phase_states', [
-            PhaseState::CONFIG_BASIC     => \i('Basic configuration', 'forge-tournaments'),
-            PhaseState::CONFIG_PHASETYPE => \i('Phasetype configuration', 'forge-tournaments'),
+            PhaseState::CONFIG_BASIC     => \i('Configuration', 'forge-tournaments'),
+            /*PhaseState::CONFIG_PHASETYPE => \i('Phasetype configuration', 'forge-tournaments'),
             PhaseState::REGISTRATION     => \i('Registration', 'forge-tournaments'),
-            PhaseState::ASSIGNMENT       => \i('Assignment', 'forge-tournaments'),
+            PhaseState::ASSIGNMENT       => \i('Assignment', 'forge-tournaments'),*/
             PhaseState::READY            => \i('Ready', 'forge-tournaments'),
             PhaseState::RUNNING          => \i('Running', 'forge-tournaments'),
             PhaseState::FINISHED         => \i('Finished', 'forge-tournaments'),
-            PhaseState::COMPLETED        => \i('Completed', 'forge-tournaments')
+            /*PhaseState::COMPLETED        => \i('Completed', 'forge-tournaments')*/
         ]);
     }
 
