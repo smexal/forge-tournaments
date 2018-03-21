@@ -30,6 +30,12 @@
                                 <span class="name">{$value.participant_right_title}</span>
                                 <span class="score">{$value.result_b}</span>
                             </div>
+                            {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}
+                                <a href="{$value.set_result_href}" 
+                                    class="btn to-overlay" 
+                                    refresh-on-close="{$value.set_result_refresh_href}" 
+                                    refresh-target="{$value.set_result_refresh_target}">{$set_result_label}</a>
+                            {/if}
                         </div>
                         {/loop}
                     </div>
@@ -45,6 +51,12 @@
                                 <span class="name">{$value.participant_right_title}</span>
                                 <span class="score">{$value.result_b}</span>
                             </div>
+                            {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}
+                                <a href="{$value.set_result_href}" 
+                                    class="btn to-overlay" 
+                                    refresh-on-close="{$value.set_result_refresh_href}" 
+                                    refresh-target="{$value.set_result_refresh_target}">{$set_result_label}</a>
+                            {/if}
                         </div>
                         {/loop}
                     </div>
