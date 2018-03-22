@@ -19,9 +19,9 @@
         <div class="row bracket">
             {loop="$schedule_entries"}
                 <div class="round round-{$key}">
-                    <div class="winner">
+                    <div class="winner reveal">
                         {loop="$value.winner_bracket"}
-                        <div class="encounter encounter-{$value.index}">
+                        <div class="id-{$value.encounter_id} encounter encounter-{$value.index} {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}has-result-link{/if}">
                             <div class="team_1">
                                 <span class="name">{$value.participant_left_title}</span>
                                 <span class="score">{$value.result_a}</span>
@@ -40,9 +40,9 @@
                         {/loop}
                     </div>
 
-                    <div class="lower">
+                    <div class="lower reveal">
                         {loop="$value.loser_bracket"}
-                        <div class="encounter encounter-{$value.index}">
+                        <div class="id-{$value.encounter_id} encounter encounter-{$value.index}">
                             <div class="team_1">
                                 <span class="name">{$value.participant_left_title}</span>
                                 <span class="score">{$value.result_a}</span>

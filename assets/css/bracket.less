@@ -40,21 +40,6 @@
                 &:hover:before {
                     background-color: rgba(255, 255, 255, 0.03);
                 }
-
-                .set_winner {
-                    display: block;
-                    width: 18px;
-                    height: 18px;
-                    margin: 2px 0;
-                    opacity: 0.3;
-                    transform: scale(0.8);
-                    background-image: url('../../../../../modules/forge-tournaments/assets/icons/ic_star_gold_18px.svg');
-
-                    &:hover {
-                        opacity: 1;
-                        transform: scale(1.1);
-                    }
-                }
             }
 
             &.round-2,
@@ -107,10 +92,32 @@
                 margin-right: 40px;
                 margin-bottom: @matchGap;
                 position: relative;
+                transition: 200ms;
+
                 .name {
                     text-overflow: ellipsis;
                     overflow: hidden;
                     white-space: nowrap;
+                }
+
+                &.has-result-link:hover {
+                    > * {
+                        opacity: 0.5;
+                    }
+                    > .btn {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+
+                .btn {
+                    position: absolute;
+                    top: 50%;
+                    margin-top: -19px;
+                    left: 10px;
+                    background-color: #222;
+                    opacity: 0;
+                    transform: translateY(10px);
                 }
 
                 .team_1 {

@@ -4,19 +4,20 @@ var tournamentHelper = {
     },
 
     fixBracketHeight : function() {
-        var height = false;
+        var winnerHeight = false;
+        var loserHeight = false;
         $(".bracket").find(".round").each(function() {
             $(this).find(".winner").each(function() {
-                if(! height) {
-                    height = $(this).outerHeight(true);
+                if(! winnerHeight) {
+                    winnerHeight = $(this).outerHeight(true);
                 }
-                $(this).height(height);
+                $(this).height(winnerHeight);
             });
             $(this).find(".lower").each(function() {
-                if(! height) {
-                    height = $(this).outerHeight(true);
+                if(! loserHeight) {
+                    loserHeight = $(this).outerHeight(true);
                 }
-                $(this).height(height);
+                $(this).height(loserHeight);
             });
         });
     }

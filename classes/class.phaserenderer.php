@@ -55,7 +55,7 @@ class PhaseRenderer {
 
         $entries = $this->getScheduleEntries($encounters);
         $entries = $this->shardByRounds($entries);
-        //$entries = $this->correctAssignment($entries);
+        $entries = $this->defineEncounterNext($entries);
 
         return App::instance()->render(
             MOD_ROOT.'forge-tournaments/templates/parts', 'ko-phase',
@@ -112,13 +112,13 @@ class PhaseRenderer {
          */
         foreach($index_range as $index) {
             for($index_in_round = 0; $index_in_round < $bracketAmount; $index_in_round++) {
-                $round_encounters[$index-1]['winner_bracket'][] = $schedule_entries[$encounter_index];
+                $round_encounters[$index]['winner_bracket'][] = $schedule_entries[$encounter_index];
                 $encounter_index++;
             }
             $bracketAmount = ceil($bracketAmount / 2);
         }
         // double elimination winner
-        $round_encounters[count($index_range)-1]['winner_bracket'][] = $schedule_entries[$encounter_index++];
+        //$round_encounters[count($index_range)]['winner_bracket'][] = $schedule_entries[$encounter_index++];
 
         /**
          * Loser Bracket
@@ -127,7 +127,7 @@ class PhaseRenderer {
         $index_range = range(0, $rounds+1);
         foreach($index_range as $index) {
             for($index_in_round = 0; $index_in_round < $bracketAmount; $index_in_round++) {
-                $round_encounters[$index-1]['loser_bracket'][] = $schedule_entries[$encounter_index];
+                $round_encounters[$index]['loser_bracket'][] = $schedule_entries[$encounter_index];
                 $encounter_index++;
             }
             // only every second time we divide by 2
@@ -137,6 +137,110 @@ class PhaseRenderer {
         }
 
         return $round_encounters;
+    }
+
+    /**
+     * this method defines for each encounter, where
+     * the winner has to go and where the loser goes...
+     * @param  [type] $encounters List of all encounters
+     * @return [type]             [description]
+     */
+    public function defineEncounterNext($encounters) {
+
+        $half = true;
+        for($roundIndex = 0; $roundIndex < count($encounters); $roundIndex++) {
+            $winnerBracket = false;
+            if(array_key_exists('winner_bracket', $encounters[$roundIndex])) {
+                $winnerBracket = $encounters[$roundIndex]['winner_bracket'];
+            }
+            $loserBracket = $encounters[$roundIndex]['loser_bracket'];
+
+            if($winnerBracket) {
+                for($winnerBracketIndex = 0; $winnerBracketIndex < count($winnerBracket); $winnerBracketIndex++) {
+                    $encounterItem = new CollectionItem($winnerBracket[$winnerBracketIndex]['encounter_id']);
+                    // winner goes to next round, if this exists (not final)
+                    // 0 => 0
+                    // 1 => 0
+                    // 2 => 1 /2
+                    // 3 => 1 -1 / 2
+                    // 4 => 2 ( / 2 )
+                    // 5 => 2 ( -1 / 2)
+                    $newIndex = 0;
+                    if($winnerBracketIndex >= 2) {
+                        if($winnerBracketIndex % 2 != 0) {
+                            $newIndex = ($winnerBracketIndex -1) / 2;
+                        } else {
+                            $newIndex = $winnerBracketIndex / 2;
+                        }
+                    }
+                    $newWinnerEncounter = @$encounters[$roundIndex+1]['winner_bracket'][$newIndex]['encounter_id'];
+                    if(! is_null($newWinnerEncounter)) {
+                        $encounterItem->updateMeta('winnerGoesTo', $newWinnerEncounter, 0);
+                    }
+                    
+                    // Loser Bracket Round Works like below...
+                    // 0 => 0
+                    // 1 => 1
+                    // 2 => 3 => +1
+                    // 3 => 5 => +2
+                    // 4 => 7 => +3
+                    // 5 => 9 => +4 (+(self-1))
+                    if($roundIndex == 0) {
+                        $newYIndex = $newIndex;
+                    } else {
+                        $newYIndex = $winnerBracketIndex;
+                    }
+                    $newRoundIndex = $roundIndex;
+                    if($newRoundIndex > 1) {
+                        $newRoundIndex = $newRoundIndex+($newRoundIndex-1);
+                    }
+                    $newLoserEncounter = @$encounters[$newRoundIndex]['loser_bracket'][$newYIndex]['encounter_id'];
+                    if(! is_null($newLoserEncounter)) {
+                        $encounterItem->updateMeta('loserGoesTo', $newLoserEncounter, 0);
+                    } else {
+                        $encounterItem->updateMeta('loserGoesTo', '0', 0);
+                    }
+                }
+            }
+
+            if($loserBracket) {
+                $half = ! $half;
+                for($loserBracketIndex = 0; $loserBracketIndex < count($loserBracket); $loserBracketIndex++) {
+                    $encounterItem = new CollectionItem($loserBracket[$loserBracketIndex]['encounter_id']);
+                    // ROUND => Always + 1
+                    // INDEX => every second round Calculate (%2 != 0 + 1) / 2 same as in winner bracket
+                    
+                    // only do this calculation every second round...
+                    $newIndex = 0;
+                    if(! $half ) {
+                        $newIndex = $loserBracketIndex;
+                    } else {
+                        if($loserBracketIndex >= 2) {
+                            if($loserBracketIndex % 2 != 0) {
+                                $newIndex = ($loserBracketIndex -1) / 2;
+                            } else {
+                                $newIndex = $loserBracketIndex / 2;
+                            }
+                        }
+                    }
+                    $newLoserEncounter = @$encounters[$roundIndex+1]['loser_bracket'][$newIndex]['encounter_id'];
+                    if(! is_null($newLoserEncounter)) {
+                        $encounterItem->updateMeta('winnerGoesTo', $newLoserEncounter, 0);
+
+                        // loser goes out of tournament...
+                        $encounterItem->updateMeta('loserGoesTo', 0, 0);
+                    } else {
+                        // last round goes to winner bracket last encounter... FINALLZ!1
+                        // there has always to be an encounter for a loser bracket winner.... :o
+                        $newLoserEncounter = @$encounters[$roundIndex-1]['winner_bracket'][0]['encounter_id'];
+                        $encounterItem->updateMeta('winnerGoesTo', $newLoserEncounter, 0);
+                    }
+                }
+            }
+
+        }
+
+        return $encounters;
     }
 
     public function getNextPowerOf2($number) {
@@ -443,6 +547,9 @@ class PhaseRenderer {
         }
         $participants = [$participant_1, $participant_2];
         foreach($participants as $part) {
+            if(is_null($part)) {
+                continue;
+            }
             if(is_numeric($part->getMeta('user'))) {
                 if( $part->getMeta('user') == App::instance()->user->get('id') ) {
                     return true;
