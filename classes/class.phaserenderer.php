@@ -56,6 +56,7 @@ class PhaseRenderer {
         $entries = $this->getScheduleEntries($encounters);
         $entries = $this->shardByRounds($entries);
         $entries = $this->defineEncounterNext($entries);
+        $entries = $this->updateFreeSlots($entries);
 
         return App::instance()->render(
             MOD_ROOT.'forge-tournaments/templates/parts', 'ko-phase',
@@ -78,6 +79,96 @@ class PhaseRenderer {
                 'set_result_label' => i('Set Result', 'forge-tournaments'),
             ]
         );
+    }
+
+    private function updateFreeSlots($allEncounters) {
+        $round = 0;
+        for($encounterIndex = 0; $encounterIndex < count($allEncounters[$round]['winner_bracket']); $encounterIndex++) {
+            $encounter = $allEncounters[$round]['winner_bracket'][$encounterIndex];
+            $hasOnlyOne = false;
+            if($encounter['participant_left_title'] == 'tbd' || $encounter['participant_right_title'] == 'tbd') {
+                $hasOnlyOne = true;
+            }
+            
+            if($encounter['participant_left_title'] == 'tbd' && $encounter['participant_right_title'] == 'tbd') {
+                $hasOnlyOne = false;
+            }
+
+            if($encounter['participant_left_title'] == 'tbd') {
+                $pointsLeft = '0';
+                $pointsRight = '1';
+            }
+            if($encounter['participant_right_title'] == 'tbd') {
+                $pointsLeft = '1';
+                $pointsRight = '0';
+            }
+            if($hasOnlyOne) {
+                // set winner
+                $storage = DatasetStorage::getInstance('encounter_result', $encounter['encounter_id']);
+                $storage->deleteAll();
+
+                $dataSource = 'system';
+                $segment = new DataSegment($dataSource);
+                // Data recorded by team A for team A
+                $segment->addData([
+                  'points_a' => $pointsLeft,
+                  'points_b' => $pointsRight
+                ], $dataSource);
+
+                $set = new DataSet();
+                $set->addDataSegment($segment);
+                $storage->save($set);
+
+                $this->moveWinnerAndLoser($encounter['encounter_id']);
+            }
+        }
+
+        return $allEncounters;
+    }
+
+    private function moveWinnerAndLoser($encounter) {
+        if(is_numeric($encounter)) {
+            $encounter = new CollectionItem($encounter);
+        }
+        $encounter = PoolRegistry::instance()->getPool('encounter')->getInstance($encounter->getID(), $encounter);
+        $slots = $encounter->getSlotAssignment();
+        $slots = $slots->getSlots();
+        $results = $this->getEncounterResult($encounter);
+
+        if($results) {
+            $winnerEncounter = $encounter->getMeta('winnerGoesTo');
+            $winnerEncounter = new CollectionItem($winnerEncounter);
+            $winnerEncounter = PoolRegistry::instance()->getPool('encounter')->getInstance($winnerEncounter->getID(), $winnerEncounter);
+
+            $loserEncounter = $encounter->getMeta('loserGoesTo');
+            $loserEncounter = new CollectionItem($loserEncounter);
+            $loserEncounter = PoolRegistry::instance()->getPool('encounter')->getInstance($loserEncounter->getID(), $loserEncounter);
+
+            if($results[0] > $results[1]) {
+                // A goes to Winner
+                // B goes to Loser
+                $winnerEncounter->setNumSlots(2);
+                $winnerEncounter->addParticipant($slots[0]);
+                if($slots[1]) {
+                    $loserEncounter->setNumSlots(2);
+                    $loserEncounter->addParticipant($slots[1]);
+                }
+            } else if ($results[1] > $results[0]) {
+                // B goes to Winner
+                // A goes to Loser
+                $loserEncounter->setNumSlots(2);
+                $loserEncounter->addParticipant($slots[0]);
+
+                if($slots[1]) {
+                    $winnerEncounter->setNumSlots(2);
+                    $winnerEncounter->addParticipant($slots[1]);
+                }
+            }
+        }
+
+        //$encounter->setNumSlots(2);
+        //$encounter->addParticipant($participants->getSlot($encounter_no));
+
     }
 
     /**
@@ -358,6 +449,26 @@ class PhaseRenderer {
         return $schedule_entries;
     }
 
+    public function getEncounterResult($encounter) {
+        $storage = DatasetStorage::getInstance('encounter_result', $encounter->getID());
+        $dataset = $storage->loadAll();
+        $systemSet = $dataset->getDataSegment('system');
+        if(! is_null($systemSet)) {
+            $has_result = true;
+            $result_a = $systemSet->getValue('points_a', 'system');
+            $result_b = $systemSet->getValue('points_b', 'system');
+        }
+        $adminSet = $dataset->getDataSegment('admin');
+        if(! is_null($adminSet)) {
+            $has_result = true;
+            $result_a = $adminSet->getValue('points_a', 'admin');
+            $result_b = $adminSet->getValue('points_b', 'admin');
+        }
+        if(! $has_result)
+            return;
+        return [$result_a, $result_b];
+    }
+
     public function setResultView($encounter) {
         $encounterId = $encounter;
         $encounter = PoolRegistry::instance()->getPool('encounter')->getInstance($encounter);
@@ -414,8 +525,9 @@ class PhaseRenderer {
             'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), $encounter_slots[0]->getName()),
             'key' => 'result_team_1',
         ]);
+
         $content[] = Fields::text([
-            'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), $encounter_slots[1]->getName()),
+            'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), is_null($encounter_slots[1]) ? 'tbd' : $encounter_slots[1]->getName()),
             'key' => 'result_team_2',
         ]);
         $content[] = Fields::hidden([
@@ -468,6 +580,9 @@ class PhaseRenderer {
         // check if other team has set result and is the same
         // then set the system result automatically
         if($this->isAdmin()) {
+            if($this->phase->getPhaseType() == 'ko') {
+                $this->moveWinnerAndLoser($encounter);
+            }
             return '<h2>'.i('Gratz, admin.', 'forge-tournaments').'</h2><p>'.i('You\'ve set a result. Other user and system inputs will be ignored. Yours counts. Feel mighty. When you close this input, the page will be refreshed.', 'forge-tournaments').'</p>';
         }
 
@@ -490,7 +605,16 @@ class PhaseRenderer {
                 $storage->save($set);
             }
         }
+
+        if($this->phase->getPhaseType() == 'ko') {
+            $this->moveWinnerAndLoser($encounter);
+        }
+
         return '<h2>'.i('Thank you.', 'forge-tournaments').'</h2><p>'.i('Your result has been inserted. If it matches with the other teams input, it will be set automatically. If not, feel free to contact the tournament administrator.', 'forge-tournaments').'</p>';
+    }
+
+    private function updateBracket() {
+
     }
 
     private function getAvatarImage($participant) {
