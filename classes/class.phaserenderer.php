@@ -26,6 +26,7 @@ class PhaseRenderer {
 
         $phase = new CollectionItem($phaseId);
         $this->phase = new Phase($phase);
+        $this->phaseCollection = $phase;
         $this->phaseTypeItem = Utils::getSubtype('IPhaseType', $this->phase, 'ft_phase_type');
         $this->phaseTypeItem->setPhase($this->phase);
     }
@@ -57,6 +58,7 @@ class PhaseRenderer {
         $entries = $this->shardByRounds($entries);
         $entries = $this->defineEncounterNext($entries);
         $entries = $this->updateFreeSlots($entries);
+        $entries = $this->updateBracket($entries);
 
         return App::instance()->render(
             MOD_ROOT.'forge-tournaments/templates/parts', 'ko-phase',
@@ -82,6 +84,11 @@ class PhaseRenderer {
     }
 
     private function updateFreeSlots($allEncounters) {
+
+        if($this->phaseCollection->getMeta('freeSlotsUpdated') == '1') {
+            return $allEncounters;
+        }
+
         $round = 0;
         /**
          * WINNER BRACKET UPDATE (Round 0)
@@ -126,6 +133,8 @@ class PhaseRenderer {
             }
         }
 
+        $this->phaseCollection->updateMeta('freeSlotsUpdated', '1', 0);
+
         /**
          * LOSER BRACKET UPDATE (Round 0)
          */
@@ -154,21 +163,31 @@ class PhaseRenderer {
             if($results[0] > $results[1]) {
                 // A goes to Winner
                 // B goes to Loser
-                $winnerEncounter->setNumSlots(2);
-                $winnerEncounter->addParticipant($slots[0]);
+                if(! $this->isOnEncounter($winnerEncounter, $slots[0])) {
+                    $winnerEncounter->setNumSlots(2);
+                    $winnerEncounter->addParticipant($slots[0]);
+                }
+
                 if($slots[1]) {
-                    $loserEncounter->setNumSlots(2);
-                    $loserEncounter->addParticipant($slots[1]);
+                    // check if already on encounter;
+                    if(! $this->isOnEncounter($loserEncounter, $slots[1])) {
+                        $loserEncounter->setNumSlots(2);
+                        $loserEncounter->addParticipant($slots[1]);
+                    }
                 }
             } else if ($results[1] > $results[0]) {
                 // B goes to Winner
                 // A goes to Loser
-                $loserEncounter->setNumSlots(2);
-                $loserEncounter->addParticipant($slots[0]);
+                if(! $this->isOnEncounter($loserEncounter, $slots[0])) {
+                    $loserEncounter->setNumSlots(2);
+                    $loserEncounter->addParticipant($slots[0]);
+                }
 
                 if($slots[1]) {
-                    $winnerEncounter->setNumSlots(2);
-                    $winnerEncounter->addParticipant($slots[1]);
+                    if(! $this->isOnEncounter($winnerEncounter, $slots[1])) {
+                        $winnerEncounter->setNumSlots(2);
+                        $winnerEncounter->addParticipant($slots[1]);
+                    }
                 }
             }
         }
@@ -176,6 +195,19 @@ class PhaseRenderer {
         //$encounter->setNumSlots(2);
         //$encounter->addParticipant($participants->getSlot($encounter_no));
 
+    }
+
+    private function isOnEncounter($encounter, $participant) {
+        $slots = $encounter->getSlotAssignment();
+        $slots = $slots->getSlots();
+        foreach($slots as $slot) {
+            if(is_object($slot)) {
+                if($slot->getID() == $participant->getID()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -431,6 +463,14 @@ class PhaseRenderer {
                 $result_a = $adminSet->getValue('points_a', 'admin');
                 $result_b = $adminSet->getValue('points_b', 'admin');
             }
+            $winner = 'none';
+            if($has_result) {
+                if($result_a > $result_b) {
+                $winner = 'a';
+                } elseif($result_b > $result_a) {
+                    $winner = 'b';
+                }
+            }
 
             $schedule_entries[] = [
                 'index' => $index,
@@ -439,6 +479,7 @@ class PhaseRenderer {
                 'participant_left_image' => count($slots) > 0 && ! is_null($slots[0]) ? $this->getAvatarImage($slots[0]) : '',
                 'participant_right_title' => count($slots) > 0 && ! is_null($slots[1]) ? $slots[1]->getName() : 'tbd',
                 'participant_right_image' => count($slots) > 0 && ! is_null($slots[1]) ? $this->getAvatarImage($slots[1]) : '',
+                'winner' => $winner,
                 'is_own' => $isOwnMatch,
                 'is_admin' => $this->isAdmin(),
                 'set_result_link' => $setResultLink,
@@ -447,7 +488,8 @@ class PhaseRenderer {
                 'set_result_refresh_target' => '#tournament-detail',
                 'has_result' => $has_result,
                 'result_a' => $result_a,
-                'result_b' => $result_b
+                'result_b' => $result_b,
+                'winner_to' => $encounter->getMeta('winnerGoesTo')
             ];
             $index++;
         }
@@ -458,6 +500,7 @@ class PhaseRenderer {
         $storage = DatasetStorage::getInstance('encounter_result', $encounter->getID());
         $dataset = $storage->loadAll();
         $systemSet = $dataset->getDataSegment('system');
+        $has_result = false;
         if(! is_null($systemSet)) {
             $has_result = true;
             $result_a = $systemSet->getValue('points_a', 'system');
@@ -627,8 +670,21 @@ class PhaseRenderer {
         return '<h2>'.i('Thank you.', 'forge-tournaments').'</h2><p>'.i('Your result has been inserted. If it matches with the other teams input, it will be set automatically. If not, feel free to contact the tournament administrator.', 'forge-tournaments').'</p>';
     }
 
-    private function updateBracket() {
+    private function updateBracket($encounters) {
+        for($roundIndex = 0; $roundIndex < count($encounters); $roundIndex++) {
+            $winnerBracket = false;
+            if(array_key_exists('winner_bracket', $encounters[$roundIndex])) {
+                $winnerBracket = $encounters[$roundIndex]['winner_bracket'];
+            }
+            $loserBracket = $encounters[$roundIndex]['loser_bracket'];
 
+            if($winnerBracket) {
+                for($winnerBracketIndex = 0; $winnerBracketIndex < count($winnerBracket); $winnerBracketIndex++) {
+                    $this->moveWinnerAndLoser($encounters[$roundIndex]['winner_bracket'][$winnerBracketIndex]['encounter_id']);
+                }
+            }
+        }
+        return $encounters;
     }
 
     private function getAvatarImage($participant) {

@@ -1,6 +1,7 @@
 var tournamentHelper = {
     init : function() {
         tournamentHelper.fixBracketHeight();
+        tournamentHelper.connectBracket();
     },
 
     fixBracketHeight : function() {
@@ -18,6 +19,21 @@ var tournamentHelper = {
                     loserHeight = $(this).outerHeight(true);
                 }
                 $(this).height(loserHeight);
+            });
+        });
+    },
+
+    connectBracket : function() {
+        $(".bracket").each(function() {
+            $(this).find(".encounter").each(function() {
+                if($(this).data('has-line')) {
+                    return;
+                }
+                $(this).data('has-line', true);
+                $(this).connections({ 
+                    to: '.encounter.id-' + $(this).attr('data-winner-to'),
+                    tag: 'div'
+                });
             });
         });
     }

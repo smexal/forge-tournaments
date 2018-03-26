@@ -58,6 +58,8 @@ class PhaseBuilder {
     public function clean($phase) {
         error_log("CLEANING PHASE {$phase->getID()}");
         $tree = new CollectionTree($phase->getItem());
+        $phase->getItem()->updateMeta('freeSlotsUpdated', '0', 0);
+
         $tree->build();
 
         $iterator = new BreadthFirstIterator($tree->getRoot());

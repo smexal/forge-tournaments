@@ -12,21 +12,25 @@
         </div>
     </div>
 
-    <div class="wrapper">
+    <div class="wrapper no-max">
         <div class="row schedule">
             <div class="col-md-12"><h2>{$schedule_title}</h2></div>
         </div>
         <div class="row bracket">
             {loop="$schedule_entries"}
                 <div class="round round-{$key}">
-                    <div class="winner reveal">
+                    <div class="winner reveal fade">
                         {loop="$value.winner_bracket"}
-                        <div class="id-{$value.encounter_id} encounter encounter-{$value.index} {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}has-result-link{/if}">
-                            <div class="team_1">
+                        <div
+                            class="id-{$value.encounter_id} encounter encounter-{$value.index} 
+                            {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}has-result-link{/if}"
+                            data-winner-to="{$value.winner_to}"
+                        >
+                            <div class="team_1 {if="$value.has_result"}{if="$value.winner=='a'"}is-winner{else}loser{/if}{/if}">
                                 <span class="name">{$value.participant_left_title}</span>
                                 <span class="score">{$value.result_a}</span>
                             </div>
-                            <div class="team_2">
+                            <div class="team_2 {if="$value.has_result"}{if="$value.winner=='b'"}is-winner{else}loser{/if}{/if}">
                                 <span class="name">{$value.participant_right_title}</span>
                                 <span class="score">{$value.result_b}</span>
                             </div>
@@ -40,14 +44,18 @@
                         {/loop}
                     </div>
 
-                    <div class="lower reveal">
+                    <div class="lower reveal fade">
                         {loop="$value.loser_bracket"}
-                        <div class="id-{$value.encounter_id} encounter encounter-{$value.index} {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}has-result-link{/if}">
-                            <div class="team_1">
+                        <div
+                            class="id-{$value.encounter_id} encounter encounter-{$value.index} 
+                            {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}has-result-link{/if}"
+                            data-winner-to="{$value.winner_to}"
+                        >
+                            <div class="team_1 {if="$value.has_result"}{if="$value.winner=='a'"}is-winner{else}loser{/if}{/if}">
                                 <span class="name">{$value.participant_left_title}</span>
                                 <span class="score">{$value.result_a}</span>
                             </div>
-                            <div class="team_2">
+                            <div class="team_2 {if="$value.has_result"}{if="$value.winner=='b'"}is-winner{else}loser{/if}{/if}">
                                 <span class="name">{$value.participant_right_title}</span>
                                 <span class="score">{$value.result_b}</span>
                             </div>
@@ -62,12 +70,6 @@
                     </div>
                 </div>
             {/loop}
-        </div>
-    </div>
-
-    <div class="wrapper">
-        <div class="row standings">
-            <div class="col-md-12"><h2>{$standings_title}</h2></div>
         </div>
     </div>
 </div>
