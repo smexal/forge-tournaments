@@ -83,6 +83,9 @@ class PhaseRenderer {
 
     private function updateFreeSlots($allEncounters) {
         $round = 0;
+        /**
+         * WINNER BRACKET UPDATE (Round 0)
+         */
         for($encounterIndex = 0; $encounterIndex < count($allEncounters[$round]['winner_bracket']); $encounterIndex++) {
             $encounter = $allEncounters[$round]['winner_bracket'][$encounterIndex];
             $hasOnlyOne = false;
@@ -122,6 +125,10 @@ class PhaseRenderer {
                 $this->moveWinnerAndLoser($encounter['encounter_id']);
             }
         }
+
+        /**
+         * LOSER BRACKET UPDATE (Round 0)
+         */
 
         return $allEncounters;
     }
@@ -208,8 +215,6 @@ class PhaseRenderer {
             }
             $bracketAmount = ceil($bracketAmount / 2);
         }
-        // double elimination winner
-        //$round_encounters[count($index_range)]['winner_bracket'][] = $schedule_entries[$encounter_index++];
 
         /**
          * Loser Bracket
@@ -519,6 +524,15 @@ class PhaseRenderer {
                     .$dataset->getDataSegment('admin')->getValue('points_b', 'admin').'</p>
                 ';
             }
+
+            // admin gets a link to manage encounter if is has permission
+            /*
+                not yet implemented since the encounter participants cant be changed for now...
+                if(Auth::allowed("manage.collection.forge-tournaments-encounter")) {
+                    $content[] = '<a href="'.CoreUtils::url(['manage']).'" target="_blank">'.i('Configure this encounter manually.', 'forge-tournaments').'</a>';
+                }
+             */
+            
         }
 
         $content[] = Fields::text([

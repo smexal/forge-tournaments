@@ -13,7 +13,7 @@ class EncounterCollection extends NodaDataCollection {
     const COLLECTION_NAME = 'forge-tournaments-encounter';
     protected static $PARENT_COLLECTION = GroupCollection::COLLECTION_NAME;
 
-    public $permission = "manage.collection.sites";
+    public $permission = "manage.collection.forge-tournaments-encounter";
 
 
     protected function setup() {
