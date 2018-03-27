@@ -161,7 +161,7 @@ class PhaseCollection extends NodaDataCollection {
             FieldProvider::phaseTypeSelect([
                 '__last_phase_state' =>  PhaseState::CONFIG_BASIC
             ]),
-            [
+            /*[
                 'key' => 'ft_scoring',
                 'label' => \i('Scoring type', 'forge-tournaments'),
                 'values' => Utils::getScoringOptions(),
@@ -173,7 +173,7 @@ class PhaseCollection extends NodaDataCollection {
                 'hint' => '',
                 '__first_phase_state' =>  PhaseState::CONFIG_PHASETYPE,
                 '__last_phase_state' => PhaseState::CONFIG_PHASETYPE
-            ],
+            ],*/
             [
                 'key' => 'ft_num_winners',
                 'label' => \i('How many participants are reaching the next phase?', 'forge-tournaments'),

@@ -20,6 +20,7 @@ class PhaseRenderer {
     private $tournament;
     private $phase;
     private $phaseTypeItem;
+    private $doubleElimination = false;
 
     public function __construct($tournament, $phaseId) {
         $this->tournament = $tournament;
@@ -29,6 +30,7 @@ class PhaseRenderer {
         $this->phaseCollection = $phase;
         $this->phaseTypeItem = Utils::getSubtype('IPhaseType', $this->phase, 'ft_phase_type');
         $this->phaseTypeItem->setPhase($this->phase);
+        $this->doubleElimination = $this->phase->getMeta('single_double') == 'double' ? true : false;
     }
 
     public function render() {
@@ -89,7 +91,11 @@ class PhaseRenderer {
             return $allEncounters;
         }
 
-        $round = 0;
+        if($this->doubleElimination) {
+            $round = 0;
+        } else {
+            $round = 1;
+        }
         /**
          * WINNER BRACKET UPDATE (Round 0)
          */
@@ -220,15 +226,14 @@ class PhaseRenderer {
         $participants = $this->phase->getSlotAssignment();
         $num_participants = $participants->count();
         $amountOfEncounters = $this->getNextPowerOf2($num_participants) / 2;
-        while($amountOfEncounters % 4 != 0) {
-            $amountOfEncounters++;
-        }
         $rounds = ceil($amountOfEncounters / 2);
 
-        $index_range = range(0, $rounds);
-
-        // first round is to make sure the amount of encounters works with / 4
-        $amountOfEncountersBeforeRealStart = 0;
+        if($this->doubleElimination) {
+            $index_range = range(0, $rounds);
+        } else {
+            // Single Elimination has one round less, only one final game.
+            $index_range = range(1, $rounds);
+        }
         $encounter_index = 0;
 
         /**
@@ -251,16 +256,18 @@ class PhaseRenderer {
         /**
          * Loser Bracket
          */
-        $bracketAmount = $amountOfEncounters / 2;
-        $index_range = range(0, $rounds+1);
-        foreach($index_range as $index) {
-            for($index_in_round = 0; $index_in_round < $bracketAmount; $index_in_round++) {
-                $round_encounters[$index]['loser_bracket'][] = $schedule_entries[$encounter_index];
-                $encounter_index++;
-            }
-            // only every second time we divide by 2
-            if($index % 2 != 0) {
-                $bracketAmount = ceil($bracketAmount / 2);
+        if($this->doubleElimination) {
+            $bracketAmount = $amountOfEncounters / 2;
+            $index_range = range(0, $rounds+1);
+            foreach($index_range as $index) {
+                for($index_in_round = 0; $index_in_round < $bracketAmount; $index_in_round++) {
+                    $round_encounters[$index]['loser_bracket'][] = $schedule_entries[$encounter_index];
+                    $encounter_index++;
+                }
+                // only every second time we divide by 2
+                if($index % 2 != 0) {
+                    $bracketAmount = ceil($bracketAmount / 2);
+                }
             }
         }
 
@@ -278,10 +285,13 @@ class PhaseRenderer {
         $half = true;
         for($roundIndex = 0; $roundIndex < count($encounters); $roundIndex++) {
             $winnerBracket = false;
-            if(array_key_exists('winner_bracket', $encounters[$roundIndex])) {
+            if(array_key_exists($roundIndex, $encounters) && array_key_exists('winner_bracket', $encounters[$roundIndex])) {
                 $winnerBracket = $encounters[$roundIndex]['winner_bracket'];
             }
-            $loserBracket = $encounters[$roundIndex]['loser_bracket'];
+            $loserBracket = false;
+            if($this->doubleElimination) {
+                $loserBracket = $encounters[$roundIndex]['loser_bracket'];
+            }
 
             if($winnerBracket) {
                 for($winnerBracketIndex = 0; $winnerBracketIndex < count($winnerBracket); $winnerBracketIndex++) {
@@ -673,10 +683,13 @@ class PhaseRenderer {
     private function updateBracket($encounters) {
         for($roundIndex = 0; $roundIndex < count($encounters); $roundIndex++) {
             $winnerBracket = false;
-            if(array_key_exists('winner_bracket', $encounters[$roundIndex])) {
+            if(array_key_exists($roundIndex, $encounters) && array_key_exists('winner_bracket', $encounters[$roundIndex])) {
                 $winnerBracket = $encounters[$roundIndex]['winner_bracket'];
             }
-            $loserBracket = $encounters[$roundIndex]['loser_bracket'];
+            $loserBracket = false;
+            if($this->doubleElimination) {
+                $loserBracket = $encounters[$roundIndex]['loser_bracket'];
+            }
 
             if($winnerBracket) {
                 for($winnerBracketIndex = 0; $winnerBracketIndex < count($winnerBracket); $winnerBracketIndex++) {

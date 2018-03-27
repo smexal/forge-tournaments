@@ -69,7 +69,7 @@ class NodaDataCollection extends DataCollection {
 
         $schemas = $this->getDataschemaOptions();
         if(count($schemas) > 0) {
-            $fields[] = [
+            /*$fields[] = [
                 'key' => 'ft_data_schema',
                 'label' => \i('Dataschema (field configuration)', 'forge-tournaments'),
                 'values' => $schemas,
@@ -81,7 +81,7 @@ class NodaDataCollection extends DataCollection {
                 'order' => 5,
                 'position' => 'right',
                 'hint' => i('This is automatically assigned by the phasebuilder', 'forge-tournaments')
-            ];
+            ];*/
         }
 
         return $fields;

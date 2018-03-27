@@ -180,18 +180,21 @@ class PhaseBuilder {
         }
         error_log("SINGLE >>> " . $num_encounters);
         
+        $doubleElimination = $phase->getItem()->getMeta('single_double') == 'double' ? true : false;
 
         // double eliminnation
-        $bracketSizeForCalc = $bracketSize;
-        $doubleSwitch = true;
-        while($bracketSizeForCalc > 0) {
-            if($doubleSwitch) {
-                $bracketSizeForCalc = $bracketSizeForCalc / 2;
+        if($doubleElimination) {
+            $bracketSizeForCalc = $bracketSize;
+            $doubleSwitch = true;
+            while($bracketSizeForCalc > 0) {
+                if($doubleSwitch) {
+                    $bracketSizeForCalc = $bracketSizeForCalc / 2;
+                }
+                $doubleSwitch = ! $doubleSwitch;
+                $num_encounters += $bracketSizeForCalc;
             }
-            $doubleSwitch = ! $doubleSwitch;
-            $num_encounters += $bracketSizeForCalc;
+            error_log("DOUBLE >>> " . $num_encounters);
         }
-        error_log("DOUBLE >>> " . $num_encounters);
 
         $group = $this->buildGroups($phase->getID(), $schema['group'], 1, $num_encounters)[0];
         $encounters = $this->buildEncounters($group->getID(), $schema['encounter'], $num_encounters, 2);

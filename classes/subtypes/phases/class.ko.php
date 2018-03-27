@@ -14,19 +14,22 @@ class KOPhase extends BasePhase implements IPhaseType {
     }
 
     public function fields($item=null) : array {
-        return [];
-        /*return [
+        return [
             [
-                'key' => 'custom_ko_field',
-                'label' => \i('Custom KO Field', 'forge-tournaments'),
+                'key' => 'single_double',
+                'label' => \i('Double or Sigle Elimination?', 'forge-tournaments'),
                 'value' => '',
                 'multilang' => false,
-                'type' => 'text',
-                'order' => 100,
-                'position' => 'left',
-                'hint' => i('My Field only appears when i am a KO phase', 'forge-tournaments')
+                'type' => 'select',
+                'values' => [
+                    'single' => i('Single Elimination', 'forge-tournaments'),
+                    'double' => i('Double Eliminiation', 'forge-tournaments')
+                ],
+                'order' => 3,
+                'position' => 'right',
+                'hint' => i('Choose your bracket Type', 'forge-tournaments')
             ]
-        ];*/
+        ];
     }
 
     public function modifyFields(array $fields, $item = null) : array {

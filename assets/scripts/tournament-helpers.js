@@ -30,9 +30,13 @@ var tournamentHelper = {
                     return;
                 }
                 $(this).data('has-line', true);
-                $(this).connections({ 
+                var connection = $(this).connections({ 
                     to: '.encounter.id-' + $(this).attr('data-winner-to'),
-                    tag: 'div'
+                    tag: 'div',
+                    within: '.bracket'
+                });
+                $(window).on('resize', function() {
+                    connection.connections('update');
                 });
             });
         });
