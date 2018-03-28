@@ -1,0 +1,23 @@
+<div class="listing-item-compact reveal">
+    <div class="img">
+        <img src="{$image}" />
+    </div>
+    <div class="text">
+        <a href="{$url}"><h4>{$title}</h4></a>
+    </div>
+    <div class="participants">
+        <p class="discreet">{$participants_title}</p>
+        <p>{$participants} / {$participants_max}</p>
+    </div>
+    {if="!$signup && $active_phase"}
+    <div class="active-phase">
+        <p class="discreet">{$phase_title}</p>
+        <a href="{$active_phase.url}">{$active_phase.title}</a>
+    </div>
+    {/if}
+    {if="$signup"}
+    <div class="signup-url">
+        <a href="{$signup_url}" class="btn btn-primary to-overlay">{$signup_text}</a>
+    </div>
+    {/if}
+</div>

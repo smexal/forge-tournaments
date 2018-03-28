@@ -79,7 +79,7 @@
                 {/loop}
             </div>
             <div class="col-lg-1">
-            </div>            
+            </div>
             <div class="col-lg-5">
                 {if="count($phases) > 0"}
                 <h3>{$structure_title}</h3>
@@ -87,7 +87,7 @@
                     {loop="$phases"}
                     <li class="phase">
                         <div class="left">
-                            <div class="icon {$value.icon}"></div>
+                            <div class="icon {$value.icon}" style="width: 30px;"></div>
                             <div class="text">
                                 <h3>{$value.title}</h3>
                                 <p class="discreet">{$value.description}</p>

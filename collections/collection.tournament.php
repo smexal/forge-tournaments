@@ -107,9 +107,12 @@ class TournamentCollection extends NodaDataCollection {
         $phases = $tournament->getPhases();
         $phaseOverview = [];
         $phaseStates = Utils::getPhaseStates();
+
         foreach($phases as $phase) {
-            $icon = 'ion-arrow-graph-down-right';
-            if($phase->getMeta('ft_scoring') == 'team_standard') {
+            $ftPhase = new Phase($phase);
+
+            $icon = 'ion-ios-bolt-outline';
+            if($ftPhase->getPhaseType() == 'group') {
                 $icon = 'ion-ios-people-outline';
             }
             if(is_null($phase->getMeta('ft_phase_state'))) {
