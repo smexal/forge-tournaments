@@ -15,15 +15,36 @@
             h3, h4, p, span, a {
                 margin-top: 0;
                 margin-bottom: 0;
+                white-space: nowrap;
             }
             > div {
                 margin-right: 30px;
             }
             .text {
-                width: 40%;
+                width: 100%;
+            }
+            @media only screen and (max-width: 480px) {
+                padding: 10px;
+                .active-phase p, .active-phase a {
+                    white-space: nowrap;
+                }
+                .signup-url {
+                    margin-right: 0;
+                }
+                .btn {
+                    min-width: 100px;
+                    white-space: nowrap;
+                }
+                h3, h4, p, span, a {
+                    white-space: normal;
+                }
+                .img, .participants {
+                    display: none;
+                }
             }
             .img {
                 width: 120px;
+                min-width: 120px;
                 height: 70px;
                 margin-right: 20px;
 
