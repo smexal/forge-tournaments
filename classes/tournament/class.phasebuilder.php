@@ -239,6 +239,34 @@ class PhaseBuilder {
     }
 
     public function buildPerformancePhase($phase) {
+        // we just have to build one group with all participants and one encounter per round
+        // the result of all players will be saved to one encounter
+        
+        $participants = $phase->getSlotAssignment();
+        $num_participants = $participants->count();
+
+        $group = $this->buildGroups($phase->getID(), '', 1, 0)[0];
+        $encounters = $this->buildEncounters($group->getID(), '', $phase->getItem()->getMeta('amount_of_rounds'), $num_participants);
+
+        // assign all participants to the one group we got.
+        $group->setNumSlots($num_participants);
+        for($slot_id = 0; $slot_id < $num_participants; $slot_id++) {
+            $participant = $participants->getSlot($slot_id);
+            if(is_null($participant)) {
+                continue;
+            }
+            $group->addParticipant($participant);
+        }
+
+        // assign all participants to all encounters
+        foreach($encounters as $encounter) {
+            $encounter->setNumSlots($participants->count());
+            $slod_ids = range(0, $participants->count()-1);
+            foreach($slod_ids as $slot_id) {
+                error_log($slot_id);
+                $encounter->addParticipant($participants->getSlot($slot_id));
+            }
+        }
 
     }
 

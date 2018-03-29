@@ -16,15 +16,15 @@ class PerformancePhase extends BasePhase implements IPhaseType {
     public function fields($item=null) : array {
         return [
             [
-                'key' => 'custom_PERFORMANCE_field',
-                'label' => \i('Custom PERFORMANCE Field', 'forge-tournaments'),
-                'value' => '',
+                'key' => 'amount_of_rounds',
+                'label' => \i('Amount of Rounds', 'forge-tournaments'),
+                'value' => '1',
                 'multilang' => false,
                 'type' => 'text',
-                'order' => 100,
-                'position' => 'left',
-                'hint' => i('My Field only appears when i am a PERFORMANCE phase', 'forge-tournaments')
-            ]
+                'order' => 4,
+                'position' => 'right',
+                'hint' => i('Defines the amount of rounds, which get played for this performance phase', 'forge-tournaments')
+            ],
         ];
     }
 

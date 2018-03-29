@@ -46,6 +46,117 @@ class PhaseRenderer {
             return $this->renderKoPhase();
         }
 
+        if($this->phase->getPhaseType() == 'performance') {
+            return $this->renderPerformancePhase();
+        }
+
+    }
+
+    private function renderPerformancePhase() {
+        $headerImage = new Media($this->tournament->getMeta('image_background'));
+
+        $standings = [];
+        $encounters = [];
+
+        foreach($this->phase->getGroups() as $group) {
+            $encounters = $group->getEncounters();
+            $standings[] = [
+                'values' => $this->getPerformanceStandings($group)
+            ];
+        }
+
+        return App::instance()->render(
+            MOD_ROOT.'forge-tournaments/templates/parts', 'performance-phase',
+            [
+                'title' => $this->phase->getMeta('title'),
+                'header_image' => $headerImage->getSizedImage(2100, 600),
+                'tournament_title' => $this->tournament->getMeta('title'),
+                'standings_title' => i('Standings', 'forge-tournaments'),
+                'points' => i('Points', 'forge-tournaments'),
+                'standings' => $standings,
+                'set_result_label' => i('Set Result', 'forge-tournaments'),
+                'round_title' => i('Round ', 'forge-tournaments'),
+                'rounds' => range(1, count($group->getEncounters())),
+                'is_admin' => $this->isAdmin(),
+                'is_running' => $this->phase->getState() == PhaseState::RUNNING ? true : false,
+                'set_result_links' => $this->getPerformanceSetResultLinks($group->getEncounters())
+            ]
+        );
+    }
+
+    private function getPerformanceSetResultLinks($encounters) {
+        $resultLinks = [];
+
+        if(! $this->isAdmin()) {
+            return [];
+        }
+
+        foreach($encounters as $encounter) {
+            $setResultHref = CoreUtils::getUrl(
+                    array_merge(CoreUtils::getUriComponents(), ['set-result', $encounter->getID()])
+            );
+            $resultLinks[] = [
+                'label' => i('Set results', 'forge-tournaments'),
+                'href' => $setResultHref
+            ];
+        }
+
+        return $resultLinks;
+    }
+
+    private function getPerformanceStandings($group) {
+        $position = 1;
+        $values = [];
+        $id = 0;
+        foreach($group->getStandings() as $standingEntry) {
+            if(is_null($standingEntry)) {
+                continue;
+            }
+            $image = $this->getAvatarImage($standingEntry);
+            $points = 0;
+            $results = $this->getPerformanceEncounterScores($id, $group->getEncounters());
+            foreach($results as $result) {
+                $points+=$result;
+            }
+            $values[] = [
+                'position' => $position,
+                'logo' => $image,
+                'name' => $standingEntry->getName(),
+                'points' => $points,
+                'participantID' => $standingEntry->getID(),
+                'results' => $results,
+            ];
+            $position++;
+            $id++;
+        }
+
+        usort($values, function ($item1, $item2) {
+            return $item2['points'] <=> $item1['points'];
+        });
+
+        $rank = 1;
+        foreach($values as $key => $standing_entry) {
+            $values[$key]['position'] = $rank;
+            $rank++;
+        }
+
+        return $values;
+    }
+
+    private function getPerformanceEncounterScores($participant, $encounters) {
+        $results = [];
+        foreach($encounters as $encounter) {
+            $storage = DatasetStorage::getInstance('encounter_result', $encounter->getID());
+            $dataset = $storage->loadAll();
+            $adminSet = $dataset->getDataSegment('admin');
+            if(! is_null($adminSet)) {
+                $has_result = true;
+                $results[] = $adminSet->getValue('points_'.$participant, 'admin');
+            } else {
+                $results[] = 0;
+            }
+        }
+        return $results;
     }
 
     private function renderKoPhase() {
@@ -541,12 +652,18 @@ class PhaseRenderer {
             return 'already set';
         }
 
+        if($this->phase->getPhaseType() == 'performance') {
+            if(! $this->isAdmin()) {
+                return 'Go away, script kiddy.';
+            }
+        }
+
         $heading = '<h3>'.i('Set Result for this match.', 'forge-tournaments').'</h3>';
 
         $content = [];
 
         // add results set by team for the admin.
-        if($this->isAdmin()) {
+        if($this->isAdmin() && ! $this->phase->getPhaseType() == 'performance') {
             $storage = DatasetStorage::getInstance('encounter_result', $encounterId);
             $dataset = $storage->loadAll();
             if(! is_null($dataset->getDataSegment('team_a'))) {
@@ -587,16 +704,21 @@ class PhaseRenderer {
              */
             
         }
-
-        $content[] = Fields::text([
+        if(!$this->phase->getPhaseType() == 'performance') {
+            $content[] = Fields::text([
             'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), $encounter_slots[0]->getName()),
             'key' => 'result_team_1',
-        ]);
+            ]);
 
-        $content[] = Fields::text([
-            'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), is_null($encounter_slots[1]) ? 'tbd' : $encounter_slots[1]->getName()),
-            'key' => 'result_team_2',
-        ]);
+            $content[] = Fields::text([
+                'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), is_null($encounter_slots[1]) ? 'tbd' : $encounter_slots[1]->getName()),
+                'key' => 'result_team_2',
+            ]);
+        } else {
+            $storage = DatasetStorage::getInstance('encounter_result', $encounterId);
+            $dataset = $storage->loadAll();
+            $content = array_merge($content, $this->getPerformanceEncounterFields($encounter_slots, $dataset));
+        }
         $content[] = Fields::hidden([
             'name' => 'encounter', 
             'value' => $encounterId
@@ -611,6 +733,24 @@ class PhaseRenderer {
             'horizontal' => false,
             'content' => $content
         ]).'</div>';
+    }
+
+    private function getPerformanceEncounterFields($encounter_slots, $dataset) {
+        $content = [];
+        $id = 0;
+        foreach($encounter_slots as $encounter_slot) {
+            $result = '0';
+            if(! is_null($dataset->getDataSegment('admin'))) {
+                $result = $dataset->getDataSegment('admin')->getValue('points_'.$id, 'admin');
+            }
+            $content[] = Fields::text([
+                'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), $encounter_slot->getName()),
+                'key' => 'result_team_'.$id,
+                'value' => $result
+            ]);
+            $id++;
+        }
+        return $content;
     }
 
     public function insertResult($data) {
@@ -628,6 +768,31 @@ class PhaseRenderer {
         }
         if(! $this->isAdmin() ) {
             $encounter->getItem()->updateMeta('result_set_'.$a_or_b, 'yes', false);
+        }
+
+        /**
+         * only admins can enter results on performance phase.. at least for now :o
+         */
+        if($this->phase->getPhaseType() == 'performance' && ! $this->isAdmin()) {
+            return 'away you go...';
+        }
+        if($this->phase->getPhaseType() == 'performance') {
+            // set performance results....
+            $dataSource = 'admin';
+            $storage = DatasetStorage::getInstance('encounter_result', $encounterId);
+            $segment = new DataSegment($dataSource);
+            $segmentData = [];
+            $id = 0;
+            foreach($encounter_slots as $encounter_slot) {
+                $segmentData['points_'.$id] = $data['result_team_'.$id];
+                $id++;
+            }
+            $segment->addData($segmentData, $dataSource);
+            $set = new DataSet();
+            $set->addDataSegment($segment);
+            $storage->save($set);
+
+            return '<h2>'.i('Gratz, admin.', 'forge-tournaments').'</h2><p>'.i('You\'ve set the results (points) for this round. When you close this input, the page will be refreshed.', 'forge-tournaments').'</p>';
         }
         
         $storage = DatasetStorage::getInstance('encounter_result', $encounterId);
