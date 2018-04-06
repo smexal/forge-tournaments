@@ -340,10 +340,10 @@ class PhaseRenderer {
         $rounds = ceil($amountOfEncounters / 2);
 
         if($this->doubleElimination) {
-            $index_range = range(0, $rounds);
+            $index_range = range(0, $rounds+1);
         } else {
             // Single Elimination has one round less, only one final game.
-            $index_range = range(1, $rounds);
+            $index_range = range(0, $rounds);
         }
         $encounter_index = 0;
 
@@ -377,7 +377,7 @@ class PhaseRenderer {
                 }
                 // only every second time we divide by 2
                 if($index % 2 != 0) {
-                    $bracketAmount = ceil($bracketAmount / 2);
+                    $bracketAmount = floor($bracketAmount / 2);
                 }
             }
         }
@@ -401,7 +401,7 @@ class PhaseRenderer {
             }
             $loserBracket = false;
             if($this->doubleElimination) {
-                $loserBracket = $encounters[$roundIndex]['loser_bracket'];
+                $loserBracket = @$encounters[$roundIndex]['loser_bracket'];
             }
 
             if($winnerBracket) {
@@ -436,6 +436,8 @@ class PhaseRenderer {
                     // 5 => 9 => +4 (+(self-1))
                     if($roundIndex == 0) {
                         $newYIndex = $newIndex;
+                    } else if($roundIndex == 1) {
+                        $newYIndex = count($winnerBracket)-1-$winnerBracketIndex;
                     } else {
                         $newYIndex = $winnerBracketIndex;
                     }
@@ -481,7 +483,7 @@ class PhaseRenderer {
                     } else {
                         // last round goes to winner bracket last encounter... FINALLZ!1
                         // there has always to be an encounter for a loser bracket winner.... :o
-                        $newLoserEncounter = @$encounters[$roundIndex-1]['winner_bracket'][0]['encounter_id'];
+                        $newLoserEncounter = @$encounters[count($encounters)-1]['winner_bracket'][0]['encounter_id'];
                         $encounterItem->updateMeta('winnerGoesTo', $newLoserEncounter, 0);
                     }
                 }
@@ -610,7 +612,8 @@ class PhaseRenderer {
                 'has_result' => $has_result,
                 'result_a' => $result_a,
                 'result_b' => $result_b,
-                'winner_to' => $encounter->getMeta('winnerGoesTo')
+                'winner_to' => $encounter->getMeta('winnerGoesTo'),
+                'loser_to' => $encounter->getMeta('loserGoesTo')
             ];
             $index++;
         }
@@ -663,7 +666,7 @@ class PhaseRenderer {
         $content = [];
 
         // add results set by team for the admin.
-        if($this->isAdmin() && ! $this->phase->getPhaseType() == 'performance') {
+        if($this->isAdmin() && $this->phase->getPhaseType() != 'performance') {
             $storage = DatasetStorage::getInstance('encounter_result', $encounterId);
             $dataset = $storage->loadAll();
             if(! is_null($dataset->getDataSegment('team_a'))) {
@@ -704,15 +707,15 @@ class PhaseRenderer {
              */
             
         }
-        if(!$this->phase->getPhaseType() == 'performance') {
+        if($this->phase->getPhaseType() != 'performance') {
             $content[] = Fields::text([
             'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), $encounter_slots[0]->getName()),
-            'key' => 'result_team_1',
+            'key' => 'result_team_0',
             ]);
 
             $content[] = Fields::text([
                 'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), is_null($encounter_slots[1]) ? 'tbd' : $encounter_slots[1]->getName()),
-                'key' => 'result_team_2',
+                'key' => 'result_team_1',
             ]);
         } else {
             $storage = DatasetStorage::getInstance('encounter_result', $encounterId);
@@ -743,8 +746,13 @@ class PhaseRenderer {
             if(! is_null($dataset->getDataSegment('admin'))) {
                 $result = $dataset->getDataSegment('admin')->getValue('points_'.$id, 'admin');
             }
+            if($encounter_slot) {
+                $name = $encounter_slot->getName();
+            } else {
+                $name = '';
+            }
             $content[] = Fields::text([
-                'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), $encounter_slot->getName()),
+                'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), $name),
                 'key' => 'result_team_'.$id,
                 'value' => $result
             ]);
@@ -801,8 +809,8 @@ class PhaseRenderer {
         $segment = new DataSegment($dataSource);
         // Data recorded by team A for team A
         $segment->addData([
-          'points_a' => $data['result_team_1'],
-          'points_b' => $data['result_team_2']
+          'points_a' => $data['result_team_0'],
+          'points_b' => $data['result_team_1']
         ], $dataSource);
 
         $set = new DataSet();
@@ -824,12 +832,12 @@ class PhaseRenderer {
             $valueForA = $dataset->getDataSegment('team_'.$otherTeam)->getValue('points_a', 'team_'.$otherTeam);
             $valueForB = $dataset->getDataSegment('team_'.$otherTeam)->getValue('points_b', 'team_'.$otherTeam);
 
-            if($valueForA == $data['result_team_1'] && $valueForB == $data['result_team_2']) {
+            if($valueForA == $data['result_team_0'] && $valueForB == $data['result_team_1']) {
                 // matches / save system result
                 $segment = new DataSegment('system');
                 $segment->addData([
-                  'points_a' => $data['result_team_1'],
-                  'points_b' => $data['result_team_2']
+                  'points_a' => $data['result_team_0'],
+                  'points_b' => $data['result_team_1']
                 ], 'system');
 
                 $set = new DataSet();
@@ -853,7 +861,7 @@ class PhaseRenderer {
             }
             $loserBracket = false;
             if($this->doubleElimination) {
-                $loserBracket = $encounters[$roundIndex]['loser_bracket'];
+                $loserBracket = @$encounters[$roundIndex]['loser_bracket'];
             }
 
             if($winnerBracket) {

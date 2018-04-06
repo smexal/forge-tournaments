@@ -25,6 +25,7 @@
                             class="id-{$value.encounter_id} encounter encounter-{$value.index} 
                             {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}has-result-link{/if}"
                             data-winner-to="{$value.winner_to}"
+                            data-loser-to="{$value.loser_to}"
                         >
                             <div class="team_1 {if="$value.has_result"}{if="$value.winner=='a'"}is-winner{else}loser{/if}{/if}">
                                 <span class="name">{$value.participant_left_title}</span>

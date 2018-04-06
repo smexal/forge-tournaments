@@ -155,8 +155,10 @@ class ParticipantCollection extends DataCollection {
 
         $relation = App::instance()->rd->getRelation('ftt_participant_teams');
         $results = $relation->getOfLeft($participant->id, Prepares::AS_IDS_RIGHT);
-
-        return $results[0];
+        if(array_key_exists(0, $results)) {
+            return $results[0];
+        }
+        return;
     }
 
     public static function createTeamParticipantIfNotExists($team) {

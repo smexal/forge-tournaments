@@ -5,6 +5,7 @@ namespace Forge\Modules\ForgeTournaments;
 use Forge\Core\Traits\Singleton;
 use Forge\Modules\ForgeTournaments\PhaseTypes;
 use Forge\Core\Classes\CollectionItem;
+use Forge\Core\Classes\Logger;
 
 use Forge\Modules\ForgeTournaments\Calculations\CollectionTree;
 use Forge\Modules\ForgeTournaments\Calculations\Nodes\CollectionNode;
@@ -31,6 +32,7 @@ class PhaseBuilder {
      * A phase state can be changed back to the previous state
      */
     public function onPhaseStateChange($phase, $new_state, $old_state) {
+        Logger::debug("PHASE STATE CHANGE > $old_state to -> $new_state");
         error_log("$old_state to -> $new_state");
         // Upon entering from previous state. E.G CONFIG_PHASETYPE --to--> REGISTRATION
         if($old_state < $new_state) {
@@ -81,20 +83,21 @@ class PhaseBuilder {
      ********************/
     public function build($phase) {
         error_log("BUILD PHASE {$phase->getID()}");
+        Logger::debug("BUILD PHASE");
         $this->buildPhase($phase);
         switch ($phase->getPhaseType()) {
 
             case PhaseTypes::GROUP:
                 $this->buildGroupPhase($phase);
-            break;
+                break;
 
             case PhaseTypes::KOSYSTEM:
                 $this->buildBracketPhase($phase);
-            break;
+                break;
 
             case PhaseTypes::PERFORMANCE:
                 $this->buildPerformancePhase($phase);
-            break;
+                break;
         }
     }
 
@@ -118,6 +121,7 @@ class PhaseBuilder {
 
         $slot_start = 0;
         $slot_end = 0;
+
         $groups = $this->buildGroups($phase->getID(), $schema['group'], $num_groups, $group_size);
 
         foreach($groups as $idx => $group) {
@@ -125,41 +129,31 @@ class PhaseBuilder {
             $num_group_participants = $group_size + (($num_groups - $idx) <= $num_remaining ? -1 : 0);
             $slot_end = $slot_start + $num_group_participants - 1;
             // The following is for when 2 participants have an encounter
-            if($scoring['encounter_handling'] == ScoringDefinitions::ENCOUNTER_HANDLING_VERSUS) {
-                $slot_range = range($slot_start, $slot_end);
+            $slot_range = range($slot_start, $slot_end);
 
-                // Remove 1 because a participant cannot play against himself
-                $n = $num_group_participants - 1;
-                // Gaussian sum formula
-                $num_encounters = $n * ($n + 1) / 2;
-                $encounters = $this->buildEncounters($group->getID(), $schema['encounter'], $num_encounters, 2);
-                $this->recursiveAssign($participants, $encounters, $slot_range);
-                
-                $group->setNumSlots($group_size);
-                foreach($slot_range as $slot_idx) {
-                    $participant = $participants->getSlot($slot_idx);
-                    if(is_null($participant)) {
-                        continue;
-                    }
-                    $group->addParticipant($participant);
+            // Remove 1 because a participant cannot play against himself
+            $n = $num_group_participants - 1;
+            // Gaussian sum formula
+            $num_encounters = $n * ($n + 1) / 2;
+            $encounters = $this->buildEncounters($group->getID(), $schema['encounter'], $num_encounters, 2);
+            $this->recursiveAssign($participants, $encounters, $slot_range);
+            
+            $group->setNumSlots($group_size);
+            foreach($slot_range as $slot_idx) {
+                $participant = $participants->getSlot($slot_idx);
+                if(is_null($participant)) {
+                    continue;
                 }
-
-                $slot_start = $slot_end + 1;
-            // This is if the encounter is a "performance competition"
-            } else if ($scoring['encounter'] == ScoringDefinitions::ENCOUNTER_HANDLING_SINGLE) {
-               throw new \Exception("Not yet defined!");
-               /* $slot_start = $idx * $group_size;
-                for($i = 0; $i < count($encounters); $i++) {
-                    $encounter = $encounters[$i];
-                    $encounter->setNumSlots(1);
-                    $encounter->setSlots([$slot_start + $i]);
-                }*/
+                $group->addParticipant($participant);
             }
+
+            $slot_start = $slot_end + 1;
         }
     }
 
     // Check out: https://www.printyourbrackets.com/double-elimination-tournament-brackets.html
     public function buildBracketPhase($phase) {
+        Logger::debug('yooooo bracket');
         error_log("BUILD BRACKET PHASE {$phase->getID()}");
         $scoring = $phase->getScoringConfig();
         $schema = $phase->getScoringSchemas();
