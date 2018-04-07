@@ -117,10 +117,13 @@ class GroupPhase extends BasePhase implements IPhaseType {
             }
             $image = $this->getAvatarImage($standingEntry);
             $participantData = $this->getParticipantResults($group, $standingEntry);
+
+            $participantTitle = $this->getParticipantName([$standingEntry], 0);
+
             $values[] = [
                 'position' => $position,
                 'logo' => $image,
-                'name' => $standingEntry->getName(),
+                'name' => $participantTitle,
                 'games' => $participantData['games'],
                 'wins' => $participantData['wins'],
                 'draws' => $participantData['draws'],
@@ -142,6 +145,25 @@ class GroupPhase extends BasePhase implements IPhaseType {
         }
 
         return $values;
+    }
+
+    private function getParticipantName($slots, $index) {
+        $tbd = i('tbd', 'forge-tournaments');
+        if(count($slots) ==0) {
+            return $tbd;
+        }
+        if(is_null($slots[$index])) {
+            return $tbd;
+        }
+        // if is team...
+        $team = ParticipantCollection::getTeam($slots[$index]);
+        if($team) {
+            $organisation = TeamsCollection::getOrganization($team);
+            $organisationItem = new CollectionItem($organisation);
+            return $organisationItem->getName();
+        } else {
+            return $slots[$index]->getName();
+        }
     }
 
     private function getParticipantResults($group, $participant) {

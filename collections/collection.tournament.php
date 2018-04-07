@@ -270,11 +270,21 @@ class TournamentCollection extends NodaDataCollection {
                 ];
             } else {
                 $team = ParticipantCollection::getTeam($participant);
-                $orga = new CollectionItem(TeamsCollection::getOrganization($team));
-                $img = new Media($orga->getMeta('logo'));
+                $orga = TeamsCollection::getOrganization($team);
+                $orgaItem = new CollectionItem($orga);
+                if($orga) {
+                    $name = $orgaItem->getName();
+                    $img = new Media($orgaItem->getMeta('logo'));
+                    $img = $img->getUrl() ? $img->getUrl() : false;
+                } else {
+                    $name = $participant->getName();
+                    $user = new User($participant->getMeta('user'));
+                    $img = $user->getAvatar();
+                }
+                
                 $args = [
-                    'username' => $participant->getName(),
-                    'avatar' => $img ? $img->getUrl() : false
+                    'username' => $name,
+                    'avatar' => $img
                 ];
             }
             $participants.= App::instance()->render(

@@ -79,7 +79,9 @@ class PhaseRenderer {
                 'rounds' => range(1, count($group->getEncounters())),
                 'is_admin' => $this->isAdmin(),
                 'is_running' => $this->phase->getState() == PhaseState::RUNNING ? true : false,
-                'set_result_links' => $this->getPerformanceSetResultLinks($group->getEncounters())
+                'set_result_links' => $this->getPerformanceSetResultLinks($group->getEncounters()),
+                'set_result_refresh_href' => CoreUtils::getUrl(CoreUtils::getUriComponents()),
+                'set_result_refresh_target' => '#tournament-detail'
             ]
         );
     }
@@ -118,10 +120,11 @@ class PhaseRenderer {
             foreach($results as $result) {
                 $points+=$result;
             }
+            $standingName = $this->getParticipantName([$standingEntry], 0);
             $values[] = [
                 'position' => $position,
                 'logo' => $image,
-                'name' => $standingEntry->getName(),
+                'name' => $standingName,
                 'points' => $points,
                 'participantID' => $standingEntry->getID(),
                 'results' => $results,
@@ -595,12 +598,15 @@ class PhaseRenderer {
                 }
             }
 
+            $left_participant_title = $this->getParticipantName($slots, 0);
+            $right_participant_title = $this->getParticipantName($slots, 1);
+
             $schedule_entries[] = [
                 'index' => $index,
                 'encounter_id' => $encounter->getID(),
-                'participant_left_title' => count($slots) > 0 && ! is_null($slots[0]) ? $slots[0]->getName() : 'tbd',
+                'participant_left_title' => $left_participant_title,
                 'participant_left_image' => count($slots) > 0 && ! is_null($slots[0]) ? $this->getAvatarImage($slots[0]) : '',
-                'participant_right_title' => count($slots) > 0 && ! is_null($slots[1]) ? $slots[1]->getName() : 'tbd',
+                'participant_right_title' => $right_participant_title,
                 'participant_right_image' => count($slots) > 0 && ! is_null($slots[1]) ? $this->getAvatarImage($slots[1]) : '',
                 'winner' => $winner,
                 'is_own' => $isOwnMatch,
@@ -618,6 +624,25 @@ class PhaseRenderer {
             $index++;
         }
         return $schedule_entries;
+    }
+
+    private function getParticipantName($slots, $index) {
+        $tbd = i('tbd', 'forge-tournaments');
+        if(count($slots) ==0) {
+            return $tbd;
+        }
+        if(is_null($slots[$index])) {
+            return $tbd;
+        }
+        // if is team...
+        $team = ParticipantCollection::getTeam($slots[$index]);
+        if($team) {
+            $organisation = TeamsCollection::getOrganization($team);
+            $organisationItem = new CollectionItem($organisation);
+            return $organisationItem->getName();
+        } else {
+            return $slots[$index]->getName();
+        }
     }
 
     public function getEncounterResult($encounter) {
@@ -670,32 +695,28 @@ class PhaseRenderer {
             $storage = DatasetStorage::getInstance('encounter_result', $encounterId);
             $dataset = $storage->loadAll();
             if(! is_null($dataset->getDataSegment('team_a'))) {
-                $content[] = '
-                    <p>'.sprintf(i('Result by %1$s', 'forge-tournaments'), $encounter_slots[0]->getName()).' > '
+                $content[] = '<div class="card">
+                        <p class="discreet">'.sprintf(i('Result by <strong>%1$s</strong>', 'forge-tournaments'), $encounter_slots[0]->getName()).'</p><h3>'
                     .$dataset->getDataSegment('team_a')->getValue('points_a', 'team_a').' : '
-                    .$dataset->getDataSegment('team_a')->getValue('points_b', 'team_a').'</p>
-                ';
+                    .$dataset->getDataSegment('team_a')->getValue('points_b', 'team_a').'</h3></div>';
             }
             if(! is_null($dataset->getDataSegment('team_b'))) {
-                $content[] = '
-                    <p>'.sprintf(i('Result by %1$s', 'forge-tournaments'), $encounter_slots[1]->getName()).' > '
+                $content[] = '<div class="card">
+                        <p class="discreet">'.sprintf(i('Result by <strong>%1$s</strong>', 'forge-tournaments'), $encounter_slots[1]->getName()).'</p><h3>'
                     .$dataset->getDataSegment('team_b')->getValue('points_a', 'team_b').' : '
-                    .$dataset->getDataSegment('team_b')->getValue('points_b', 'team_b').'</p>
-                ';
+                    .$dataset->getDataSegment('team_b')->getValue('points_b', 'team_b').'</h3></div>';
             }
             if(! is_null($dataset->getDataSegment('system'))) {
-                $content[] = '
-                    <p>'.sprintf(i('Result by system', 'forge-tournaments'), $encounter_slots[1]->getName()).' > '
+                $content[] = '<div class="card">
+                        <p class="discreet">'.sprintf(i('Result by <strong>System</strong>', 'forge-tournaments'), $encounter_slots[1]->getName()).'</p><h3>'
                     .$dataset->getDataSegment('system')->getValue('points_a', 'system').' : '
-                    .$dataset->getDataSegment('system')->getValue('points_b', 'system').'</p>
-                ';
+                    .$dataset->getDataSegment('system')->getValue('points_b', 'system').'</h3></div>';
             }
             if(! is_null($dataset->getDataSegment('admin'))) {
-                $content[] = '
-                    <p>'.sprintf(i('Result by Admin', 'forge-tournaments'), $encounter_slots[1]->getName()).' > '
+                $content[] = '<div class="card">
+                        <p class="discreet">'.sprintf(i('Result by <strong>Admin</strong>', 'forge-tournaments'), $encounter_slots[1]->getName()).'</p><h3>'
                     .$dataset->getDataSegment('admin')->getValue('points_a', 'admin').' : '
-                    .$dataset->getDataSegment('admin')->getValue('points_b', 'admin').'</p>
-                ';
+                    .$dataset->getDataSegment('admin')->getValue('points_b', 'admin').'</h3></div>';
             }
 
             // admin gets a link to manage encounter if is has permission
@@ -708,6 +729,23 @@ class PhaseRenderer {
             
         }
         if($this->phase->getPhaseType() != 'performance') {
+            if(! $this->isAdmin()) {
+                $storage = DatasetStorage::getInstance('encounter_result', $encounterId);
+                $dataset = $storage->loadAll();
+                if(! is_null($dataset->getDataSegment('team_a'))) {
+                    $content[] = '<div class="card">
+                        <p class="discreet">'.sprintf(i('Result by <strong>%1$s</strong>', 'forge-tournaments'), $encounter_slots[0]->getName()).'</p><h3>'
+                        .$dataset->getDataSegment('team_a')->getValue('points_a', 'team_a').' : '
+                        .$dataset->getDataSegment('team_a')->getValue('points_b', 'team_a').'</h3></div>';
+                }
+                if(! is_null($dataset->getDataSegment('team_b'))) {
+                    $content[] = '<div class="card">
+                        <p class="discreet">'.sprintf(i('Result by <strong>%1$s</strong>', 'forge-tournaments'), $encounter_slots[1]->getName()).'</p><h3>'
+                        .$dataset->getDataSegment('team_b')->getValue('points_a', 'team_b').' : '
+                        .$dataset->getDataSegment('team_b')->getValue('points_b', 'team_b').'</h3></div>';
+                }
+            }
+
             $content[] = Fields::text([
             'label' => sprintf(i('Points: %1$s', 'forge-tournaments'), $encounter_slots[0]->getName()),
             'key' => 'result_team_0',
@@ -803,6 +841,13 @@ class PhaseRenderer {
             return '<h2>'.i('Gratz, admin.', 'forge-tournaments').'</h2><p>'.i('You\'ve set the results (points) for this round. When you close this input, the page will be refreshed.', 'forge-tournaments').'</p>';
         }
         
+        // group phase or bracket
+        // ...
+        
+        if(! is_numeric($data['result_team_0']) || ! is_numeric($data['result_team_1'])) {
+            return '<h2>'.i('Error while entering new Data', 'forge-tournaments').'</h2><p>'.i('Your entered results are <strong>not numeric</strong>. Please insert the correct result again.', 'forge-tournaments').'</p>';
+        }
+
         $storage = DatasetStorage::getInstance('encounter_result', $encounterId);
 
         $dataSource = $a_or_b == 'admin' ? 'admin' : 'team_'.$a_or_b;

@@ -43,7 +43,10 @@
                             <tr>
                                 <td colspan="3"></td>
                                 {loop="$set_result_links"}
-                                    <td><a class="to-overlay" href="{$value.href}">{$value.label}</a></td>
+                                    <td><a class="to-overlay" 
+                                        refresh-on-close="{$set_result_refresh_href}" 
+                                        refresh-target="{$set_result_refresh_target}"
+                                        href="{$value.href}">{$value.label}</a></td>
                                 {/loop}
                                 <td></td>
                             </tr>
