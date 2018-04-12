@@ -9,6 +9,7 @@ use Forge\Core\Classes\User;
 use Forge\Modules\TournamentsTeams\OrganizationsCollection;
 use Forge\Modules\TournamentsTeams\TeamsCollection;
 use Forge\Core\Abstracts\DataCollection;
+use Forge\Core\Classes\Utils as CoreUtils;
 use Forge\Core\App\App;
 use Forge\Core\App\Auth;
 use Forge\Core\Classes\FieldUtils as FieldUtils;
@@ -16,8 +17,18 @@ use Forge\Core\Classes\Relations\CollectionRelation as CollectionRelation;
 use Forge\Core\Classes\Relations\Enums\Directions as RelationDirection;
 use Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\TeamParticipant;
 use Forge\Modules\ForgeTournaments\CollectionSubtypes\Participants\UserParticipant;
+use Forge\Core\Traits\ApiAdapter;
+
+/* TODO: Event Module Relation how to? */
+use Forge\Modules\ForgeEvents\Seatplan;
 
 class ParticipantCollection extends DataCollection {
+    use ApiAdapter {
+        ApiAdapter::__construct as private __swConstruct;
+    }
+
+    private $apiMainListener = 'forge-tournaments-participant';
+
     const COLLECTION_NAME = 'forge-tournaments-participant';
     public $permission = "manage.collection.forge-tournaments-participant";
 
@@ -37,6 +48,60 @@ class ParticipantCollection extends DataCollection {
 
     public function render($item) {
         return "RENDER";
+    }
+
+    public function tooltip() {
+        $participant = $_GET['p'];
+        $tournament = new CollectionItem($_GET['t']);
+        $item = new CollectionItem($participant);
+        $data = [];
+
+        if(App::instance()->mm->isActive('forge-events')) {
+            if($item->getMeta('user') && $tournament->getMeta('ticket_required')) {
+                // !! is a user
+
+                $event = $tournament->getMeta('event');
+                $sp = new SeatPlan($event);
+                $seat = $sp->getUserSeat($item->getMeta('user'));
+                $data[] = [
+                    'title' => i('Seat', 'forge-tournaments'),
+                    'value' => $seat
+                ];
+            } else {
+                // !! is a team
+                $team = ParticipantCollection::getTeam($participant);
+                $team_members = TeamsCollection::getMembers($team);
+
+                $getSeat = false;
+                if($tournament->getMeta('ticket_required')) {
+                    $getSeat = true;
+                    $event = $tournament->getMeta('event');
+                    $sp = new SeatPlan($event);
+                }
+
+                foreach($team_members as $member) {
+                    $u = new CollectionItem($member);
+                    $user = new User($u->getMeta('user'));
+                    $seat = '';
+                    if($getSeat) {
+                        $seat = $sp->getUserSeat($user->get('id'));
+                    }
+                    $data[] = [
+                        'title' => $user->get('username'),
+                        'value' => $seat
+                    ];
+                }
+            }
+        } else {
+        }
+
+
+        $content = App::instance()->render(MOD_ROOT.'forge-tournaments/templates/parts', 'participant-tooltip', [
+            'data' => $data
+        ]);
+        return json_encode([
+                'content' => $content
+        ]);
     }
 
     public static function relations($existing) {
@@ -146,6 +211,18 @@ class ParticipantCollection extends DataCollection {
         ];
 
         return CollectionItem::create($args, $meta);
+    }
+
+    public static function getName($item) {
+        if($item->getMeta('user')) {
+            $user = new User($item->getMeta('user'));
+            return $user->get('username');
+        } else {
+            $team = ParticipantCollection::getTeam($item->getID());
+            $organisation = TeamsCollection::getOrganization($team);
+            $organisationItem = new CollectionItem($organisation);
+            return $organisationItem->getMeta('title');
+        }
     }
 
     public static function getTeam($participant) {

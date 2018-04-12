@@ -601,6 +601,16 @@ class PhaseRenderer {
             $left_participant_title = $this->getParticipantName($slots, 0);
             $right_participant_title = $this->getParticipantName($slots, 1);
 
+            $tip_url_left = false;
+            if(array_key_exists(1, $slots) && ! is_null($slots[0])) {
+                $tip_url_left = CoreUtils::getUrl(['api', 'forge-tournaments-participant', 'tooltip'], true, ['p' => $slots[0]->getID(), 't' => $this->tournament->getID()]);
+            }
+
+            $tip_url_right = false;
+            if(array_key_exists(1, $slots) && ! is_null($slots[1])) {
+                $tip_url_right = CoreUtils::getUrl(['api', 'forge-tournaments-participant', 'tooltip'], true, ['p' => $slots[1]->getID(), 't' => $this->tournament->getID()]);
+            }
+
             $schedule_entries[] = [
                 'index' => $index,
                 'encounter_id' => $encounter->getID(),
@@ -608,6 +618,8 @@ class PhaseRenderer {
                 'participant_left_image' => count($slots) > 0 && ! is_null($slots[0]) ? $this->getAvatarImage($slots[0]) : '',
                 'participant_right_title' => $right_participant_title,
                 'participant_right_image' => count($slots) > 0 && ! is_null($slots[1]) ? $this->getAvatarImage($slots[1]) : '',
+                'tip_url_left' => $tip_url_left,
+                'tip_url_right' => $tip_url_right,
                 'winner' => $winner,
                 'is_own' => $isOwnMatch,
                 'is_admin' => $this->isAdmin(),
@@ -619,7 +631,7 @@ class PhaseRenderer {
                 'result_a' => $result_a,
                 'result_b' => $result_b,
                 'winner_to' => $encounter->getMeta('winnerGoesTo'),
-                'loser_to' => $encounter->getMeta('loserGoesTo')
+                'loser_to' => $encounter->getMeta('loserGoesTo'),
             ];
             $index++;
         }
@@ -639,7 +651,7 @@ class PhaseRenderer {
         if($team) {
             $organisation = TeamsCollection::getOrganization($team);
             $organisationItem = new CollectionItem($organisation);
-            return $organisationItem->getName();
+            return $organisationItem->getMeta('title');
         } else {
             return $slots[$index]->getName();
         }

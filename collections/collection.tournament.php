@@ -273,7 +273,7 @@ class TournamentCollection extends NodaDataCollection {
                 $orga = TeamsCollection::getOrganization($team);
                 $orgaItem = new CollectionItem($orga);
                 if($orga) {
-                    $name = $orgaItem->getName();
+                    $name = $orgaItem->getMeta('title');
                     $img = new Media($orgaItem->getMeta('logo'));
                     $img = $img->getUrl() ? $img->getUrl() : false;
                 } else {

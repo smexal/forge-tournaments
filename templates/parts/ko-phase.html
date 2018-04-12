@@ -27,11 +27,13 @@
                             data-winner-to="{$value.winner_to}"
                             data-loser-to="{$value.loser_to}"
                         >
-                            <div class="team_1 {if="$value.has_result"}{if="$value.winner=='a'"}is-winner{else}loser{/if}{/if}">
+                            <div class="team_1 {if="$value.has_result"}{if="$value.winner=='a'"}is-winner{else}loser{/if}{/if}
+                            {if="$value.tip_url_left"}tipster-ajax{/if}" {if="$value.tip_url_left"}tip-url="{$value.tip_url_left}"{/if}>
                                 <span class="name">{$value.participant_left_title}</span>
                                 <span class="score">{$value.result_a}</span>
                             </div>
-                            <div class="team_2 {if="$value.has_result"}{if="$value.winner=='b'"}is-winner{else}loser{/if}{/if}">
+                            <div class="team_2 {if="$value.has_result"}{if="$value.winner=='b'"}is-winner{else}loser{/if}{/if}
+                            {if="$value.tip_url_right"}tipster-ajax{/if}" {if="$value.tip_url_right"}tip-url="{$value.tip_url_right}"{/if}>
                                 <span class="name">{$value.participant_right_title}</span>
                                 <span class="score">{$value.result_b}</span>
                             </div>
@@ -52,11 +54,12 @@
                             {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}has-result-link{/if}"
                             data-winner-to="{$value.winner_to}"
                         >
-                            <div class="team_1 {if="$value.has_result"}{if="$value.winner=='a'"}is-winner{else}loser{/if}{/if}">
+                            <div class="team_1 {if="$value.has_result"}{if="$value.winner=='a'"}is-winner{else}loser{/if}{/if}{if="$value.tip_url_left"}tipster-ajax{/if}" {if="$value.tip_url_left"}tip-url="{$value.tip_url_left}"{/if}>
                                 <span class="name">{$value.participant_left_title}</span>
                                 <span class="score">{$value.result_a}</span>
                             </div>
-                            <div class="team_2 {if="$value.has_result"}{if="$value.winner=='b'"}is-winner{else}loser{/if}{/if}">
+                            <div class="team_2 {if="$value.has_result"}{if="$value.winner=='b'"}is-winner{else}loser{/if}{/if}
+                            {if="$value.tip_url_right"}tipster-ajax{/if}" {if="$value.tip_url_right"}tip-url="{$value.tip_url_right}"{/if}>
                                 <span class="name">{$value.participant_right_title}</span>
                                 <span class="score">{$value.result_b}</span>
                             </div>
