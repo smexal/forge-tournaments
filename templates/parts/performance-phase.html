@@ -31,7 +31,7 @@
                     <tr class="reveal">
                         <td style="width: 30px">{$value.position}</td>
                         <td style="width: 60px">{if="$value.logo"}<img src="{$value.logo}" width="24" />{/if}</td>
-                        <td>{$value.name}</td>
+                        <td class="{if="$value.tip_url"}tipster-ajax{/if}" {if="$value.tip_url"}tip-url="{$value.tip_url}"{/if}>{$value.name}</td>
                         {loop="$value.results"}
                         <td>{$value}</td>
                         {/loop}

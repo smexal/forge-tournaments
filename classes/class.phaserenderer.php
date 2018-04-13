@@ -121,10 +121,14 @@ class PhaseRenderer {
                 $points+=$result;
             }
             $standingName = $this->getParticipantName([$standingEntry], 0);
+
+            $tip_url = CoreUtils::getUrl(['api', 'forge-tournaments-participant', 'tooltip'], true, ['p' => $standingEntry->getID(), 't' => $this->tournament->getID()]);
+
             $values[] = [
                 'position' => $position,
                 'logo' => $image,
                 'name' => $standingName,
+                'tip_url' => $tip_url,
                 'points' => $points,
                 'participantID' => $standingEntry->getID(),
                 'results' => $results,
@@ -649,9 +653,10 @@ class PhaseRenderer {
         // if is team...
         $team = ParticipantCollection::getTeam($slots[$index]);
         if($team) {
+            $teamItem = new CollectionItem($team);
             $organisation = TeamsCollection::getOrganization($team);
             $organisationItem = new CollectionItem($organisation);
-            return $organisationItem->getMeta('title');
+            return TeamsCollection::getFormedName($organisationItem, $teamItem);
         } else {
             return $slots[$index]->getName();
         }
@@ -797,7 +802,7 @@ class PhaseRenderer {
                 $result = $dataset->getDataSegment('admin')->getValue('points_'.$id, 'admin');
             }
             if($encounter_slot) {
-                $name = $encounter_slot->getName();
+                $name = $this->getParticipantName([$encounter_slot], 0);
             } else {
                 $name = '';
             }
