@@ -14,6 +14,7 @@ use Forge\Modules\ForgeTournaments\Data\DataSet;
 use Forge\Modules\ForgeTournaments\Data\DatasetStorage;
 use Forge\Modules\ForgeTournaments\ParticipantCollection;
 use Forge\Modules\TournamentsTeams\TeamsCollection;
+use Forge\Core\Classes\User;
 
 class GroupPhase extends BasePhase implements IPhaseType {
 
@@ -118,6 +119,7 @@ class GroupPhase extends BasePhase implements IPhaseType {
             $image = $this->getAvatarImage($standingEntry);
             $participantData = $this->getParticipantResults($group, $standingEntry);
 
+            // here
             $participantTitle = $this->getParticipantName([$standingEntry], 0);
 
             $values[] = [
@@ -158,10 +160,16 @@ class GroupPhase extends BasePhase implements IPhaseType {
         // if is team...
         $team = ParticipantCollection::getTeam($slots[$index]);
         if($team) {
+            $teamItem = new CollectionItem($team);
             $organisation = TeamsCollection::getOrganization($team);
             $organisationItem = new CollectionItem($organisation);
-            return $organisationItem->getName();
+            return TeamsCollection::getFormedName($organisationItem, $teamItem);
         } else {
+            $user = $slots[$index]->getMeta('user');
+            if($user) {
+                $u = new User($user);
+                return $u->get('username');
+            }
             return $slots[$index]->getName();
         }
     }

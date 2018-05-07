@@ -16,58 +16,66 @@
         <div class="row schedule">
             <div class="col-md-12"><h2>{$schedule_title}</h2></div>
         </div>
-        <div class="row">
-            {loop="$schedule_entries"}
-            <div class="col-md-6">
-                <div class="encounter-entry{if="$value.is_own && ! $value.is_admin"} is-own{/if}">
-                    <div class="left {if="$value.tip_url_left"}tipster-ajax{/if}" {if="$value.tip_url_left"}tip-url="{$value.tip_url_left}"{/if}>
-                        {if="$value.participant_left_image"}
-                        <img src="{$value.participant_left_image}"  width="24" />
-                        {/if}
-                        <p>{$value.participant_left_title}</p>
-                    </div>
-                    {if="$value.has_result"}
-                    <div class="res-left">
-                        <p class="highlight">{$value.result_a}</p>
-                    </div>
-                    {/if}
-                    <small>{$vs}</small>
-                    {if="$value.has_result"}
-                    <div class="res-right">
-                        <p class="highlight">{$value.result_b}</p>
-                    </div>
-                    {/if}
-                    <div class="right {if="$value.tip_url_right"}tipster-ajax{/if}" {if="$value.tip_url_right"}tip-url="{$value.tip_url_right}"{/if}>
-                        <p>{$value.participant_right_title}</p>
-                        {if="$value.participant_right_image"}
-                        <img src="{$value.participant_right_image}"  width="24" />
-                        {/if}
-                    </div>
-                    {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}
-                        <a href="{$value.set_result_href}" 
-                            class="btn to-overlay" 
-                            refresh-on-close="{$value.set_result_refresh_href}" 
-                            refresh-target="{$value.set_result_refresh_target}">{$set_result_label}</a>
-                    {/if}
+        {loop="$schedule_entries"}
+        <div class="group-round r-{$key}">
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="line-after reveal">{function="sprintf($roundNoTitle, $key)"}</h3>
                 </div>
             </div>
-            {if="$value.index % 2 == 0"}
-            </div>
             <div class="row">
+            {loop="$value"}
+                <div class="col-md-6 reveal">
+                    <div class="encounter-entry{if="$value.is_own && ! $value.is_admin"} is-own{/if}">
+                        <div class="left {if="$value.tip_url_left"}tipster-ajax{/if}" {if="$value.tip_url_left"}tip-url="{$value.tip_url_left}"{/if}>
+                            {if="$value.participant_left_image"}
+                            <img src="{$value.participant_left_image}"  width="24" />
+                            {/if}
+                            <p>{$value.participant_left_title}</p>
+                        </div>
+                        {if="$value.has_result"}
+                        <div class="res-left">
+                            <p class="highlight">{$value.result_a}</p>
+                        </div>
+                        {/if}
+                        <small>{$vs}</small>
+                        {if="$value.has_result"}
+                        <div class="res-right">
+                            <p class="highlight">{$value.result_b}</p>
+                        </div>
+                        {/if}
+                        <div class="right {if="$value.tip_url_right"}tipster-ajax{/if}" {if="$value.tip_url_right"}tip-url="{$value.tip_url_right}"{/if}>
+                            <p>{$value.participant_right_title}</p>
+                            {if="$value.participant_right_image"}
+                            <img src="{$value.participant_right_image}"  width="24" />
+                            {/if}
+                        </div>
+                        {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}
+                            <a href="{$value.set_result_href}" 
+                                class="btn to-overlay" 
+                                refresh-on-close="{$value.set_result_refresh_href}" 
+                                refresh-target="{$value.set_result_refresh_target}">{$set_result_label}</a>
+                        {/if}
+                    </div>
+                </div>
+            {if="$key % 2 != 0"}
+            </div><div class="row">
             {/if}
             {/loop}
+            </div>
         </div>
+        {/loop}
     </div>
 
     <div class="wrapper">
-        <div class="row standings">
+        <div class="row standings reveal">
             <div class="col-md-12"><h2>{$standings_title}</h2></div>
         </div>
         <div class="row standing-table">
         {loop="$standings"}
             <div class="col-md-6">
-                <table class="default">
-                    <tr>
+                <table class="default ">
+                    <tr class="reveal">
                         <th colspan="3"><h3>{$value.title}</h3></th>
                         <th>{$games}</th>
                         <th><span class="tipster" title="{$wins_tooltip}">{$wins}</span></th>
@@ -76,7 +84,7 @@
                         <th style="text-align:right;">{$points}</th>
                     </tr>
                     {loop="$value.values"}
-                    <tr>
+                    <tr class="reveal">
                         <td style="max-width: 50px">{$value.position}</td>
                         <td>{if="$value.logo"}<img src="{$value.logo}" width="24" />{/if}</td>
                         <td>{$value.name}</td>

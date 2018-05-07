@@ -528,6 +528,7 @@ class PhaseRenderer {
         }
 
         $schedule_entries = $this->getScheduleEntries($encounters);
+        $schedule_entries = $this->shardIntoGroupRounds($schedule_entries);
 
         return App::instance()->render(
             MOD_ROOT.'forge-tournaments/templates/parts', 'group-phase',
@@ -547,10 +548,48 @@ class PhaseRenderer {
                 'vs' => i('vs', 'forge-tournaments'),
                 'standings' => $standings,
                 'schedule_title' => i('Schedule & Results', 'forge-tournaments'),
+                'roundNoTitle' => i('Round %1$s', 'forge-tournaments'),
                 'schedule_entries' => $schedule_entries,
                 'set_result_label' => i('Set Result', 'forge-tournaments'),
             ]
         );
+    }
+
+    private function shardIntoGroupRounds($entries) {
+        /**
+         * shard into rounds.. todo
+         */
+        $roundNo = 1;
+        $roundParticipants = [];
+        $rounds = [];
+        $index = 0;
+        $alreadySetArray = [];
+        while(count($entries) > count($alreadySetArray)) {
+            if(! in_array($entries[$index]['participant_left_id'], $roundParticipants) 
+            && ! in_array($entries[$index]['participant_right_id'], $roundParticipants) &&
+            ! array_key_exists($index, $alreadySetArray)) {
+                //var_dump('ADD '. $entries[$index]['participant_left_id']. ' vs '.$entries[$index]['participant_right_id']);
+                if(! array_key_exists($roundNo, $rounds)) {
+                    $rounds[$roundNo] = [];
+                }
+                // neither participant left and participant right have a match in this round.
+                // add the encounter to the round
+                $roundParticipants[] = $entries[$index]['participant_left_id'];
+                $roundParticipants[] = $entries[$index]['participant_right_id'];
+                array_push($rounds[$roundNo], $entries[$index]);
+                // remove the encounter from the encounter list
+                $alreadySetArray[$index] = $entries[$index];
+            }
+            $index++;
+            // next index does not exist... start from begin...
+            // count up round number
+            if(! array_key_exists($index, $entries)) {
+                $roundParticipants = [];
+                $roundNo++;
+                $index = 0;
+            }
+        }
+        return $rounds;
     }
 
     private function getScheduleEntries($encounters) {
@@ -619,7 +658,9 @@ class PhaseRenderer {
                 'index' => $index,
                 'encounter_id' => $encounter->getID(),
                 'participant_left_title' => $left_participant_title,
+                'participant_left_id' => ! is_null($slots[0]) ? $slots[0]->getID() : 0,
                 'participant_left_image' => count($slots) > 0 && ! is_null($slots[0]) ? $this->getAvatarImage($slots[0]) : '',
+                'participant_right_id' => ! is_null($slots[1]) ? $slots[1]->getID() : 0,
                 'participant_right_title' => $right_participant_title,
                 'participant_right_image' => count($slots) > 0 && ! is_null($slots[1]) ? $this->getAvatarImage($slots[1]) : '',
                 'tip_url_left' => $tip_url_left,
@@ -658,6 +699,11 @@ class PhaseRenderer {
             $organisationItem = new CollectionItem($organisation);
             return TeamsCollection::getFormedName($organisationItem, $teamItem);
         } else {
+            $user = $slots[$index]->getMeta('user');
+            if($user) {
+                $u = new User($user);
+                return $u->get('username');
+            }
             return $slots[$index]->getName();
         }
     }
