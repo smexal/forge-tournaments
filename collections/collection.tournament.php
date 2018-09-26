@@ -51,7 +51,7 @@ class TournamentCollection extends NodaDataCollection {
         return;
     }
 
-    public function getSubnavigation() {
+    public function getSubnavigation($item) {
         $base = [
             [
                 'url' => 'rules',
