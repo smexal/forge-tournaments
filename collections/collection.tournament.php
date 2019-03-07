@@ -33,6 +33,7 @@ class TournamentCollection extends NodaDataCollection {
         $this->preferences['all-title'] = i('Manage tournaments', 'forge-tournaments');
         $this->preferences['add-label'] = i('Add tournament', 'forge-tournaments');
         $this->preferences['single-item'] = i('Tournament', 'forge-tournaments');
+        $this->preferences['has_categories'] = true;
 
         if (is_null(App::instance()->cm)) {
             App::instance()->cm = new CollectionManager();
@@ -305,6 +306,12 @@ class TournamentCollection extends NodaDataCollection {
     }
 
     private function custom_fields() {
+        $uriComponents = CoreUtils::getUriComponents();
+        if(! in_array("forge-events", $uriComponents) && ! in_array("edit", $uriComponents)) {
+            return;
+        }
+
+
         $userList = [];
         foreach (User::getAll() as $user) {
             array_push($userList, ['value' => $user['id'],
