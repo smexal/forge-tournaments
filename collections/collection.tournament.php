@@ -35,11 +35,9 @@ class TournamentCollection extends NodaDataCollection {
         $this->preferences['single-item'] = i('Tournament', 'forge-tournaments');
         $this->preferences['has_categories'] = true;
 
-        if (is_null(App::instance()->cm)) {
+        /*if (is_null(App::instance()->cm)) {
             App::instance()->cm = new CollectionManager();
-        }
-
-        $this->custom_fields();
+        }*/
         parent::setup();
     }
 
@@ -305,7 +303,11 @@ class TournamentCollection extends NodaDataCollection {
         );
     }
 
-    private function custom_fields() {
+    /**
+        TODO Does not make sense to call in the setup method. These fields are only required in the edit view
+        So only load these fields there....
+    **/
+    public function custom_fields() {
         $uriComponents = CoreUtils::getUriComponents();
         if(! in_array("forge-events", $uriComponents) && ! in_array("edit", $uriComponents)) {
             return;
