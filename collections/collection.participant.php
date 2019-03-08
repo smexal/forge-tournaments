@@ -42,8 +42,6 @@ class ParticipantCollection extends DataCollection {
 
         Auth::registerPermissions('api.collection.forge-tournaments-participant.read');
 
-        $this->custom_fields();
-
     }
 
     public function render($item) {
@@ -121,7 +119,7 @@ class ParticipantCollection extends DataCollection {
         ]);
     }
 
-    private function custom_fields() {
+    public function custom_fields() {
         $users = [];
         $users[0] = i('Choose a user', 'ftt');
         foreach(User::getAll() as $user) {

@@ -22,8 +22,6 @@ class EncounterCollection extends NodaDataCollection {
         $this->preferences['all-title'] = i('Manage encounter', 'forge-tournaments');
         $this->preferences['add-label'] = i('Add encounter', 'forge-tournaments');
         $this->preferences['single-item'] = i('Encounter', 'forge-tournaments');
-
-        $this->custom_fields();
         parent::setup();
 
     }
@@ -35,7 +33,7 @@ class EncounterCollection extends NodaDataCollection {
     public static function registerSubTypes() {
     }
 
-    protected function custom_fields() {
+    public function custom_fields() {
         $this->addFields(parent::inheritedFields());
     }
 

@@ -25,8 +25,6 @@ class GroupCollection extends NodaDataCollection {
         $this->preferences['all-title'] = i('Manage group', 'forge-tournaments');
         $this->preferences['add-label'] = i('Add group', 'forge-tournaments');
         $this->preferences['single-item'] = i('Group', 'forge-tournaments');
-
-        $this->custom_fields();
         parent::setup();
 
     }
@@ -58,7 +56,7 @@ class GroupCollection extends NodaDataCollection {
     public static function registerSubTypes() {
     }
 
-    protected function custom_fields() {
+    public function custom_fields() {
         $this->addFields(parent::inheritedFields());
     }
 

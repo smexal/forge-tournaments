@@ -22,8 +22,6 @@ class MatchCollection extends NodaDataCollection {
         $this->preferences['all-title'] = i('Manage match', 'forge-tournaments');
         $this->preferences['add-label'] = i('Add match', 'forge-tournaments');
         $this->preferences['single-item'] = i('Match', 'forge-tournaments');
-
-        $this->custom_fields();
         parent::setup();
 
     }
@@ -35,7 +33,7 @@ class MatchCollection extends NodaDataCollection {
     public static function registerSubTypes() {
     }
 
-    protected function custom_fields() {
+    public function custom_fields() {
         $this->addFields(parent::inheritedFields());
     }
 

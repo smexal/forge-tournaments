@@ -32,8 +32,6 @@ class PhaseCollection extends NodaDataCollection {
         $this->preferences['single-item'] = i('Phase', 'forge-tournaments');
 
         Auth::registerPermissions('api.collection.forge-tournaments-phase.read');
-
-        $this->custom_fields();
         parent::setup();
 
     }
@@ -142,7 +140,7 @@ class PhaseCollection extends NodaDataCollection {
         );
     }
 
-    protected function custom_fields() {
+    public function custom_fields() {
         $fields = [
             [
                 'key' => 'ft_phase_state',
