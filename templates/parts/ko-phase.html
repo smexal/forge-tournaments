@@ -37,12 +37,23 @@
                                 <span class="name">{$value.participant_right_title}</span>
                                 <span class="score">{$value.result_b}</span>
                             </div>
+                            <div class="center-actions">
                             {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}
                                 <a href="{$value.set_result_href}" 
                                     class="btn to-overlay" 
                                     refresh-on-close="{$value.set_result_refresh_href}" 
                                     refresh-target="{$value.set_result_refresh_target}">{$set_result_label}</a>
                             {/if}
+                            {if="$value.info_text"}
+                                <i class="ion-help-circled tipster" title="{$value.info_text}"></i>
+                            {/if}
+                            {if="$value.is_admin"}
+                                <a href="{$value.set_info_href}" 
+                                    class="btn to-overlay" 
+                                    refresh-on-close="{$value.set_result_refresh_href}" 
+                                    refresh-target="{$value.set_result_refresh_target}">{$add_info_label}</a>
+                            {/if}
+                            </div>
                         </div>
                         {/loop}
                     </div>
@@ -63,12 +74,23 @@
                                 <span class="name">{$value.participant_right_title}</span>
                                 <span class="score">{$value.result_b}</span>
                             </div>
+                            <div class="center-actions">
                             {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}
                                 <a href="{$value.set_result_href}" 
                                     class="btn to-overlay" 
                                     refresh-on-close="{$value.set_result_refresh_href}" 
                                     refresh-target="{$value.set_result_refresh_target}">{$set_result_label}</a>
                             {/if}
+                           {if="$value.info_text"}
+                                <i class="ion-help-circled tipster" title="{$value.info_text}"></i>
+                            {/if}
+                            {if="$value.is_admin"}
+                                <a href="{$value.set_info_href}" 
+                                    class="btn to-overlay" 
+                                    refresh-on-close="{$value.set_result_refresh_href}" 
+                                    refresh-target="{$value.set_result_refresh_target}">{$add_info_label}</a>
+                            {/if}
+                            </div>
                         </div>
                         {/loop}
                     </div>

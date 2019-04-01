@@ -6,6 +6,7 @@ use Forge\Core\App\App;
 use Forge\Core\App\Auth;
 use Forge\Core\Classes\CollectionItem;
 use Forge\Core\Classes\Fields;
+use Forge\Core\Classes\Logger;
 use Forge\Core\Classes\Media;
 use Forge\Core\Classes\User;
 use Forge\Core\Classes\Utils as CoreUtils;
@@ -95,7 +96,7 @@ class PhaseRenderer {
 
         foreach($encounters as $encounter) {
             $setResultHref = CoreUtils::getUrl(
-                    array_merge(CoreUtils::getUriComponents(), ['set-result', $encounter->getID()])
+                array_merge(CoreUtils::getUriComponents(), ['set-result', $encounter->getID()])
             );
             $resultLinks[] = [
                 'label' => i('Set results', 'forge-tournaments'),
@@ -199,6 +200,7 @@ class PhaseRenderer {
                 'schedule_title' => i('Schedule & Results', 'forge-tournaments'),
                 'schedule_entries' => $entries,
                 'set_result_label' => i('Set Result', 'forge-tournaments'),
+                'add_info_label' => i('Set Info', 'forge-tournaments')
             ]
         );
     }
@@ -379,7 +381,7 @@ class PhaseRenderer {
             $index_range = range(0, $rounds+1);
             foreach($index_range as $index) {
                 for($index_in_round = 0; $index_in_round < $bracketAmount; $index_in_round++) {
-                    $round_encounters[$index]['loser_bracket'][] = $schedule_entries[$encounter_index];
+                    @$round_encounters[$index]['loser_bracket'][] = $schedule_entries[$encounter_index];
                     $encounter_index++;
                 }
                 // only every second time we divide by 2
@@ -551,6 +553,7 @@ class PhaseRenderer {
                 'roundNoTitle' => i('Round %1$s', 'forge-tournaments'),
                 'schedule_entries' => $schedule_entries,
                 'set_result_label' => i('Set Result', 'forge-tournaments'),
+                'add_info_label' => i('Set Info', 'forge-tournaments'),
             ]
         );
     }
@@ -618,6 +621,13 @@ class PhaseRenderer {
             $result_a = 0;
             $result_b = 0;
 
+            $setInfoHref = false;
+            if($this->isAdmin()) {
+                $setInfoHref = CoreUtils::getUrl(
+                    array_merge(CoreUtils::getUriComponents(), ['set-info', $encounter->getID()])
+                );
+            }
+
             $storage = DatasetStorage::getInstance('encounter_result', $encounter->getID());
             $dataset = $storage->loadAll();
             $systemSet = $dataset->getDataSegment('system');
@@ -658,11 +668,11 @@ class PhaseRenderer {
                 'index' => $index,
                 'encounter_id' => $encounter->getID(),
                 'participant_left_title' => $left_participant_title,
-                'participant_left_id' => ! is_null($slots[0]) ? $slots[0]->getID() : 0,
-                'participant_left_image' => count($slots) > 0 && ! is_null($slots[0]) ? $this->getAvatarImage($slots[0]) : '',
-                'participant_right_id' => ! is_null($slots[1]) ? $slots[1]->getID() : 0,
+                'participant_left_id' => ! empty($slots[0]) ? $slots[0]->getID() : 0,
+                'participant_left_image' => count($slots) > 0 && ! empty($slots[0]) ? $this->getAvatarImage($slots[0]) : '',
+                'participant_right_id' => ! empty($slots[1]) ? $slots[1]->getID() : 0,
                 'participant_right_title' => $right_participant_title,
-                'participant_right_image' => count($slots) > 0 && ! is_null($slots[1]) ? $this->getAvatarImage($slots[1]) : '',
+                'participant_right_image' => count($slots) > 0 && ! empty($slots[1]) ? $this->getAvatarImage($slots[1]) : '',
                 'tip_url_left' => $tip_url_left,
                 'tip_url_right' => $tip_url_right,
                 'winner' => $winner,
@@ -670,6 +680,8 @@ class PhaseRenderer {
                 'is_admin' => $this->isAdmin(),
                 'set_result_link' => $setResultLink,
                 'set_result_href' => $setResultHref,
+                'set_info_href' => $setInfoHref,
+                'info_text' => nl2br($encounter->getItem()->getMeta('info_text')),
                 'set_result_refresh_href' => CoreUtils::getUrl(CoreUtils::getUriComponents()),
                 'set_result_refresh_target' => '#tournament-detail',
                 'has_result' => $has_result,
@@ -839,6 +851,32 @@ class PhaseRenderer {
         ]).'</div>';
     }
 
+    public function setInfoView($encounter) {
+        $heading = i('Set an info text for this enounter', 'forge-tournaments');
+        $encounterId = $encounter;
+        $encounter = PoolRegistry::instance()->getPool('encounter')->getInstance($encounter);
+
+        $content[] = Fields::textarea([
+            'label' => i('Info Text', 'forge-tournaments'),
+            'key' => 'info_text',
+            'hint' => ''
+        ], $encounter->getItem()->getMeta('info_text'));
+        $content[] = Fields::hidden([
+            'name' => 'encounter', 
+            'value' => $encounterId
+        ]);
+        $content[] = Fields::button(i('Save Info Text', 'forge-tournaments'));
+
+        return '<div class="wrapper">'.$heading.App::instance()->render(CORE_TEMPLATE_DIR.'assets/', 'form', [
+            'action' => CoreUtils::getCurrentUrl(),
+            'method' => 'post',
+            'ajax' => true,
+            'ajax_target' => '#slidein-overlay .content',
+            'horizontal' => false,
+            'content' => $content
+        ]).'</div>';
+    }
+
     private function getPerformanceEncounterFields($encounter_slots, $dataset) {
         $content = [];
         $id = 0;
@@ -959,6 +997,19 @@ class PhaseRenderer {
         }
 
         return '<h2>'.i('Thank you.', 'forge-tournaments').'</h2><p>'.i('Your result has been inserted. If it matches with the other teams input, it will be set automatically. If not, feel free to contact the tournament administrator.', 'forge-tournaments').'</p>';
+    }
+
+    public function setInfo($data) {
+        if(! $this->isAdmin()) {
+            return 'not allowed...';
+        }
+
+        $encounterId = $data['encounter'];
+        $encounter = PoolRegistry::instance()->getPool('encounter')->getInstance($encounterId);
+        $encounter->getItem()->updateMeta('info_text', $data['info_text'], false);
+
+        return '<h2>'.i('Save successful', 'forge-tournaments').'</h2><p>'.i('You\'ve saved an info text. All Participants will be able to read this now', 'forge-tournaments').'</p>';
+
     }
 
     private function updateBracket($encounters) {

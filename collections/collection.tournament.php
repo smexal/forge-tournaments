@@ -244,6 +244,13 @@ class TournamentCollection extends NodaDataCollection {
             return $phaseRenderer->setResultView($parts[6]);
         }
 
+        if(count($parts) == 7 && ($parts[5] == 'set-info' && is_numeric($parts[6]))) {
+            if(isset($_POST['encounter'])) {
+                return $phaseRenderer->setInfo($_POST);
+            }
+            return $phaseRenderer->setInfoView($parts[6]);
+        }
+
         $navigation = '';
         if(! CoreUtils::isAjax()) {
             $navigation = $this->renderSubnavigation('phase-'.$parts[4]);

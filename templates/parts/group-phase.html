@@ -27,11 +27,11 @@
             {loop="$value"}
                 <div class="col-md-6 reveal">
                     <div class="encounter-entry{if="$value.is_own && ! $value.is_admin"} is-own{/if}">
-                        <div class="left {if="$value.tip_url_left"}tipster-ajax{/if}" {if="$value.tip_url_left"}tip-url="{$value.tip_url_left}"{/if}>
+                        <div class="left">
                             {if="$value.participant_left_image"}
                             <img src="{$value.participant_left_image}"  width="24" />
                             {/if}
-                            <p>{$value.participant_left_title}</p>
+                            <p class="{if="$value.tip_url_left"}tipster-ajax{/if}" {if="$value.tip_url_left"}tip-url="{$value.tip_url_left}"{/if}>{$value.participant_left_title}</p>
                         </div>
                         {if="$value.has_result"}
                         <div class="res-left">
@@ -44,18 +44,29 @@
                             <p class="highlight">{$value.result_b}</p>
                         </div>
                         {/if}
-                        <div class="right {if="$value.tip_url_right"}tipster-ajax{/if}" {if="$value.tip_url_right"}tip-url="{$value.tip_url_right}"{/if}>
-                            <p>{$value.participant_right_title}</p>
+                        <div class="right">
+                            <p class="{if="$value.tip_url_right"}tipster-ajax{/if}" {if="$value.tip_url_right"}tip-url="{$value.tip_url_right}"{/if}>{$value.participant_right_title}</p>
                             {if="$value.participant_right_image"}
                             <img src="{$value.participant_right_image}"  width="24" />
                             {/if}
                         </div>
+                        <div class="center-actions">
                         {if="$value.set_result_link && (! $value.has_result || $value.is_admin)"}
                             <a href="{$value.set_result_href}" 
                                 class="btn to-overlay" 
                                 refresh-on-close="{$value.set_result_refresh_href}" 
                                 refresh-target="{$value.set_result_refresh_target}">{$set_result_label}</a>
                         {/if}
+                        {if="$value.info_text"}
+                            <i class="ion-help-circled tipster" title="{$value.info_text}"></i>
+                        {/if}
+                        {if="$value.is_admin"}
+                            <a href="{$value.set_info_href}" 
+                                class="btn to-overlay" 
+                                refresh-on-close="{$value.set_result_refresh_href}" 
+                                refresh-target="{$value.set_result_refresh_target}">{$add_info_label}</a>
+                        {/if}
+                        </div>
                     </div>
                 </div>
             {if="$key % 2 != 0"}
