@@ -107,6 +107,43 @@ class ForgeTournaments extends Module {
             'modify_manage_navigation',
             [$this, 'navigationModification']
         );
+
+        ModifyHandler::instance()->add(
+            'modify_user_metafields',
+            [$this, 'modifyUserFields']
+        );
+    }
+
+    public function modifyUserFields($fields) {
+        $fields[] = [
+            'key' => 'game_pubg',
+            'label' => i('PUBG Username'),
+            'type' => 'text',
+            'required' => true,
+            'position' => 'right'
+        ];
+        $fields[] = [
+            'key' => 'game_steam',
+            'label' => i('Steam Profile Name'),
+            'type' => 'text',
+            'required' => true,
+            'position' => 'right'
+        ];
+        $fields[] = [
+            'key' => 'game_battlenet',
+            'label' => i('Battle.Net ID'),
+            'type' => 'text',
+            'required' => true,
+            'position' => 'right'
+        ];
+        $fields[] = [
+            'key' => 'game_lol',
+            'label' => i('League of Legends Name'),
+            'type' => 'text',
+            'required' => true,
+            'position' => 'right'
+        ];
+        return $fields;
     }
 
     public function navigationModification($navigation) {

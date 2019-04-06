@@ -55,16 +55,34 @@ class ParticipantCollection extends DataCollection {
         $data = [];
 
         if(App::instance()->mm->isActive('forge-events')) {
-            if($item->getMeta('user') && $tournament->getMeta('ticket_required')) {
+            if($item->getMeta('user')) {
                 // !! is a user
+                if($tournament->getMeta('ticket_required')) {
+                    $event = $tournament->getMeta('event');
+                    $sp = new SeatPlan($event);
+                    $seat = $sp->getUserSeat($item->getMeta('user'));
+                    $data[] = [
+                        'title' => i('Seat', 'forge-tournaments'),
+                        'value' => $seat
+                    ];
+                }
+                $fields_to_display = $tournament->getMeta('meta_information');
+                if(count($fields_to_display)) {
+                    $all_meta_fields = User::getMetaFields();
+                    $user = new User($item->getMeta('user'));
+                    foreach($fields_to_display as $field) {
+                        foreach($all_meta_fields as $avail_field) {
+                            if($avail_field['key'] == $field) {
+                                $data[] = [
+                                    'title' => $avail_field['label'],
+                                    'value' => $user->getMeta($field)
+                                ];
+                                break;
+                            }
+                        }
+                    }
+                }
 
-                $event = $tournament->getMeta('event');
-                $sp = new SeatPlan($event);
-                $seat = $sp->getUserSeat($item->getMeta('user'));
-                $data[] = [
-                    'title' => i('Seat', 'forge-tournaments'),
-                    'value' => $seat
-                ];
             } else {
                 // !! is a team
                 $team = ParticipantCollection::getTeam($participant);
@@ -80,17 +98,27 @@ class ParticipantCollection extends DataCollection {
                 foreach($team_members as $member) {
                     $u = new CollectionItem($member);
                     $user = new User($u->getMeta('user'));
-                    $seat = '';
+                    $memberData = [];
                     if($getSeat) {
-                        $seat = $sp->getUserSeat($user->get('id'));
+                        $memberData[] = $sp->getUserSeat($user->get('id'));
                     }
+
+                    $fields_to_display = $tournament->getMeta('meta_information');
+                    if(count($fields_to_display)) {
+                        $all_meta_fields = User::getMetaFields();
+                        foreach($fields_to_display as $field) {
+                            if(strlen($user->getMeta($field))) {
+                                $memberData[] = $user->getMeta($field);
+                            }
+                        }
+                    }
+
                     $data[] = [
                         'title' => $user->get('username'),
-                        'value' => $seat
+                        'value' => implode(' / ', $memberData)
                     ];
                 }
             }
-        } else {
         }
 
 

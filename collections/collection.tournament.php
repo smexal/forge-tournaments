@@ -515,6 +515,16 @@ class TournamentCollection extends NodaDataCollection {
                         'multilang' => true
                     ]
                 ]
+            ],
+            [
+                'key' => 'meta_information',
+                'label' => i('User Meta Information', 'forge-tournaments'),
+                'values' => $this->getUserMetaSelectValues(),
+                'multilang' => false,
+                'type' => 'multiselect',
+                'order' => 140,
+                'position' => 'right',
+                'hint' => i('Additional Information displayed in the tooltip.', 'forge-tournaments')
             ]
         ]);
 
@@ -525,6 +535,18 @@ class TournamentCollection extends NodaDataCollection {
                unset($fields[$idx]);
             }
         }
+    }
+
+    public function getUserMetaSelectValues() {
+        $fields = [];
+        foreach(User::getMetaFields() as $field) {
+            $fields[] = [
+                'value' => $field['key'],
+                'active' => false,
+                'text' => $field['label']
+            ];
+        }
+        return $fields;
     }
 
     public function itemDependentFields($item) {
