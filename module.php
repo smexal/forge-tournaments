@@ -119,28 +119,28 @@ class ForgeTournaments extends Module {
             'key' => 'game_pubg',
             'label' => i('PUBG Username'),
             'type' => 'text',
-            'required' => true,
+            'required' => false,
             'position' => 'right'
         ];
         $fields[] = [
             'key' => 'game_steam',
             'label' => i('Steam Profile Name'),
             'type' => 'text',
-            'required' => true,
+            'required' => false,
             'position' => 'right'
         ];
         $fields[] = [
             'key' => 'game_battlenet',
             'label' => i('Battle.Net ID'),
             'type' => 'text',
-            'required' => true,
+            'required' => false,
             'position' => 'right'
         ];
         $fields[] = [
             'key' => 'game_lol',
             'label' => i('League of Legends Name'),
             'type' => 'text',
-            'required' => true,
+            'required' => false,
             'position' => 'right'
         ];
         return $fields;
