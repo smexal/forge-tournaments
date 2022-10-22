@@ -8,6 +8,7 @@ use \Forge\Core\App\API;
 use \Forge\Core\App\App;
 use \Forge\Core\App\Auth;
 use \Forge\Core\App\ModifyHandler;
+use Forge\Core\Classes\CollectionItem;
 use \Forge\Core\Classes\Group;
 use \Forge\Core\Classes\Localization;
 use \Forge\Core\Classes\Media;
@@ -112,6 +113,21 @@ class ForgeTournaments extends Module {
             'modify_user_metafields',
             [$this, 'modifyUserFields']
         );
+
+        ModifyHandler::instance()->add(
+            'modify_collection_listing_title',
+            [$this, 'modifyTournamentListingTitle']
+        );
+    }
+
+    public function modifyTournamentListingTitle($title, $item) {
+        if($item->getType() == 'forge-tournaments') {
+            $eventId = $item->getMeta('event');
+            if(is_numeric($eventId)) {
+                $event = new CollectionItem($eventId);
+                return $event->getMeta('title'). ' - '.$title;
+            }
+        }
     }
 
     public function modifyUserFields($fields) {
