@@ -125,9 +125,10 @@ class ForgeTournaments extends Module {
             $eventId = $item->getMeta('event');
             if(is_numeric($eventId)) {
                 $event = new CollectionItem($eventId);
-                return $event->getMeta('title'). ' - '.$title;
+                return $event->getMeta('title'). ' --- '.$title;
             }
         }
+        return $title;
     }
 
     public function modifyUserFields($fields) {
