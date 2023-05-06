@@ -10,6 +10,7 @@ class DataSchema implements IDataSchema {
     private $id;
     private $name;
     private $node_type = [];
+    public $node_types;
     private $field_definitions = [];
 
     public function __construct($id, $node_types, array $field_definitions) {
@@ -26,7 +27,7 @@ class DataSchema implements IDataSchema {
     public function getName() {
         return $this->name;
     }
-    
+
     public function setName($name) {
         $this->name = $name;
     }
@@ -40,7 +41,7 @@ class DataSchema implements IDataSchema {
     }
 
     public function getFieldsForAccessLevel($access) {
-        return array_filter($this->field_definitions, function($field) use ($access) {
+        return array_filter($this->field_definitions, function ($field) use ($access) {
             return $field['access'] >= $access;
         });
     }
@@ -48,5 +49,4 @@ class DataSchema implements IDataSchema {
     public function getFields() {
         return $this->field_definitions;
     }
-
 }
